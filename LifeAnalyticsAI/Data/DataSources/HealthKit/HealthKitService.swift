@@ -42,30 +42,73 @@ final class HealthKitService: HealthKitServiceProtocol {
         }
 
         let predicate = HKQuery.predicateForSamples(withStart: from, end: to)
-        let descriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
-
-        let samples = try await queryCategorySamples(
-            sampleType: sleepType,
-            predicate: predicate,
-            sortDescriptors: [descriptor]
+        let descriptor = HKSampleQueryDescriptor(
+            predicates: [.categorySample(type: sleepType, predicate: predicate)],
+            sortDescriptors: [SortDescriptor(\.endDate, order: .reverse)]
         )
 
-        return samples.map { sample in
-            let totalMinutes = Calendar.current.dateComponents([.minute], from: sample.startDate, to: sample.endDate).minute ?? 0
+        let samples = try await descriptor.result(for: healthStore)
+        if samples.isEmpty { return [] }
 
-            return SleepRecord(
-                id: UUID(),
-                date: sample.startDate.startOfDay,
-                bedtime: sample.startDate,
-                wakeTime: sample.endDate,
-                totalMinutes: max(totalMinutes, 0),
-                deepSleepMinutes: nil,
-                remSleepMinutes: nil,
-                lightSleepMinutes: nil,
-                efficiency: nil,
-                source: .healthKit
-            )
+        var grouped: [Date: SleepNightAggregate] = [:]
+
+        for sample in samples {
+            let bucketDate = sleepBucketDate(for: sample.startDate)
+            var aggregate = grouped[bucketDate] ?? SleepNightAggregate(date: bucketDate)
+
+            let minutes = max(0, Calendar.current.dateComponents([.minute], from: sample.startDate, to: sample.endDate).minute ?? 0)
+            aggregate.bedtime = min(aggregate.bedtime ?? sample.startDate, sample.startDate)
+            aggregate.wakeTime = max(aggregate.wakeTime ?? sample.endDate, sample.endDate)
+
+            switch sample.value {
+            case HKCategoryValueSleepAnalysis.inBed.rawValue:
+                aggregate.inBedMinutes += minutes
+            case HKCategoryValueSleepAnalysis.asleep.rawValue,
+                 HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+                aggregate.asleepMinutes += minutes
+            case HKCategoryValueSleepAnalysis.awake.rawValue:
+                aggregate.awakeMinutes += minutes
+            case HKCategoryValueSleepAnalysis.asleepCore.rawValue:
+                aggregate.asleepMinutes += minutes
+                aggregate.coreMinutes += minutes
+            case HKCategoryValueSleepAnalysis.asleepDeep.rawValue:
+                aggregate.asleepMinutes += minutes
+                aggregate.deepMinutes += minutes
+            case HKCategoryValueSleepAnalysis.asleepREM.rawValue:
+                aggregate.asleepMinutes += minutes
+                aggregate.remMinutes += minutes
+            default:
+                break
+            }
+
+            grouped[bucketDate] = aggregate
         }
+
+        return grouped.values
+            .compactMap { aggregate in
+                guard let bedtime = aggregate.bedtime, let wakeTime = aggregate.wakeTime else {
+                    return nil
+                }
+
+                let asleep = max(aggregate.asleepMinutes, aggregate.deepMinutes + aggregate.remMinutes + aggregate.coreMinutes)
+                let inBed = max(aggregate.inBedMinutes, asleep)
+                let lightMinutes = max(0, (aggregate.coreMinutes > 0 ? aggregate.coreMinutes : asleep - aggregate.deepMinutes - aggregate.remMinutes))
+                let efficiency = inBed > 0 ? min(1, max(0, Double(asleep) / Double(inBed))) : nil
+
+                return SleepRecord(
+                    id: UUID(),
+                    date: aggregate.date,
+                    bedtime: bedtime,
+                    wakeTime: wakeTime,
+                    totalMinutes: asleep,
+                    deepSleepMinutes: aggregate.deepMinutes > 0 ? aggregate.deepMinutes : nil,
+                    remSleepMinutes: aggregate.remMinutes > 0 ? aggregate.remMinutes : nil,
+                    lightSleepMinutes: lightMinutes > 0 ? lightMinutes : nil,
+                    efficiency: efficiency,
+                    source: .healthKit
+                )
+            }
+            .sorted(by: { $0.date > $1.date })
     }
 
     func fetchStepCount(for date: Date) async throws -> Int {
@@ -148,6 +191,12 @@ final class HealthKitService: HealthKitServiceProtocol {
         }
     }
 
+    private func sleepBucketDate(for date: Date) -> Date {
+        let hour = Calendar.current.component(.hour, from: date)
+        let baseDate = hour < 12 ? date.daysAgo(1) : date
+        return baseDate.startOfDay
+    }
+
     private func queryCategorySamples(
         sampleType: HKCategoryType,
         predicate: NSPredicate,
@@ -197,4 +246,16 @@ final class HealthKitService: HealthKitServiceProtocol {
             healthStore.execute(query)
         }
     }
+}
+
+private struct SleepNightAggregate {
+    let date: Date
+    var bedtime: Date?
+    var wakeTime: Date?
+    var inBedMinutes = 0
+    var asleepMinutes = 0
+    var awakeMinutes = 0
+    var deepMinutes = 0
+    var remMinutes = 0
+    var coreMinutes = 0
 }
