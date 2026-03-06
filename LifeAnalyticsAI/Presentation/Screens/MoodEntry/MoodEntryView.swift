@@ -4,6 +4,8 @@ import SwiftUI
 
 struct MoodEntryView: View {
     @StateObject private var viewModel: MoodEntryViewModel
+    @State private var highlightedMood: MoodLevel?
+    @State private var feedbackTrigger = 0
 
     init(viewModel: MoodEntryViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -19,11 +21,24 @@ struct MoodEntryView: View {
                 HStack(spacing: 12) {
                     ForEach(MoodLevel.allCases, id: \.rawValue) { mood in
                         Button {
-                            viewModel.selectedMoodLevel = mood
+                            withAnimation(.spring(response: 0.24, dampingFraction: 0.58)) {
+                                viewModel.selectedMoodLevel = mood
+                                highlightedMood = mood
+                            }
+                            feedbackTrigger += 1
+
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+                                withAnimation(.easeOut(duration: 0.18)) {
+                                    if highlightedMood == mood {
+                                        highlightedMood = nil
+                                    }
+                                }
+                            }
                         } label: {
                             Text(mood.emoji)
                                 .font(.system(size: 30))
                                 .frame(width: 56, height: 56)
+                                .scaleEffect(highlightedMood == mood ? 1.2 : (viewModel.selectedMoodLevel == mood ? 1.08 : 1.0))
                                 .background(
                                     Circle()
                                         .fill(viewModel.selectedMoodLevel == mood ? Theme.moodColor(mood.rawValue).opacity(0.2) : Color("BackgroundLight"))
@@ -104,9 +119,20 @@ struct MoodEntryView: View {
             }
             .padding(Theme.paddingLarge)
         }
-        .background(Color("BackgroundLight").opacity(0.4))
+        .background(
+            LinearGradient(
+                colors: [
+                    Color("BackgroundLight"),
+                    (viewModel.selectedMoodLevel.map { Theme.moodColor($0.rawValue).opacity(0.18) } ?? Color("PrimaryBlue").opacity(0.08))
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .animation(.easeInOut(duration: 0.25), value: viewModel.selectedMoodLevel)
+        )
         .navigationTitle("Mood Girisi")
         .navigationBarTitleDisplayMode(.inline)
+        .sensoryFeedback(.impact, trigger: feedbackTrigger)
     }
 }
 
