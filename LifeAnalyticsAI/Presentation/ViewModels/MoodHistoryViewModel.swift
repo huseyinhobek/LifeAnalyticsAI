@@ -60,4 +60,36 @@ final class MoodHistoryViewModel: ObservableObject {
             return MoodDistributionPoint(value: level.rawValue, label: level.emoji, count: count)
         }
     }
+
+    func exportCSVToTemporaryFile() throws -> URL {
+        let formatter = ISO8601DateFormatter()
+        let lines = [csvHeader] + entries.map { entry in
+            let note = csvEscaped(entry.note ?? "")
+            let activities = csvEscaped(entry.activities.map { $0.displayName }.joined(separator: ", "))
+            return [
+                entry.id.uuidString,
+                formatter.string(from: entry.date),
+                formatter.string(from: entry.timestamp),
+                String(entry.value),
+                csvEscaped(entry.moodLevel.label),
+                activities,
+                note
+            ].joined(separator: ",")
+        }
+
+        let csv = lines.joined(separator: "\n")
+        let filename = "mood-history-\(Int(Date().timeIntervalSince1970)).csv"
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        try csv.write(to: url, atomically: true, encoding: .utf8)
+        return url
+    }
+
+    private var csvHeader: String {
+        "id,date,timestamp,moodValue,moodLabel,activities,note"
+    }
+
+    private func csvEscaped(_ value: String) -> String {
+        let escaped = value.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(escaped)\""
+    }
 }

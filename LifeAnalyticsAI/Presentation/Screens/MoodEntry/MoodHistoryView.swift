@@ -5,6 +5,8 @@ import Charts
 
 struct MoodHistoryView: View {
     @StateObject private var viewModel: MoodHistoryViewModel
+    @State private var shareURL: URL?
+    @State private var isShareSheetPresented = false
 
     init(viewModel: MoodHistoryViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -26,6 +28,12 @@ struct MoodHistoryView: View {
                 Text("Son 365 gun")
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("TextSecondary"))
+
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .font(Theme.captionFont)
+                        .foregroundStyle(Color("MoodBad"))
+                }
 
                 if !viewModel.entries.isEmpty {
                     moodTrendChart
@@ -92,9 +100,32 @@ struct MoodHistoryView: View {
         .background(Color("BackgroundLight").opacity(0.4))
         .navigationTitle("Mood Gecmisi")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("CSV") {
+                    do {
+                        shareURL = try viewModel.exportCSVToTemporaryFile()
+                        isShareSheetPresented = shareURL != nil
+                        viewModel.errorMessage = nil
+                    } catch {
+                        viewModel.errorMessage = "CSV olusturulamadi: \(error.localizedDescription)"
+                    }
+                }
+                .disabled(viewModel.entries.isEmpty)
+            }
+        }
         .task {
             await viewModel.loadLastYear()
         }
+#if canImport(UIKit)
+        .sheet(isPresented: $isShareSheetPresented, onDismiss: {
+            shareURL = nil
+        }) {
+            if let shareURL {
+                ShareSheet(items: [shareURL])
+            }
+        }
+#endif
     }
 
     private var moodTrendChart: some View {
