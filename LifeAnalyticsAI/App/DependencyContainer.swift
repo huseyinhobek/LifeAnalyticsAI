@@ -48,6 +48,14 @@ final class DependencyContainer: ObservableObject {
     lazy var calendarService: CalendarServiceProtocol = PlaceholderCalendarService()
     lazy var notificationService: NotificationServiceProtocol = PlaceholderNotificationService()
     lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
+
+    // Sync Managers
+    lazy var healthKitSyncManager: HealthKitSyncManager = {
+        HealthKitSyncManager(
+            healthKitService: healthKitService,
+            sleepRepository: sleepRepository
+        )
+    }()
 }
 
 private struct PlaceholderCalendarService: CalendarServiceProtocol {
