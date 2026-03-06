@@ -8,23 +8,38 @@ protocol FetchWeeklyReportUseCaseProtocol {
 
 final class FetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol {
     private let repository: InsightRepositoryProtocol
+    private let insightEngine: InsightEngineProtocol
 
-    init(repository: InsightRepositoryProtocol) {
+    init(repository: InsightRepositoryProtocol, insightEngine: InsightEngineProtocol) {
         self.repository = repository
+        self.insightEngine = insightEngine
     }
 
     func execute(limit: Int = 1) async throws -> [WeeklyReport] {
-        let insights = try await repository.fetchInsights(limit: max(limit, 1))
+        let count = max(limit, 1)
+        var reports: [WeeklyReport] = []
+        reports.reserveCapacity(count)
 
-        let report = WeeklyReport(
-            id: UUID(),
-            weekStartDate: Calendar.current.startOfDay(for: Date()),
-            summary: "Haftalik rapor placeholder",
-            insights: insights,
-            keyMetrics: [],
-            prediction: nil
-        )
+        for index in 0..<count {
+            let weekStart = Date().daysAgo(index * 7).startOfWeek
+            let report = try await insightEngine.generateWeeklyReport(for: weekStart)
+            reports.append(report)
+        }
 
-        return [report]
+        if reports.isEmpty {
+            let insights = try await repository.fetchInsights(limit: count)
+            return [
+                WeeklyReport(
+                    id: UUID(),
+                    weekStartDate: Date().startOfWeek,
+                    summary: "Haftalik rapor fallback",
+                    insights: insights,
+                    keyMetrics: [],
+                    prediction: nil
+                )
+            ]
+        }
+
+        return reports
     }
 }
