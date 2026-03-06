@@ -1,0 +1,3 @@
+// MARK: - Resources
+
+import Foundation

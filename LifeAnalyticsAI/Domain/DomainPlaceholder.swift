@@ -1,0 +1,3 @@
+// MARK: - Domain
+
+import Foundation

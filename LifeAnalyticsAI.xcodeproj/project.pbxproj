@@ -6,13 +6,31 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9A1B2C3D4E5F6A7000010001 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9A1B2C3D4E5F6A7000010003 /* KeychainAccess */; };
+		9A1B2C3D4E5F6A7000010002 /* SwiftDate in Frameworks */ = {isa = PBXBuildFile; productRef = 9A1B2C3D4E5F6A7000010004 /* SwiftDate */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		1E1A324E2F5A4782006D330D /* LifeAnalyticsAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LifeAnalyticsAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1E1A325D2F5A47CE006D330D /* Exceptions for "LifeAnalyticsAI" folder in "LifeAnalyticsAI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1E1A324D2F5A4782006D330D /* LifeAnalyticsAI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1E1A32502F5A4782006D330D /* LifeAnalyticsAI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1E1A325D2F5A47CE006D330D /* Exceptions for "LifeAnalyticsAI" folder in "LifeAnalyticsAI" target */,
+			);
 			path = LifeAnalyticsAI;
 			sourceTree = "<group>";
 		};
@@ -23,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9A1B2C3D4E5F6A7000010001 /* KeychainAccess in Frameworks */,
+				9A1B2C3D4E5F6A7000010002 /* SwiftDate in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +85,8 @@
 			);
 			name = LifeAnalyticsAI;
 			packageProductDependencies = (
+				9A1B2C3D4E5F6A7000010003 /* KeychainAccess */,
+				9A1B2C3D4E5F6A7000010004 /* SwiftDate */,
 			);
 			productName = LifeAnalyticsAI;
 			productReference = 1E1A324E2F5A4782006D330D /* LifeAnalyticsAI.app */;
@@ -94,6 +116,10 @@
 			);
 			mainGroup = 1E1A32452F5A4782006D330D;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9A1B2C3D4E5F6A7000010005 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+				9A1B2C3D4E5F6A7000010006 /* XCRemoteSwiftPackageReference "SwiftDate" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1E1A324F2F5A4782006D330D /* Products */;
 			projectDirPath = "";
@@ -256,6 +282,7 @@
 				DEVELOPMENT_TEAM = CX96D33NW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LifeAnalyticsAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,6 +311,7 @@
 				DEVELOPMENT_TEAM = CX96D33NW5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LifeAnalyticsAI/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -324,6 +352,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9A1B2C3D4E5F6A7000010005 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.2.2;
+			};
+		};
+		9A1B2C3D4E5F6A7000010006 /* XCRemoteSwiftPackageReference "SwiftDate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/malcommac/SwiftDate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9A1B2C3D4E5F6A7000010003 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A1B2C3D4E5F6A7000010005 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+		9A1B2C3D4E5F6A7000010004 /* SwiftDate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9A1B2C3D4E5F6A7000010006 /* XCRemoteSwiftPackageReference "SwiftDate" */;
+			productName = SwiftDate;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1E1A32462F5A4782006D330D /* Project object */;
 }

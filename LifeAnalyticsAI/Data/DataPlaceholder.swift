@@ -1,0 +1,3 @@
+// MARK: - Data
+
+import Foundation

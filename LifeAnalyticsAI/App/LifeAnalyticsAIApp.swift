@@ -1,14 +1,13 @@
-//
-//  LifeAnalyticsAIApp.swift
-//  LifeAnalyticsAI
-//
-//  Created by Hüseyin Höbek on 6.03.2026.
-//
+// MARK: - App
 
 import SwiftUI
 
 @main
 struct LifeAnalyticsAIApp: App {
+    #if canImport(UIKit)
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    #endif
+
     var body: some Scene {
         WindowGroup {
             ContentView()
