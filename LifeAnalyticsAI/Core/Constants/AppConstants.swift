@@ -1,10 +1,15 @@
 // MARK: - Core.Constants
 
+import Foundation
+
 enum AppConstants {
     enum API {
         static let llmBaseURL = "https://api.anthropic.com/v1/messages"
         static let llmModel = "claude-sonnet-4-5-20250929"
         static let maxTokens = 1000
+        static let llmDailyTokenLimit = 30_000
+        static let llmMonthlyTokenLimit = 500_000
+        static let llmCacheTTLSeconds: TimeInterval = 60 * 60 * 6
     }
 
     enum Health {

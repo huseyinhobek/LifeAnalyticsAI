@@ -47,6 +47,47 @@ final class AnthropicLLMServiceTests: XCTestCase {
         XCTAssertTrue(result.contains("Confidence"))
     }
 
+    func testGenerateInsightExplanationUsesCacheOnSecondCall() async {
+        let counter = RequestCounter()
+        let service = AnthropicLLMService(
+            sendRequest: { _, _ in
+                await counter.increment()
+                return "Cached model insight"
+            }
+        )
+
+        _ = await service.generateInsightExplanation(insight: makeInsight(), languageCode: "tr")
+        let second = await service.generateInsightExplanation(insight: makeInsight(), languageCode: "tr")
+
+        XCTAssertEqual(second, "Cached model insight")
+        let callCount = await counter.value
+        XCTAssertEqual(callCount, 1)
+    }
+
+    func testGenerateInsightExplanationFallsBackWhenTokenLimitExceeded() async {
+        let suiteName = "tests.llm.limit.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defaults?.removePersistentDomain(forName: suiteName)
+
+        let tracker = LLMUsageTracker(dailyLimit: 1, monthlyLimit: 1, defaults: defaults)
+        let counter = RequestCounter()
+
+        let service = AnthropicLLMService(
+            usageTracker: tracker,
+            sendRequest: { _, _ in
+                await counter.increment()
+                return "Should not be called"
+            }
+        )
+
+        let result = await service.generateInsightExplanation(insight: makeInsight(), languageCode: "tr")
+
+        XCTAssertTrue(result.contains("Guven duzeyi"))
+        let callCount = await counter.value
+        XCTAssertEqual(callCount, 0)
+        defaults?.removePersistentDomain(forName: suiteName)
+    }
+
     private func makeInsight() -> Insight {
         Insight(
             id: UUID(),
@@ -71,5 +112,13 @@ final class AnthropicLLMServiceTests: XCTestCase {
             keyMetrics: [MetricReference(name: "NextWeekMood", value: 3.9, unit: "puan", trend: .stable)],
             prediction: "Yarin mood 3.8"
         )
+    }
+}
+
+private actor RequestCounter {
+    private(set) var value = 0
+
+    func increment() {
+        value += 1
     }
 }
