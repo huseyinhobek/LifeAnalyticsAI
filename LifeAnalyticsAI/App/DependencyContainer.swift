@@ -59,6 +59,10 @@ final class DependencyContainer: ObservableObject {
         SleepStatisticsCalculator(repository: sleepRepository)
     }()
 
+    lazy var moodStatisticsCalculator: MoodStatisticsCalculator = {
+        MoodStatisticsCalculator(repository: moodRepository)
+    }()
+
     // Services
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
