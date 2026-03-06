@@ -118,7 +118,11 @@ final class HealthKitService: HealthKitServiceProtocol {
             throw AppError.dataNotFound
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: date.startOfDay, end: date.endOfDay)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: date.startOfDay,
+            end: date.endOfDay,
+            options: [.strictStartDate, .strictEndDate]
+        )
 
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Int, Error>) in
             let query = HKStatisticsQuery(
@@ -132,7 +136,7 @@ final class HealthKitService: HealthKitServiceProtocol {
                 }
 
                 let steps = result?.sumQuantity()?.doubleValue(for: .count()) ?? 0
-                continuation.resume(returning: Int(steps))
+                continuation.resume(returning: max(0, Int(steps.rounded())))
             }
 
             healthStore.execute(query)
