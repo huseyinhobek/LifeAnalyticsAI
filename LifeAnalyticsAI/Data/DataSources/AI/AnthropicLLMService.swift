@@ -7,6 +7,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
     private let sendRequest: @Sendable (_ prompt: String, _ systemPrompt: String) async throws -> String
     private let promptTemplateManager: PromptTemplateManager
     private let usageTracker: LLMUsageTracking
+    private let rateLimiter: LLMRateLimiting
     private let responseCache: LLMResponseCaching
     private let offlineFallbackProvider: OfflineFallbackGenerating
     private let cacheTTL: TimeInterval
@@ -15,6 +16,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
     init(
         promptTemplateManager: PromptTemplateManager = PromptTemplateManager(),
         usageTracker: LLMUsageTracking = LLMUsageTracker(),
+        rateLimiter: LLMRateLimiting = LLMRateLimiter(),
         responseCache: LLMResponseCaching = LLMResponseCache(),
         offlineFallbackProvider: OfflineFallbackGenerating = OfflineInsightTemplateProvider(),
         cacheTTL: TimeInterval = AppConstants.API.llmCacheTTLSeconds,
@@ -25,6 +27,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
     ) {
         self.promptTemplateManager = promptTemplateManager
         self.usageTracker = usageTracker
+        self.rateLimiter = rateLimiter
         self.responseCache = responseCache
         self.offlineFallbackProvider = offlineFallbackProvider
         self.cacheTTL = cacheTTL
@@ -71,12 +74,18 @@ final class AnthropicLLMService: LLMServiceProtocol {
         }
 
         let estimatedTokens = estimateTokens(template.userPrompt) + estimateTokens(template.systemPrompt)
+        let isAllowedByRateLimit = await rateLimiter.isAllowed(at: currentDate)
+        guard isAllowedByRateLimit else {
+            throw AppError.llmError(message: "LLM saatlik istek limiti asildi")
+        }
+
         let hasBudget = await usageTracker.canConsume(tokens: estimatedTokens, at: currentDate)
         guard hasBudget else {
             throw AppError.llmError(message: "LLM token limiti asildi")
         }
 
         let response = try await sendRequest(template.userPrompt, template.systemPrompt)
+        await rateLimiter.recordRequest(at: currentDate)
         let actualTokens = estimatedTokens + estimateTokens(response)
         await usageTracker.record(tokens: actualTokens, at: currentDate)
         await responseCache.store(response, for: key, ttl: cacheTTL, now: currentDate)
