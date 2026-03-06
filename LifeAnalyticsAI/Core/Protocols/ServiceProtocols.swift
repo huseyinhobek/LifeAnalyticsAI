@@ -2,10 +2,6 @@
 
 import Foundation
 
-protocol HealthKitServiceProtocol {
-    func requestAuthorization() async throws
-}
-
 protocol CalendarServiceProtocol {
     func requestAccess() async throws
 }

@@ -51,7 +51,17 @@ final class DependencyContainer: ObservableObject {
 }
 
 private struct PlaceholderHealthKitService: HealthKitServiceProtocol {
-    func requestAuthorization() async throws {}
+    func requestAuthorization() async throws -> Bool { true }
+
+    func isAuthorized() -> Bool { true }
+
+    func fetchSleepData(from: Date, to: Date) async throws -> [SleepRecord] { [] }
+
+    func fetchStepCount(for date: Date) async throws -> Int { 0 }
+
+    func fetchHeartRate(from: Date, to: Date) async throws -> [Double] { [] }
+
+    func setupBackgroundDelivery() async throws {}
 }
 
 private struct PlaceholderCalendarService: CalendarServiceProtocol {
