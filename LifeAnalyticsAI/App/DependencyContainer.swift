@@ -67,7 +67,8 @@ final class DependencyContainer: ObservableObject {
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
     lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
-    lazy var llmService: LLMServiceProtocol = AnthropicLLMService()
+    lazy var promptTemplateManager: PromptTemplateManager = PromptTemplateManager()
+    lazy var llmService: LLMServiceProtocol = AnthropicLLMService(promptTemplateManager: promptTemplateManager)
     lazy var insightEngine: InsightEngineProtocol = {
         PatternInsightEngine(
             sleepRepository: sleepRepository,
