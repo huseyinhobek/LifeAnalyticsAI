@@ -63,6 +63,13 @@ final class DependencyContainer: ObservableObject {
         )
     }()
 
+    lazy var generateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProtocol = {
+        GenerateDailyInsightCardUseCase(
+            insightEngine: insightEngine,
+            llmService: llmService
+        )
+    }()
+
     lazy var sleepStatisticsCalculator: SleepStatisticsCalculator = {
         SleepStatisticsCalculator(repository: sleepRepository)
     }()
