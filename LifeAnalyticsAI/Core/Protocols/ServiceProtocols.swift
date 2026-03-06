@@ -15,5 +15,9 @@ protocol NotificationServiceProtocol {
 }
 
 protocol InsightEngineProtocol {
-    func generateInsights() async throws -> [Insight]
+    func analyzeCorrelations() async throws -> [Insight]
+    func detectAnomalies() async throws -> [Insight]
+    func findSeasonality() async throws -> [Insight]
+    func generateDailyInsight(for date: Date) async throws -> Insight?
+    func generateWeeklyReport(for weekStart: Date) async throws -> WeeklyReport
 }
