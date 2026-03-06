@@ -99,7 +99,7 @@ struct AppRootView: View {
                     }
                     .tag(NavigationRouter.Tab.report)
 
-                Text("Settings")
+                SettingsView(viewModel: makeSettingsViewModel())
                     .tabItem {
                         Label(NavigationRouter.Tab.settings.title, systemImage: NavigationRouter.Tab.settings.icon)
                     }
@@ -118,7 +118,7 @@ struct AppRootView: View {
                 case let .insightDetail(insight):
                     InsightDetailView(viewModel: makeInsightDetailViewModel(insight: insight))
                 case .settings:
-                    Text("Settings")
+                    SettingsView(viewModel: makeSettingsViewModel())
                 case .onboarding:
                     Text("Onboarding")
                 case .insightHistory:
@@ -208,5 +208,12 @@ struct AppRootView: View {
 
     private func makeInsightHistoryViewModel() -> InsightHistoryViewModel {
         InsightHistoryViewModel(repository: dependencyContainer.insightRepository)
+    }
+
+    private func makeSettingsViewModel() -> SettingsViewModel {
+        SettingsViewModel(
+            userDefaultsManager: userDefaultsManager,
+            notificationService: dependencyContainer.notificationService
+        )
     }
 }
