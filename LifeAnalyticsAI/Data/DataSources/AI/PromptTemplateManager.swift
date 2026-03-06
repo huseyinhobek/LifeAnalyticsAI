@@ -7,10 +7,20 @@ struct PromptTemplate {
     let userPrompt: String
 }
 
-final class PromptTemplateManager {
+final class PromptTemplateManager: PromptFeedbackOptimizing {
+    private let feedbackStore: PromptFeedbackStore
+
+    init(feedbackStore: PromptFeedbackStore = PromptFeedbackStore()) {
+        self.feedbackStore = feedbackStore
+    }
+
+    func recordFeedback(for insight: Insight, feedback: Insight.UserFeedback) {
+        feedbackStore.recordFeedback(type: insight.type, feedback: feedback)
+    }
+
     func makeInsightExplanationTemplate(insight: Insight, languageCode: String) -> PromptTemplate {
         PromptTemplate(
-            systemPrompt: systemPrompt(languageCode: languageCode),
+            systemPrompt: systemPrompt(languageCode: languageCode, insightType: insight.type),
             userPrompt: """
             Gorev: Tek bir anonimlestirilmis icgoru acikla.
             Cikti: 2-3 cumle, net ve uygulanabilir.
@@ -27,7 +37,7 @@ final class PromptTemplateManager {
 
     func makeWeeklyReportTemplate(report: WeeklyReport, languageCode: String) -> PromptTemplate {
         PromptTemplate(
-            systemPrompt: systemPrompt(languageCode: languageCode),
+            systemPrompt: systemPrompt(languageCode: languageCode, insightType: nil),
             userPrompt: """
             Gorev: Haftalik anonimlestirilmis paternleri kullanarak rapor yaz.
             Cikti: 3 kisa bolum (Ozet, Gozlem, Oneri).
@@ -45,7 +55,7 @@ final class PromptTemplateManager {
 
     func makePredictionTemplate(prediction: PredictionResult, languageCode: String) -> PromptTemplate {
         PromptTemplate(
-            systemPrompt: systemPrompt(languageCode: languageCode),
+            systemPrompt: systemPrompt(languageCode: languageCode, insightType: .prediction),
             userPrompt: """
             Gorev: Anonimlestirilmis tahmin degerlerinden kisa ongoru metni uret.
             Cikti: 2 cumle, abartisiz ve net.
@@ -58,12 +68,14 @@ final class PromptTemplateManager {
         )
     }
 
-    private func systemPrompt(languageCode: String) -> String {
+    private func systemPrompt(languageCode: String, insightType: Insight.InsightType?) -> String {
         let locale = languageCode.lowercased().hasPrefix("tr") ? "Turkce" : "English"
+        let optimizationHint = feedbackStore.optimizationHint(for: insightType)
         return """
         You are a wellness analytics assistant. Write in \(locale).
         Use only anonymized pattern summaries. Do not ask for personal identifiers.
         Keep explanations practical, neutral, and concise.
+        Prompt optimization hint: \(optimizationHint)
         """
     }
 

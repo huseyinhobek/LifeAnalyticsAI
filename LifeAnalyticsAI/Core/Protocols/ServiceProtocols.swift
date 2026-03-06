@@ -27,3 +27,7 @@ protocol LLMServiceProtocol {
     func generateWeeklyReport(report: WeeklyReport, languageCode: String) async -> String
     func generatePrediction(prediction: PredictionResult, languageCode: String) async -> String
 }
+
+protocol PromptFeedbackOptimizing {
+    func recordFeedback(for insight: Insight, feedback: Insight.UserFeedback)
+}
