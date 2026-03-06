@@ -34,6 +34,24 @@ final class PromptTemplateManagerTests: XCTestCase {
         XCTAssertTrue(template.userPrompt.contains("Guven: medium"))
     }
 
+    func testSystemPromptAdaptsAfterNegativeFeedback() {
+        let suite = "PromptTemplateManagerTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defaults.removePersistentDomain(forName: suite)
+
+        let feedbackStore = PromptFeedbackStore(defaults: defaults)
+        let manager = PromptTemplateManager(feedbackStore: feedbackStore)
+        let insight = makeInsight()
+
+        manager.recordFeedback(for: insight, feedback: .notHelpful)
+        manager.recordFeedback(for: insight, feedback: .notHelpful)
+        manager.recordFeedback(for: insight, feedback: .notHelpful)
+
+        let template = manager.makeInsightExplanationTemplate(insight: insight, languageCode: "en")
+
+        XCTAssertTrue(template.systemPrompt.contains("mostly negative"))
+    }
+
     private func makeInsight() -> Insight {
         Insight(
             id: UUID(),

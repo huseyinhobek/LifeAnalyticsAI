@@ -80,6 +80,13 @@ final class DependencyContainer: ObservableObject {
         )
     }()
 
+    lazy var updateInsightFeedbackUseCase: UpdateInsightFeedbackUseCaseProtocol = {
+        UpdateInsightFeedbackUseCase(
+            repository: insightRepository,
+            promptFeedbackOptimizer: promptTemplateManager
+        )
+    }()
+
     lazy var sleepStatisticsCalculator: SleepStatisticsCalculator = {
         SleepStatisticsCalculator(repository: sleepRepository)
     }()
