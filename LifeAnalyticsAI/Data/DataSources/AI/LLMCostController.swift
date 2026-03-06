@@ -12,6 +12,11 @@ protocol LLMResponseCaching {
     func store(_ value: String, for key: String, ttl: TimeInterval, now: Date) async
 }
 
+protocol LLMRateLimiting {
+    func isAllowed(at date: Date) async -> Bool
+    func recordRequest(at date: Date) async
+}
+
 actor LLMUsageTracker: LLMUsageTracking {
     private struct State: Codable {
         var dailyKey: String
@@ -131,5 +136,55 @@ actor LLMResponseCache: LLMResponseCaching {
     func store(_ value: String, for key: String, ttl: TimeInterval, now: Date = Date()) async {
         guard ttl > 0 else { return }
         storage[key] = CacheEntry(value: value, expiryDate: now.addingTimeInterval(ttl))
+    }
+}
+
+actor LLMRateLimiter: LLMRateLimiting {
+    private enum Keys {
+        static let requestHistory = "llm.rate.requestHistory"
+    }
+
+    private let maxRequestsPerHour: Int
+    private let defaults: UserDefaults
+
+    init(
+        maxRequestsPerHour: Int = 10,
+        defaults: UserDefaults? = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)
+    ) {
+        self.maxRequestsPerHour = maxRequestsPerHour
+        self.defaults = defaults ?? .standard
+    }
+
+    func isAllowed(at date: Date = Date()) async -> Bool {
+        let requests = prunedRequests(now: date)
+        return requests.count < maxRequestsPerHour
+    }
+
+    func recordRequest(at date: Date = Date()) async {
+        var requests = prunedRequests(now: date)
+        requests.append(date)
+        save(requests)
+    }
+
+    private func prunedRequests(now: Date) -> [Date] {
+        let cutoff = now.addingTimeInterval(-3600)
+        let requests = loadRequests().filter { $0 >= cutoff }
+        save(requests)
+        return requests
+    }
+
+    private func loadRequests() -> [Date] {
+        guard let data = defaults.data(forKey: Keys.requestHistory),
+              let requests = try? JSONDecoder().decode([Date].self, from: data) else {
+            return []
+        }
+        return requests
+    }
+
+    private func save(_ requests: [Date]) {
+        guard let encoded = try? JSONEncoder().encode(requests) else {
+            return
+        }
+        defaults.set(encoded, forKey: Keys.requestHistory)
     }
 }

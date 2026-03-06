@@ -88,6 +88,29 @@ final class AnthropicLLMServiceTests: XCTestCase {
         defaults?.removePersistentDomain(forName: suiteName)
     }
 
+    func testGenerateInsightExplanationFallsBackWhenRateLimitExceeded() async {
+        let suiteName = "tests.llm.rate.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)
+        defaults?.removePersistentDomain(forName: suiteName)
+
+        let limiter = LLMRateLimiter(maxRequestsPerHour: 0, defaults: defaults)
+        let counter = RequestCounter()
+        let service = AnthropicLLMService(
+            rateLimiter: limiter,
+            sendRequest: { _, _ in
+                await counter.increment()
+                return "Should not be called"
+            }
+        )
+
+        let result = await service.generateInsightExplanation(insight: makeInsight(), languageCode: "en")
+
+        XCTAssertTrue(result.contains("Offline summary"))
+        let callCount = await counter.value
+        XCTAssertEqual(callCount, 0)
+        defaults?.removePersistentDomain(forName: suiteName)
+    }
+
     private func makeInsight() -> Insight {
         Insight(
             id: UUID(),
