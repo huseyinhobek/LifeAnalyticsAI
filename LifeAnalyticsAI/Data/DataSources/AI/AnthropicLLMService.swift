@@ -8,6 +8,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
     private let promptTemplateManager: PromptTemplateManager
     private let usageTracker: LLMUsageTracking
     private let responseCache: LLMResponseCaching
+    private let offlineFallbackProvider: OfflineFallbackGenerating
     private let cacheTTL: TimeInterval
     private let now: @Sendable () -> Date
 
@@ -15,6 +16,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
         promptTemplateManager: PromptTemplateManager = PromptTemplateManager(),
         usageTracker: LLMUsageTracking = LLMUsageTracker(),
         responseCache: LLMResponseCaching = LLMResponseCache(),
+        offlineFallbackProvider: OfflineFallbackGenerating = OfflineInsightTemplateProvider(),
         cacheTTL: TimeInterval = AppConstants.API.llmCacheTTLSeconds,
         now: @escaping @Sendable () -> Date = { Date() },
         sendRequest: @escaping @Sendable (_ prompt: String, _ systemPrompt: String) async throws -> String = { prompt, systemPrompt in
@@ -24,6 +26,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
         self.promptTemplateManager = promptTemplateManager
         self.usageTracker = usageTracker
         self.responseCache = responseCache
+        self.offlineFallbackProvider = offlineFallbackProvider
         self.cacheTTL = cacheTTL
         self.now = now
         self.sendRequest = sendRequest
@@ -35,7 +38,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
         do {
             return try await requestWithCostControl(template: template)
         } catch {
-            return fallbackInsightText(for: insight, languageCode: languageCode)
+            return offlineFallbackProvider.insightText(for: insight, languageCode: languageCode)
         }
     }
 
@@ -45,7 +48,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
         do {
             return try await requestWithCostControl(template: template)
         } catch {
-            return fallbackWeeklyText(for: report, languageCode: languageCode)
+            return offlineFallbackProvider.weeklyReportText(for: report, languageCode: languageCode)
         }
     }
 
@@ -55,7 +58,7 @@ final class AnthropicLLMService: LLMServiceProtocol {
         do {
             return try await requestWithCostControl(template: template)
         } catch {
-            return fallbackPredictionText(for: prediction, languageCode: languageCode)
+            return offlineFallbackProvider.predictionText(for: prediction, languageCode: languageCode)
         }
     }
 
@@ -91,28 +94,4 @@ final class AnthropicLLMService: LLMServiceProtocol {
         return max(1, text.count / 4)
     }
 
-    private func format(_ value: Double) -> String {
-        String(format: "%.2f", value)
-    }
-
-    private func fallbackInsightText(for insight: Insight, languageCode: String) -> String {
-        if languageCode.lowercased().hasPrefix("tr") {
-            return "\(insight.title): \(insight.body) Guven duzeyi: \(insight.confidenceLevel.label)."
-        }
-        return "\(insight.title): \(insight.body) Confidence: \(insight.confidenceLevel.rawValue)."
-    }
-
-    private func fallbackWeeklyText(for report: WeeklyReport, languageCode: String) -> String {
-        if languageCode.lowercased().hasPrefix("tr") {
-            return "Haftalik ozet: \(report.summary) Toplam \(report.insights.count) icgoru degerlendirildi. Kucuk ve surdurulebilir adimlarla devam edin."
-        }
-        return "Weekly summary: \(report.summary) Evaluated \(report.insights.count) insights. Keep progress with small sustainable steps."
-    }
-
-    private func fallbackPredictionText(for prediction: PredictionResult, languageCode: String) -> String {
-        if languageCode.lowercased().hasPrefix("tr") {
-            return "Yarin tahmini mood \(format(prediction.predictedMoodNextDay)); gelecek hafta ortalamasi \(format(prediction.predictedMoodNextWeekAverage)). Guven: \(prediction.confidence.label)."
-        }
-        return "Estimated mood is \(format(prediction.predictedMoodNextDay)) tomorrow and \(format(prediction.predictedMoodNextWeekAverage)) for next week average. Confidence: \(prediction.confidence.rawValue)."
-    }
 }

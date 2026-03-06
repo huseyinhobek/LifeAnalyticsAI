@@ -29,7 +29,7 @@ final class AnthropicLLMServiceTests: XCTestCase {
             languageCode: "tr"
         )
 
-        XCTAssertTrue(result.contains("Haftalik ozet"))
+        XCTAssertTrue(result.contains("Cevrimdisi haftalik ozet"))
         XCTAssertTrue(result.contains("Toplam"))
     }
 
@@ -43,7 +43,7 @@ final class AnthropicLLMServiceTests: XCTestCase {
             languageCode: "en"
         )
 
-        XCTAssertTrue(result.contains("Estimated mood"))
+        XCTAssertTrue(result.contains("Offline prediction"))
         XCTAssertTrue(result.contains("Confidence"))
     }
 
@@ -82,7 +82,7 @@ final class AnthropicLLMServiceTests: XCTestCase {
 
         let result = await service.generateInsightExplanation(insight: makeInsight(), languageCode: "tr")
 
-        XCTAssertTrue(result.contains("Guven duzeyi"))
+        XCTAssertTrue(result.contains("Cevrimdisi ozet"))
         let callCount = await counter.value
         XCTAssertEqual(callCount, 0)
         defaults?.removePersistentDomain(forName: suiteName)
