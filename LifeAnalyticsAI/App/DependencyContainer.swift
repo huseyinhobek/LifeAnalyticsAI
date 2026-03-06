@@ -66,7 +66,7 @@ final class DependencyContainer: ObservableObject {
     // Services
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
-    lazy var notificationService: NotificationServiceProtocol = PlaceholderNotificationService()
+    lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
     lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
 
     // Sync Managers
@@ -84,6 +84,10 @@ final class DependencyContainer: ObservableObject {
 
 private struct PlaceholderNotificationService: NotificationServiceProtocol {
     func requestAuthorization() async throws {}
+
+    func scheduleDailyMoodReminder(at components: DateComponents) async throws {
+        _ = components
+    }
 }
 
 private struct PlaceholderInsightEngine: InsightEngineProtocol {
