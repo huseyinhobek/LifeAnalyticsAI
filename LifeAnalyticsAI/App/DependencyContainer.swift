@@ -44,24 +44,10 @@ final class DependencyContainer: ObservableObject {
     }()
 
     // Services
-    lazy var healthKitService: HealthKitServiceProtocol = PlaceholderHealthKitService()
+    lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = PlaceholderCalendarService()
     lazy var notificationService: NotificationServiceProtocol = PlaceholderNotificationService()
     lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
-}
-
-private struct PlaceholderHealthKitService: HealthKitServiceProtocol {
-    func requestAuthorization() async throws -> Bool { true }
-
-    func isAuthorized() -> Bool { true }
-
-    func fetchSleepData(from: Date, to: Date) async throws -> [SleepRecord] { [] }
-
-    func fetchStepCount(for date: Date) async throws -> Int { 0 }
-
-    func fetchHeartRate(from: Date, to: Date) async throws -> [Double] { [] }
-
-    func setupBackgroundDelivery() async throws {}
 }
 
 private struct PlaceholderCalendarService: CalendarServiceProtocol {

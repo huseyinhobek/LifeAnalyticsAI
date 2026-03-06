@@ -16,6 +16,13 @@ struct LifeAnalyticsAIApp: App {
         WindowGroup {
             AppRootView(router: router)
                 .environmentObject(dependencyContainer)
+                .task {
+                    do {
+                        _ = try await dependencyContainer.healthKitService.requestAuthorization()
+                    } catch {
+                        AppLogger.health.error("HealthKit authorization failed: \(error.localizedDescription)")
+                    }
+                }
         }
         .modelContainer(PersistenceController.shared.container)
     }
