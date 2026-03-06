@@ -1,31 +1,16 @@
 // MARK: - Data.Repositories
 
-import EventKit
 import Foundation
 
 final class CalendarRepository: CalendarRepositoryProtocol {
-    private let eventStore: EKEventStore
+    private let calendarService: CalendarServiceProtocol
 
-    init(eventStore: EKEventStore = EKEventStore()) {
-        self.eventStore = eventStore
+    init(calendarService: CalendarServiceProtocol) {
+        self.calendarService = calendarService
     }
 
     func fetchEvents(from: Date, to: Date) async throws -> [CalendarEvent] {
-        try await ensureCalendarAccess()
-
-        let predicate = eventStore.predicateForEvents(withStart: from, end: to, calendars: nil)
-        let events = eventStore.events(matching: predicate)
-
-        return events.map { event in
-            CalendarEvent(
-                id: UUID(),
-                title: event.title,
-                startDate: event.startDate,
-                endDate: event.endDate,
-                isAllDay: event.isAllDay,
-                calendarName: event.calendar.title
-            )
-        }
+        try await calendarService.fetchEvents(from: from, to: to)
     }
 
     func getDailySummary(for date: Date) async throws -> DailySummary {
@@ -52,34 +37,5 @@ final class CalendarRepository: CalendarRepositoryProtocol {
             freeHours: freeHours,
             busiestHour: busiestHour
         )
-    }
-
-    private func ensureCalendarAccess() async throws {
-        let current = EKEventStore.authorizationStatus(for: .event)
-
-        switch current {
-        case .fullAccess, .writeOnly:
-            return
-        case .notDetermined:
-            if #available(iOS 17.0, *) {
-                let granted = try await eventStore.requestFullAccessToEvents()
-                guard granted else { throw AppError.calendarAccessDenied }
-            } else {
-                let granted: Bool = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
-                    eventStore.requestAccess(to: .event) { accessGranted, error in
-                        if let error {
-                            continuation.resume(throwing: error)
-                            return
-                        }
-                        continuation.resume(returning: accessGranted)
-                    }
-                }
-                guard granted else { throw AppError.calendarAccessDenied }
-            }
-        case .denied, .restricted:
-            throw AppError.calendarAccessDenied
-        @unknown default:
-            throw AppError.calendarAccessDenied
-        }
     }
 }

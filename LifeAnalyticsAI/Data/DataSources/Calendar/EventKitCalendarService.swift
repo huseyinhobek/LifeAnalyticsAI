@@ -43,7 +43,26 @@ final class EventKitCalendarService: CalendarServiceProtocol {
 
     func fetchEvents(from: Date, to: Date) async throws -> [CalendarEvent] {
         _ = try await requestAccess()
-        return []
+
+        guard to >= from else {
+            return []
+        }
+
+        let predicate = eventStore.predicateForEvents(withStart: from, end: to, calendars: nil)
+        let events = eventStore.events(matching: predicate)
+
+        return events
+            .sorted { $0.startDate < $1.startDate }
+            .map { event in
+                CalendarEvent(
+                    id: UUID(),
+                    title: event.title ?? "Untitled Event",
+                    startDate: event.startDate,
+                    endDate: event.endDate,
+                    isAllDay: event.isAllDay,
+                    calendarName: event.calendar.title
+                )
+            }
     }
 
     func getDailySummary(for date: Date) async throws -> DailySummary {
