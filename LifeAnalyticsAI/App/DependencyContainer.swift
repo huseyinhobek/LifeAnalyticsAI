@@ -43,6 +43,10 @@ final class DependencyContainer: ObservableObject {
         FetchWeeklyReportUseCase(repository: insightRepository)
     }()
 
+    lazy var sleepStatisticsCalculator: SleepStatisticsCalculator = {
+        SleepStatisticsCalculator(repository: sleepRepository)
+    }()
+
     // Services
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = PlaceholderCalendarService()
