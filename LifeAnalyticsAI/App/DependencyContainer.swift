@@ -35,6 +35,10 @@ final class DependencyContainer: ObservableObject {
         FetchCalendarEventsUseCase(repository: calendarRepository)
     }()
 
+    lazy var fetchWeeklyMeetingAnalysisUseCase: FetchWeeklyMeetingAnalysisUseCaseProtocol = {
+        FetchWeeklyMeetingAnalysisUseCase(repository: calendarRepository)
+    }()
+
     lazy var generateInsightUseCase: GenerateInsightUseCaseProtocol = {
         GenerateInsightUseCase(repository: insightRepository)
     }()

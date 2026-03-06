@@ -26,3 +26,12 @@ struct DailySummary: Codable {
     let freeHours: Double
     let busiestHour: Int?
 }
+
+struct WeeklyMeetingAnalysis: Codable {
+    let weekStart: Date
+    let meetingCountByWeekday: [Int: Int]
+    let totalMeetings: Int
+    let totalMeetingMinutes: Int
+    let previousWeekMeetings: Int
+    let weekOverWeekChange: Int
+}
