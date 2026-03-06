@@ -5,6 +5,7 @@ import HealthKit
 
 final class HealthKitService: HealthKitServiceProtocol {
     private let healthStore = HKHealthStore()
+    private var sleepObserverQuery: HKObserverQuery?
 
     private let readTypes: Set<HKObjectType> = [
         HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
@@ -175,21 +176,43 @@ final class HealthKitService: HealthKitServiceProtocol {
     func setupBackgroundDelivery() async throws {
         try ensureAuthorized()
 
-        for type in readTypes {
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-                healthStore.enableBackgroundDelivery(for: type, frequency: .hourly) { success, error in
-                    if let error {
-                        continuation.resume(throwing: AppError.unknown(underlying: error))
-                        return
-                    }
+        guard let sleepType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
+            throw AppError.dataNotFound
+        }
 
-                    guard success else {
-                        continuation.resume(throwing: AppError.healthKitAuthorizationDenied)
-                        return
-                    }
+        if let existing = sleepObserverQuery {
+            healthStore.stop(existing)
+        }
 
-                    continuation.resume(returning: ())
+        let observer = HKObserverQuery(sampleType: sleepType, predicate: nil) { _, completionHandler, error in
+            defer { completionHandler() }
+
+            if let error {
+                AppLogger.health.error("HealthKit observer query failed: \(error.localizedDescription)")
+                return
+            }
+
+            AppLogger.health.info("HealthKit sleep data changed in background")
+            NotificationCenter.default.post(name: .healthKitSleepDataDidUpdate, object: nil)
+        }
+
+        sleepObserverQuery = observer
+        healthStore.execute(observer)
+
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            healthStore.enableBackgroundDelivery(for: sleepType, frequency: .immediate) { success, error in
+                if let error {
+                    continuation.resume(throwing: AppError.unknown(underlying: error))
+                    return
                 }
+
+                guard success else {
+                    continuation.resume(throwing: AppError.healthKitAuthorizationDenied)
+                    return
+                }
+
+                AppLogger.health.info("HealthKit background delivery enabled for sleep")
+                continuation.resume(returning: ())
             }
         }
     }
@@ -295,4 +318,8 @@ private struct SleepNightAggregate {
     var deepMinutes = 0
     var remMinutes = 0
     var coreMinutes = 0
+}
+
+extension Notification.Name {
+    static let healthKitSleepDataDidUpdate = Notification.Name("healthKitSleepDataDidUpdate")
 }
