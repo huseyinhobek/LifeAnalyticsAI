@@ -2,6 +2,7 @@
 
 import Foundation
 import HealthKit
+import CryptoKit
 
 final class HealthKitService: HealthKitServiceProtocol {
     private let healthStore = HKHealthStore()
@@ -86,9 +87,10 @@ final class HealthKitService: HealthKitServiceProtocol {
                 let inBed = max(aggregate.inBedMinutes, asleep)
                 let lightMinutes = max(0, (aggregate.coreMinutes > 0 ? aggregate.coreMinutes : asleep - aggregate.deepMinutes - aggregate.remMinutes))
                 let efficiency = inBed > 0 ? min(1, max(0, Double(asleep) / Double(inBed))) : nil
+                let stableID = stableSleepRecordID(bedtime: bedtime, wakeTime: wakeTime)
 
                 return SleepRecord(
-                    id: UUID(),
+                    id: stableID,
                     date: aggregate.date,
                     bedtime: bedtime,
                     wakeTime: wakeTime,
@@ -231,6 +233,21 @@ final class HealthKitService: HealthKitServiceProtocol {
         let hour = Calendar.current.component(.hour, from: date)
         let baseDate = hour < 12 ? date.daysAgo(1) : date
         return baseDate.startOfDay
+    }
+
+    private func stableSleepRecordID(bedtime: Date, wakeTime: Date) -> UUID {
+        let key = "\(bedtime.timeIntervalSince1970)-\(wakeTime.timeIntervalSince1970)"
+        let digest = SHA256.hash(data: Data(key.utf8))
+        let bytes = Array(digest)
+
+        let uuid = uuid_t(
+            bytes[0], bytes[1], bytes[2], bytes[3],
+            bytes[4], bytes[5], bytes[6], bytes[7],
+            bytes[8], bytes[9], bytes[10], bytes[11],
+            bytes[12], bytes[13], bytes[14], bytes[15]
+        )
+
+        return UUID(uuid: uuid)
     }
 
     private func queryCategorySamples(

@@ -20,6 +20,7 @@ struct LifeAnalyticsAIApp: App {
                     do {
                         _ = try await dependencyContainer.healthKitService.requestAuthorization()
                         try await dependencyContainer.healthKitService.setupBackgroundDelivery()
+                        _ = try await dependencyContainer.healthKitSyncManager.syncSleepData()
                         AppLogger.health.info("HealthKit background delivery configured")
                     } catch {
                         AppLogger.health.error("HealthKit authorization failed: \(error.localizedDescription)")
