@@ -86,7 +86,7 @@ struct AppRootView: View {
                     }
                     .tag(NavigationRouter.Tab.home)
 
-                Text("Insights")
+                InsightHistoryView(viewModel: makeInsightHistoryViewModel(), router: router)
                     .tabItem {
                         Label(NavigationRouter.Tab.insights.title, systemImage: NavigationRouter.Tab.insights.icon)
                     }
@@ -119,7 +119,7 @@ struct AppRootView: View {
                 case .onboarding:
                     Text("Onboarding")
                 case .insightHistory:
-                    MoodHistoryView(viewModel: MoodHistoryViewModel(fetchMoodEntriesUseCase: dependencyContainer.fetchMoodEntriesUseCase))
+                    InsightHistoryView(viewModel: makeInsightHistoryViewModel(), router: router)
                 }
             }
             .fullScreenCover(isPresented: $router.showOnboarding) {
@@ -193,5 +193,9 @@ struct AppRootView: View {
             fetchWeeklyReportUseCase: dependencyContainer.fetchWeeklyReportUseCase,
             weekStart: weekStart
         )
+    }
+
+    private func makeInsightHistoryViewModel() -> InsightHistoryViewModel {
+        InsightHistoryViewModel(repository: dependencyContainer.insightRepository)
     }
 }
