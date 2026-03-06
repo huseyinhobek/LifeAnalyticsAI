@@ -49,7 +49,7 @@ final class DependencyContainer: ObservableObject {
 
     // Services
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
-    lazy var calendarService: CalendarServiceProtocol = PlaceholderCalendarService()
+    lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
     lazy var notificationService: NotificationServiceProtocol = PlaceholderNotificationService()
     lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
 
@@ -60,16 +60,6 @@ final class DependencyContainer: ObservableObject {
             sleepRepository: sleepRepository
         )
     }()
-}
-
-private struct PlaceholderCalendarService: CalendarServiceProtocol {
-    func requestAccess() async throws -> Bool { true }
-
-    func fetchEvents(from: Date, to: Date) async throws -> [CalendarEvent] { [] }
-
-    func getDailySummary(for date: Date) async throws -> DailySummary {
-        DailySummary(date: date.startOfDay, totalMeetings: 0, totalMeetingMinutes: 0, freeHours: 24, busiestHour: nil)
-    }
 }
 
 private struct PlaceholderNotificationService: NotificationServiceProtocol {
