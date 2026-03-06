@@ -162,7 +162,7 @@ struct HomeView: View {
 
             Button("Tum raporu gor") {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                    router.selectedTab = .report
+                    router.navigate(to: .weeklyReport(weekStart: Date().startOfWeek))
                 }
             }
             .font(Theme.captionFont)
