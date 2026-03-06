@@ -141,7 +141,11 @@ final class HealthKitService: HealthKitServiceProtocol {
             throw AppError.dataNotFound
         }
 
-        let predicate = HKQuery.predicateForSamples(withStart: from, end: to)
+        let predicate = HKQuery.predicateForSamples(
+            withStart: from,
+            end: to,
+            options: [.strictStartDate, .strictEndDate]
+        )
         let descriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
 
         let samples = try await queryQuantitySamples(
@@ -151,7 +155,21 @@ final class HealthKitService: HealthKitServiceProtocol {
         )
 
         let unit = HKUnit.count().unitDivided(by: .minute())
-        return samples.map { $0.quantity.doubleValue(for: unit) }
+        let minuteAverages = Dictionary(grouping: samples) { sample in
+            sample.startDate.startOfMinute
+        }
+        .mapValues { groupedSamples in
+            let values = groupedSamples.map { $0.quantity.doubleValue(for: unit) }
+            let total = values.reduce(0, +)
+            return values.isEmpty ? 0 : total / Double(values.count)
+        }
+
+        let orderedReadings = minuteAverages
+            .sorted { $0.key < $1.key }
+            .map(\.value)
+
+        _ = calculateHeartRateStats(from: orderedReadings)
+        return orderedReadings
     }
 
     func setupBackgroundDelivery() async throws {
@@ -240,6 +258,30 @@ final class HealthKitService: HealthKitServiceProtocol {
 
             healthStore.execute(query)
         }
+    }
+}
+
+private extension HealthKitService {
+    struct HeartRateStats {
+        let average: Double
+        let minimum: Double
+        let maximum: Double
+    }
+
+    func calculateHeartRateStats(from readings: [Double]) -> HeartRateStats? {
+        guard let minimum = readings.min(), let maximum = readings.max(), !readings.isEmpty else {
+            return nil
+        }
+
+        let average = readings.reduce(0, +) / Double(readings.count)
+        return HeartRateStats(average: average, minimum: minimum, maximum: maximum)
+    }
+}
+
+private extension Date {
+    var startOfMinute: Date {
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: self)
+        return Calendar.current.date(from: components) ?? self
     }
 }
 
