@@ -7,14 +7,16 @@ actor NetworkManager {
     static let shared = NetworkManager()
 
     private let session: URLSession
+    private let parser: LLMResponseParsing
     private let keychain = Keychain(service: AppConstants.Storage.keychainService)
     private let maxRetryCount = 2
 
-    init() {
+    init(parser: LLMResponseParsing = LLMResponseParser()) {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.waitsForConnectivity = true
         session = URLSession(configuration: config)
+        self.parser = parser
     }
 
     func sendLLMRequest(prompt: String, systemPrompt: String) async throws -> String {
@@ -73,35 +75,7 @@ actor NetworkManager {
             throw AppError.networkError(underlying: error)
         }
 
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw AppError.networkError(underlying: NetworkFailure.invalidResponse)
-        }
-
-        guard 200...299 ~= httpResponse.statusCode else {
-            if let apiError = try? JSONDecoder().decode(LLMErrorEnvelope.self, from: data) {
-                throw AppError.llmError(message: apiError.error.message)
-            }
-            throw AppError.networkError(underlying: NetworkFailure.httpStatus(code: httpResponse.statusCode))
-        }
-
-        do {
-            let decoded = try JSONDecoder().decode(LLMResponseBody.self, from: data)
-            let text = decoded.content
-                .filter { $0.type == "text" }
-                .compactMap(\.text)
-                .joined(separator: "\n")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            guard !text.isEmpty else {
-                throw AppError.llmError(message: "LLM yaniti bos geldi")
-            }
-
-            return text
-        } catch let appError as AppError {
-            throw appError
-        } catch {
-            throw AppError.llmError(message: "LLM yaniti cozumlenemedi")
-        }
+        return try parser.parse(data: data, response: response)
     }
 
     private func isRetryable(error: Error) -> Bool {
@@ -148,26 +122,4 @@ private struct LLMRequestBody: Encodable {
         case messages
         case system
     }
-}
-
-private struct LLMResponseBody: Decodable {
-    let content: [Content]
-
-    struct Content: Decodable {
-        let type: String
-        let text: String?
-    }
-}
-
-private struct LLMErrorEnvelope: Decodable {
-    let error: APIError
-
-    struct APIError: Decodable {
-        let message: String
-    }
-}
-
-private enum NetworkFailure: Error {
-    case invalidResponse
-    case httpStatus(code: Int)
 }
