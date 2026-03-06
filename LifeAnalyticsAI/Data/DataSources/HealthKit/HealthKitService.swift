@@ -18,20 +18,11 @@ final class HealthKitService: HealthKitServiceProtocol {
         }
 
         try await healthStore.requestAuthorization(toShare: [], read: readTypes)
-
-        guard isAuthorized() else {
-            throw AppError.healthKitAuthorizationDenied
-        }
-
         return true
     }
 
     func isAuthorized() -> Bool {
-        guard HKHealthStore.isHealthDataAvailable() else { return false }
-
-        return readTypes.allSatisfy { type in
-            healthStore.authorizationStatus(for: type) == .sharingAuthorized
-        }
+        HKHealthStore.isHealthDataAvailable()
     }
 
     func fetchSleepData(from: Date, to: Date) async throws -> [SleepRecord] {
