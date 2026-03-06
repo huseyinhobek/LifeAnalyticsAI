@@ -11,6 +11,7 @@ protocol CalendarServiceProtocol {
 
 protocol NotificationServiceProtocol {
     func requestAuthorization() async throws
+    func scheduleDailyMoodReminder(at components: DateComponents) async throws
 }
 
 protocol InsightEngineProtocol {
