@@ -18,7 +18,7 @@ final class DependencyContainer: ObservableObject {
 
     // Repositories
     lazy var sleepRepository: SleepRepositoryProtocol = SleepRepository(modelContext: modelContext)
-    lazy var moodRepository: MoodRepositoryProtocol = InMemoryMoodRepository()
+    lazy var moodRepository: MoodRepositoryProtocol = MoodRepository(modelContext: modelContext)
     lazy var calendarRepository: CalendarRepositoryProtocol = InMemoryCalendarRepository()
     lazy var insightRepository: InsightRepositoryProtocol = InMemoryInsightRepository()
 
