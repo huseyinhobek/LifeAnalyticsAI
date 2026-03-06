@@ -3,6 +3,19 @@
 import Combine
 import Foundation
 
+struct MoodTrendPoint: Identifiable {
+    let id = UUID()
+    let date: Date
+    let value: Double
+}
+
+struct MoodDistributionPoint: Identifiable {
+    let id = UUID()
+    let value: Int
+    let label: String
+    let count: Int
+}
+
 @MainActor
 final class MoodHistoryViewModel: ObservableObject {
     @Published private(set) var entries: [MoodEntry] = []
@@ -33,5 +46,18 @@ final class MoodHistoryViewModel: ObservableObject {
 
     func moodEntry(for date: Date) -> MoodEntry? {
         entries.first { Calendar.current.isDate($0.date, inSameDayAs: date) }
+    }
+
+    var trendPoints: [MoodTrendPoint] {
+        entries
+            .sorted { $0.date < $1.date }
+            .map { MoodTrendPoint(date: $0.date, value: Double($0.value)) }
+    }
+
+    var distributionPoints: [MoodDistributionPoint] {
+        MoodLevel.allCases.map { level in
+            let count = entries.filter { $0.value == level.rawValue }.count
+            return MoodDistributionPoint(value: level.rawValue, label: level.emoji, count: count)
+        }
     }
 }
