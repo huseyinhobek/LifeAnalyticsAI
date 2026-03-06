@@ -6,6 +6,7 @@ import SwiftUI
 enum AppRoute: Hashable {
     case home
     case moodEntry(preset: Int?)
+    case dashboard
     case weeklyReport(weekStart: Date)
     case insightDetail(Insight)
     case settings
@@ -92,7 +93,7 @@ struct AppRootView: View {
                     }
                     .tag(NavigationRouter.Tab.insights)
 
-                WeeklyReportView(viewModel: makeWeeklyReportViewModel(weekStart: Date().startOfWeek), router: router)
+                DashboardView(viewModel: makeDashboardViewModel(), router: router)
                     .tabItem {
                         Label(NavigationRouter.Tab.report.title, systemImage: NavigationRouter.Tab.report.icon)
                     }
@@ -110,6 +111,8 @@ struct AppRootView: View {
                     HomeView(viewModel: makeHomeViewModel(), router: router)
                 case let .moodEntry(preset):
                     MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
+                case .dashboard:
+                    DashboardView(viewModel: makeDashboardViewModel(), router: router)
                 case let .weeklyReport(weekStart):
                     WeeklyReportView(viewModel: makeWeeklyReportViewModel(weekStart: weekStart), router: router)
                 case let .insightDetail(insight):
@@ -192,6 +195,14 @@ struct AppRootView: View {
         WeeklyReportViewModel(
             fetchWeeklyReportUseCase: dependencyContainer.fetchWeeklyReportUseCase,
             weekStart: weekStart
+        )
+    }
+
+    private func makeDashboardViewModel() -> DashboardViewModel {
+        DashboardViewModel(
+            sleepRepository: dependencyContainer.sleepRepository,
+            moodRepository: dependencyContainer.moodRepository,
+            calendarRepository: dependencyContainer.calendarRepository
         )
     }
 
