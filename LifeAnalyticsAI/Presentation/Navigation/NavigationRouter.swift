@@ -80,7 +80,7 @@ struct AppRootView: View {
     var body: some View {
         NavigationStack(path: $router.path) {
             TabView(selection: $router.selectedTab) {
-                Text("Home")
+                HomeView(viewModel: makeHomeViewModel(), router: router)
                     .tabItem {
                         Label(NavigationRouter.Tab.home.title, systemImage: NavigationRouter.Tab.home.icon)
                     }
@@ -107,7 +107,7 @@ struct AppRootView: View {
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
                 case .home:
-                    Text("Home")
+                    HomeView(viewModel: makeHomeViewModel(), router: router)
                 case let .moodEntry(preset):
                     MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
                 case let .weeklyReport(weekStart):
@@ -169,5 +169,15 @@ struct AppRootView: View {
         let viewModel = MoodEntryViewModel(saveMoodEntryUseCase: dependencyContainer.saveMoodEntryUseCase)
         viewModel.applyPresetMood(value: preset)
         return viewModel
+    }
+
+    private func makeHomeViewModel() -> HomeViewModel {
+        HomeViewModel(
+            generateDailyInsightCardUseCase: dependencyContainer.generateDailyInsightCardUseCase,
+            fetchWeeklyReportUseCase: dependencyContainer.fetchWeeklyReportUseCase,
+            sleepRepository: dependencyContainer.sleepRepository,
+            moodRepository: dependencyContainer.moodRepository,
+            calendarRepository: dependencyContainer.calendarRepository
+        )
     }
 }
