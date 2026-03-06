@@ -48,11 +48,11 @@ final class DependencyContainer: ObservableObject {
     }()
 
     lazy var generateInsightUseCase: GenerateInsightUseCaseProtocol = {
-        GenerateInsightUseCase(repository: insightRepository)
+        GenerateInsightUseCase(repository: insightRepository, insightEngine: insightEngine)
     }()
 
     lazy var fetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol = {
-        FetchWeeklyReportUseCase(repository: insightRepository)
+        FetchWeeklyReportUseCase(repository: insightRepository, insightEngine: insightEngine)
     }()
 
     lazy var sleepStatisticsCalculator: SleepStatisticsCalculator = {
@@ -67,7 +67,13 @@ final class DependencyContainer: ObservableObject {
     lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
     lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
     lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
-    lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
+    lazy var insightEngine: InsightEngineProtocol = {
+        PatternInsightEngine(
+            sleepRepository: sleepRepository,
+            moodRepository: moodRepository,
+            calendarRepository: calendarRepository
+        )
+    }()
 
     // Sync Managers
     lazy var healthKitSyncManager: HealthKitSyncManager = {
@@ -88,36 +94,4 @@ private struct PlaceholderNotificationService: NotificationServiceProtocol {
     func scheduleDailyMoodReminder(at components: DateComponents) async throws {
         _ = components
     }
-}
-
-private struct PlaceholderInsightEngine: InsightEngineProtocol {
-    func analyzeCorrelations() async throws -> [Insight] {
-        []
-    }
-
-    func detectAnomalies() async throws -> [Insight] {
-        []
-    }
-
-    func findSeasonality() async throws -> [Insight] {
-        []
-    }
-
-    func generateDailyInsight(for date: Date) async throws -> Insight? {
-        _ = date
-        return nil
-    }
-
-    func generateWeeklyReport(for weekStart: Date) async throws -> WeeklyReport {
-        _ = weekStart
-        return WeeklyReport(
-            id: UUID(),
-            weekStartDate: Date().startOfWeek,
-            summary: "Haftalik rapor placeholder",
-            insights: [],
-            keyMetrics: [],
-            prediction: nil
-        )
-    }
-
 }

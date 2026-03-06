@@ -8,12 +8,20 @@ protocol GenerateInsightUseCaseProtocol {
 
 final class GenerateInsightUseCase: GenerateInsightUseCaseProtocol {
     private let repository: InsightRepositoryProtocol
+    private let insightEngine: InsightEngineProtocol
 
-    init(repository: InsightRepositoryProtocol) {
+    init(repository: InsightRepositoryProtocol, insightEngine: InsightEngineProtocol) {
         self.repository = repository
+        self.insightEngine = insightEngine
     }
 
     func execute() async throws -> [Insight] {
-        try await repository.fetchInsights(limit: 10)
+        let generated = try await insightEngine.analyzeCorrelations()
+            + insightEngine.detectAnomalies()
+            + insightEngine.findSeasonality()
+        if generated.isEmpty {
+            return try await repository.fetchInsights(limit: 10)
+        }
+        return generated
     }
 }
