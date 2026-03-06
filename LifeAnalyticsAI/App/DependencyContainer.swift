@@ -39,6 +39,10 @@ final class DependencyContainer: ObservableObject {
         FetchWeeklyMeetingAnalysisUseCase(repository: calendarRepository)
     }()
 
+    lazy var syncCalendarEventsUseCase: SyncCalendarEventsUseCaseProtocol = {
+        SyncCalendarEventsUseCase(calendarSyncManager: calendarSyncManager)
+    }()
+
     lazy var generateInsightUseCase: GenerateInsightUseCaseProtocol = {
         GenerateInsightUseCase(repository: insightRepository)
     }()
@@ -63,6 +67,10 @@ final class DependencyContainer: ObservableObject {
             healthKitService: healthKitService,
             sleepRepository: sleepRepository
         )
+    }()
+
+    lazy var calendarSyncManager: CalendarSyncManager = {
+        CalendarSyncManager(calendarRepository: calendarRepository)
     }()
 }
 
