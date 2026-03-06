@@ -16,4 +16,8 @@ final class CalendarRepository: CalendarRepositoryProtocol {
     func getDailySummary(for date: Date) async throws -> DailySummary {
         try await calendarService.getDailySummary(for: date)
     }
+
+    func getWeeklyMeetingAnalysis(for weekStart: Date) async throws -> WeeklyMeetingAnalysis {
+        try await calendarService.getWeeklyMeetingAnalysis(for: weekStart)
+    }
 }

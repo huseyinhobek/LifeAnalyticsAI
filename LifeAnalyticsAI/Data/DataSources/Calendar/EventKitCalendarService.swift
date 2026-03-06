@@ -89,4 +89,34 @@ final class EventKitCalendarService: CalendarServiceProtocol {
             busiestHour: busiestHour
         )
     }
+
+    func getWeeklyMeetingAnalysis(for weekStart: Date) async throws -> WeeklyMeetingAnalysis {
+        let normalizedWeekStart = weekStart.startOfWeek
+        let weekEnd = Calendar.current.date(byAdding: .day, value: 7, to: normalizedWeekStart)?.addingTimeInterval(-1) ?? normalizedWeekStart.endOfDay
+        let previousWeekStart = Calendar.current.date(byAdding: .day, value: -7, to: normalizedWeekStart) ?? normalizedWeekStart
+        let previousWeekEnd = normalizedWeekStart.addingTimeInterval(-1)
+
+        let currentWeekEvents = try await fetchEvents(from: normalizedWeekStart, to: weekEnd)
+        let currentMeetings = currentWeekEvents.filter { $0.isMeeting }
+
+        let previousWeekEvents = try await fetchEvents(from: previousWeekStart, to: previousWeekEnd)
+        let previousMeetings = previousWeekEvents.filter { $0.isMeeting }
+
+        let meetingCountByWeekday = currentMeetings.reduce(into: [Int: Int]()) { counts, event in
+            let weekday = Calendar.current.component(.weekday, from: event.startDate)
+            counts[weekday, default: 0] += 1
+        }
+
+        let totalMeetingMinutes = currentMeetings.reduce(0) { $0 + $1.durationMinutes }
+        let previousWeekCount = previousMeetings.count
+
+        return WeeklyMeetingAnalysis(
+            weekStart: normalizedWeekStart,
+            meetingCountByWeekday: meetingCountByWeekday,
+            totalMeetings: currentMeetings.count,
+            totalMeetingMinutes: totalMeetingMinutes,
+            previousWeekMeetings: previousWeekCount,
+            weekOverWeekChange: currentMeetings.count - previousWeekCount
+        )
+    }
 }
