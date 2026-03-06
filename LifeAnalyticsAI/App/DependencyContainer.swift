@@ -91,7 +91,33 @@ private struct PlaceholderNotificationService: NotificationServiceProtocol {
 }
 
 private struct PlaceholderInsightEngine: InsightEngineProtocol {
-    func generateInsights() async throws -> [Insight] {
+    func analyzeCorrelations() async throws -> [Insight] {
         []
     }
+
+    func detectAnomalies() async throws -> [Insight] {
+        []
+    }
+
+    func findSeasonality() async throws -> [Insight] {
+        []
+    }
+
+    func generateDailyInsight(for date: Date) async throws -> Insight? {
+        _ = date
+        return nil
+    }
+
+    func generateWeeklyReport(for weekStart: Date) async throws -> WeeklyReport {
+        _ = weekStart
+        return WeeklyReport(
+            id: UUID(),
+            weekStartDate: Date().startOfWeek,
+            summary: "Haftalik rapor placeholder",
+            insights: [],
+            keyMetrics: [],
+            prediction: nil
+        )
+    }
+
 }
