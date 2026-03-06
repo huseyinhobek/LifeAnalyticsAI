@@ -48,7 +48,11 @@ final class DependencyContainer: ObservableObject {
     }()
 
     lazy var generateInsightUseCase: GenerateInsightUseCaseProtocol = {
-        GenerateInsightUseCase(repository: insightRepository, insightEngine: insightEngine)
+        GenerateInsightUseCase(
+            repository: insightRepository,
+            insightEngine: insightEngine,
+            llmService: llmService
+        )
     }()
 
     lazy var fetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol = {
