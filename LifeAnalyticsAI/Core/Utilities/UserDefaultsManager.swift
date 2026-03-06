@@ -64,9 +64,57 @@ final class UserDefaultsManager {
         set { defaults.set(newValue, forKey: Keys.weeklyReportEnabled) }
     }
 
+    var preferredTheme: AppTheme {
+        get {
+            guard let rawValue = defaults.string(forKey: Keys.preferredTheme),
+                  let theme = AppTheme(rawValue: rawValue) else {
+                return .system
+            }
+            return theme
+        }
+        set { defaults.set(newValue.rawValue, forKey: Keys.preferredTheme) }
+    }
+
+    var healthKitSyncEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.healthKitSyncEnabled) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.healthKitSyncEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.healthKitSyncEnabled) }
+    }
+
+    var calendarSyncEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.calendarSyncEnabled) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.calendarSyncEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.calendarSyncEnabled) }
+    }
+
     enum InsightTone: String {
         case concise
         case detailed
+    }
+
+    enum AppTheme: String, CaseIterable {
+        case system
+        case light
+        case dark
+
+        var title: String {
+            switch self {
+            case .system:
+                return "Sistem"
+            case .light:
+                return "Aydinlik"
+            case .dark:
+                return "Karanlik"
+            }
+        }
     }
 
     private func defaultTime(hour: Int, minute: Int) -> Date {
@@ -86,4 +134,7 @@ private enum Keys {
     static let morningNotificationTime = "morningNotificationTime"
     static let eveningNotificationTime = "eveningNotificationTime"
     static let weeklyReportEnabled = "weeklyReportEnabled"
+    static let preferredTheme = "preferredTheme"
+    static let healthKitSyncEnabled = "healthKitSyncEnabled"
+    static let calendarSyncEnabled = "calendarSyncEnabled"
 }
