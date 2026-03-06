@@ -21,3 +21,9 @@ protocol InsightEngineProtocol {
     func generateDailyInsight(for date: Date) async throws -> Insight?
     func generateWeeklyReport(for weekStart: Date) async throws -> WeeklyReport
 }
+
+protocol LLMServiceProtocol {
+    func generateInsightExplanation(insight: Insight, languageCode: String) async -> String
+    func generateWeeklyReport(report: WeeklyReport, languageCode: String) async -> String
+    func generatePrediction(prediction: PredictionResult, languageCode: String) async -> String
+}
