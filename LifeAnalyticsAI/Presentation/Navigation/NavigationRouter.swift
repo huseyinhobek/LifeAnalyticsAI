@@ -68,6 +68,7 @@ final class NavigationRouter {
 
 struct AppRootView: View {
     @Bindable var router: NavigationRouter
+    @EnvironmentObject private var dependencyContainer: DependencyContainer
     @State private var userDefaultsManager = UserDefaultsManager()
     @State private var onboardingStep: OnboardingStep = .healthKit
 
@@ -108,7 +109,7 @@ struct AppRootView: View {
                 case .home:
                     Text("Home")
                 case .moodEntry:
-                    Text("Mood Entry")
+                    MoodEntryView(viewModel: MoodEntryViewModel(saveMoodEntryUseCase: dependencyContainer.saveMoodEntryUseCase))
                 case let .weeklyReport(weekStart):
                     Text("Weekly Report: \(weekStart.formatted(date: .abbreviated, time: .omitted))")
                 case .insightDetail:
