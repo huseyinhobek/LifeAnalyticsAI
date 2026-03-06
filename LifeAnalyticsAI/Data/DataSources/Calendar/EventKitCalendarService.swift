@@ -66,7 +66,27 @@ final class EventKitCalendarService: CalendarServiceProtocol {
     }
 
     func getDailySummary(for date: Date) async throws -> DailySummary {
-        _ = try await requestAccess()
-        return DailySummary(date: date.startOfDay, totalMeetings: 0, totalMeetingMinutes: 0, freeHours: 24, busiestHour: nil)
+        let start = date.startOfDay
+        let end = date.endOfDay
+        let events = try await fetchEvents(from: start, to: end)
+        let meetings = events.filter { $0.isMeeting }
+
+        let totalMeetingMinutes = meetings.reduce(0) { $0 + $1.durationMinutes }
+        let freeHours = max(0, 24 - (Double(totalMeetingMinutes) / 60.0))
+        let busiestHour = meetings
+            .map { Calendar.current.component(.hour, from: $0.startDate) }
+            .reduce(into: [:]) { counts, hour in
+                counts[hour, default: 0] += 1
+            }
+            .max(by: { $0.value < $1.value })?
+            .key
+
+        return DailySummary(
+            date: start,
+            totalMeetings: meetings.count,
+            totalMeetingMinutes: totalMeetingMinutes,
+            freeHours: freeHours,
+            busiestHour: busiestHour
+        )
     }
 }
