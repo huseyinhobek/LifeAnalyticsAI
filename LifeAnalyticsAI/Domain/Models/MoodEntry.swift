@@ -62,4 +62,25 @@ enum ActivityTag: String, Codable, CaseIterable {
     case nature
     case family
     case travel
+
+    var displayName: String {
+        switch self {
+        case .exercise:
+            return "Egzersiz"
+        case .work:
+            return "Is"
+        case .social:
+            return "Sosyal"
+        case .reading:
+            return "Okuma"
+        case .meditation:
+            return "Meditasyon"
+        case .nature:
+            return "Doga"
+        case .family:
+            return "Aile"
+        case .travel:
+            return "Seyahat"
+        }
+    }
 }

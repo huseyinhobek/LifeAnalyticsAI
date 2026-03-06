@@ -31,6 +31,10 @@ final class DependencyContainer: ObservableObject {
         SaveMoodEntryUseCase(repository: moodRepository)
     }()
 
+    lazy var fetchMoodEntriesUseCase: FetchMoodEntriesUseCaseProtocol = {
+        FetchMoodEntriesUseCase(repository: moodRepository)
+    }()
+
     lazy var fetchCalendarEventsUseCase: FetchCalendarEventsUseCaseProtocol = {
         FetchCalendarEventsUseCase(repository: calendarRepository)
     }()

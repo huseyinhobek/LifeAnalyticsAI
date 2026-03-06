@@ -119,7 +119,7 @@ struct AppRootView: View {
                 case .onboarding:
                     Text("Onboarding")
                 case .insightHistory:
-                    Text("Insight History")
+                    MoodHistoryView(viewModel: MoodHistoryViewModel(fetchMoodEntriesUseCase: dependencyContainer.fetchMoodEntriesUseCase))
                 }
             }
             .fullScreenCover(isPresented: $router.showOnboarding) {
