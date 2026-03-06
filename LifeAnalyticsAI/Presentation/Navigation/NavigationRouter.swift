@@ -112,8 +112,8 @@ struct AppRootView: View {
                     MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
                 case let .weeklyReport(weekStart):
                     Text("Weekly Report: \(weekStart.formatted(date: .abbreviated, time: .omitted))")
-                case .insightDetail:
-                    Text("Insight Detail")
+                case let .insightDetail(insight):
+                    InsightDetailView(viewModel: makeInsightDetailViewModel(insight: insight))
                 case .settings:
                     Text("Settings")
                 case .onboarding:
@@ -178,6 +178,13 @@ struct AppRootView: View {
             sleepRepository: dependencyContainer.sleepRepository,
             moodRepository: dependencyContainer.moodRepository,
             calendarRepository: dependencyContainer.calendarRepository
+        )
+    }
+
+    private func makeInsightDetailViewModel(insight: Insight) -> InsightDetailViewModel {
+        InsightDetailViewModel(
+            insight: insight,
+            updateInsightFeedbackUseCase: dependencyContainer.updateInsightFeedbackUseCase
         )
     }
 }
