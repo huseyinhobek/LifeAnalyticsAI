@@ -2,9 +2,24 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Life Analytics AI, takvim etkinliklerinizi analiz ederek toplanti-uyku korelasyonlarini kesfeder.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Life Analytics AI, takvim etkinliklerinizi analiz ederek toplanti-uyku korelasyonlarini kesfeder.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Life Analytics AI, uyku ve aktivite verilerinizi analiz ederek yasam paternlerinizi kesfedetmenize yardimci olur.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Life Analytics AI, ruh hali verilerinizi Apple Health ile senkronize edebilir.</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Kisisel icgoruler ve haftalik yasam raporunuz icin bildirim gondeririz.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict/>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
 	</array>
 </dict>
 </plist>
