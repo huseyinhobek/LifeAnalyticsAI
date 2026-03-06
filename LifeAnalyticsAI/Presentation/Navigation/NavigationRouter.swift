@@ -68,6 +68,7 @@ final class NavigationRouter {
 
 struct AppRootView: View {
     @Bindable var router: NavigationRouter
+    @State private var userDefaultsManager = UserDefaultsManager()
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -115,7 +116,21 @@ struct AppRootView: View {
                 }
             }
             .fullScreenCover(isPresented: $router.showOnboarding) {
-                Text("Onboarding")
+                HealthKitPermissionView(
+                    onContinue: {
+                        userDefaultsManager.hasCompletedOnboarding = true
+                        router.showOnboarding = false
+                    },
+                    onSkip: {
+                        userDefaultsManager.hasCompletedOnboarding = true
+                        router.showOnboarding = false
+                    }
+                )
+            }
+            .task {
+                if !userDefaultsManager.hasCompletedOnboarding {
+                    router.showOnboarding = true
+                }
             }
         }
     }
