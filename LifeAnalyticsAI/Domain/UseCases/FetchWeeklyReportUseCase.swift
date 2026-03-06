@@ -10,17 +10,20 @@ final class FetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol {
     private let repository: InsightRepositoryProtocol
     private let insightEngine: InsightEngineProtocol
     private let llmService: LLMServiceProtocol
+    private let predictionTextUseCase: GeneratePredictionTextUseCaseProtocol
     private let languageCodeProvider: @Sendable () -> String
 
     init(
         repository: InsightRepositoryProtocol,
         insightEngine: InsightEngineProtocol,
         llmService: LLMServiceProtocol,
+        predictionTextUseCase: GeneratePredictionTextUseCaseProtocol,
         languageCodeProvider: @escaping @Sendable () -> String = { FetchWeeklyReportUseCase.defaultLanguageCode() }
     ) {
         self.repository = repository
         self.insightEngine = insightEngine
         self.llmService = llmService
+        self.predictionTextUseCase = predictionTextUseCase
         self.languageCodeProvider = languageCodeProvider
     }
 
@@ -34,6 +37,7 @@ final class FetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol {
             let weekStart = Date().daysAgo(index * 7).startOfWeek
             let report = try await insightEngine.generateWeeklyReport(for: weekStart)
             let aiSummary = await llmService.generateWeeklyReport(report: report, languageCode: languageCode)
+            let predictionText = try await predictionTextUseCase.execute(for: weekStart)
 
             reports.append(
                 WeeklyReport(
@@ -42,7 +46,7 @@ final class FetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol {
                     summary: aiSummary.isEmpty ? report.summary : aiSummary,
                     insights: report.insights,
                     keyMetrics: report.keyMetrics,
-                    prediction: report.prediction
+                    prediction: predictionText ?? report.prediction
                 )
             )
         }

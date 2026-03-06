@@ -10,6 +10,7 @@ final class FetchWeeklyReportUseCaseTests: XCTestCase {
             repository: StubInsightRepositoryForWeekly(storedInsights: []),
             insightEngine: StubInsightEngineForWeekly(report: baseReport),
             llmService: StubLLMServiceForWeekly(response: "AI weekly summary"),
+            predictionTextUseCase: StubPredictionTextUseCase(response: "AI prediction text"),
             languageCodeProvider: { "en" }
         )
 
@@ -17,6 +18,7 @@ final class FetchWeeklyReportUseCaseTests: XCTestCase {
 
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result.first?.summary, "AI weekly summary")
+        XCTAssertEqual(result.first?.prediction, "AI prediction text")
     }
 
     func testExecuteFallsBackToEngineSummaryWhenAIResponseEmpty() async throws {
@@ -25,6 +27,7 @@ final class FetchWeeklyReportUseCaseTests: XCTestCase {
             repository: StubInsightRepositoryForWeekly(storedInsights: []),
             insightEngine: StubInsightEngineForWeekly(report: baseReport),
             llmService: StubLLMServiceForWeekly(response: ""),
+            predictionTextUseCase: StubPredictionTextUseCase(response: nil),
             languageCodeProvider: { "tr" }
         )
 
@@ -43,6 +46,15 @@ final class FetchWeeklyReportUseCaseTests: XCTestCase {
             keyMetrics: [MetricReference(name: "NextWeekMood", value: 3.9, unit: "puan", trend: .stable)],
             prediction: "Yarin mood 3.8"
         )
+    }
+}
+
+private struct StubPredictionTextUseCase: GeneratePredictionTextUseCaseProtocol {
+    let response: String?
+
+    func execute(for referenceDate: Date) async throws -> String? {
+        _ = referenceDate
+        return response
     }
 }
 
