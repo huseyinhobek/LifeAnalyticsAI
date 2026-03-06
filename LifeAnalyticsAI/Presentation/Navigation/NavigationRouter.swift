@@ -5,7 +5,7 @@ import SwiftUI
 
 enum AppRoute: Hashable {
     case home
-    case moodEntry
+    case moodEntry(preset: Int?)
     case weeklyReport(weekStart: Date)
     case insightDetail(Insight)
     case settings
@@ -108,8 +108,8 @@ struct AppRootView: View {
                 switch route {
                 case .home:
                     Text("Home")
-                case .moodEntry:
-                    MoodEntryView(viewModel: MoodEntryViewModel(saveMoodEntryUseCase: dependencyContainer.saveMoodEntryUseCase))
+                case let .moodEntry(preset):
+                    MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
                 case let .weeklyReport(weekStart):
                     Text("Weekly Report: \(weekStart.formatted(date: .abbreviated, time: .omitted))")
                 case .insightDetail:
@@ -146,11 +146,28 @@ struct AppRootView: View {
                     router.showOnboarding = true
                 }
             }
+            .onOpenURL { url in
+                guard url.scheme == "lifeanalytics" else { return }
+                if url.host == "mood-entry" {
+                    let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+                    let preset = components?.queryItems?
+                        .first(where: { $0.name == "preset" })?
+                        .value
+                        .flatMap(Int.init)
+                    router.navigate(to: .moodEntry(preset: preset))
+                }
+            }
         }
     }
 
     private func completeOnboarding() {
         userDefaultsManager.hasCompletedOnboarding = true
         router.showOnboarding = false
+    }
+
+    private func makeMoodEntryViewModel(preset: Int?) -> MoodEntryViewModel {
+        let viewModel = MoodEntryViewModel(saveMoodEntryUseCase: dependencyContainer.saveMoodEntryUseCase)
+        viewModel.applyPresetMood(value: preset)
+        return viewModel
     }
 }

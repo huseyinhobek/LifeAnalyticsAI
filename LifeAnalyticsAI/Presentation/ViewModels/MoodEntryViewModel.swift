@@ -26,6 +26,13 @@ final class MoodEntryViewModel: ObservableObject {
         }
     }
 
+    func applyPresetMood(value: Int?) {
+        guard let value, let mood = MoodLevel(rawValue: value) else { return }
+        selectedMoodLevel = mood
+        didSave = false
+        errorMessage = nil
+    }
+
     func saveEntry() async {
         guard let selectedMoodLevel else {
             errorMessage = "Lutfen bir mood seciniz."
