@@ -92,7 +92,7 @@ struct AppRootView: View {
                     }
                     .tag(NavigationRouter.Tab.insights)
 
-                Text("Weekly Report")
+                WeeklyReportView(viewModel: makeWeeklyReportViewModel(weekStart: Date().startOfWeek), router: router)
                     .tabItem {
                         Label(NavigationRouter.Tab.report.title, systemImage: NavigationRouter.Tab.report.icon)
                     }
@@ -111,7 +111,7 @@ struct AppRootView: View {
                 case let .moodEntry(preset):
                     MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
                 case let .weeklyReport(weekStart):
-                    Text("Weekly Report: \(weekStart.formatted(date: .abbreviated, time: .omitted))")
+                    WeeklyReportView(viewModel: makeWeeklyReportViewModel(weekStart: weekStart), router: router)
                 case let .insightDetail(insight):
                     InsightDetailView(viewModel: makeInsightDetailViewModel(insight: insight))
                 case .settings:
@@ -185,6 +185,13 @@ struct AppRootView: View {
         InsightDetailViewModel(
             insight: insight,
             updateInsightFeedbackUseCase: dependencyContainer.updateInsightFeedbackUseCase
+        )
+    }
+
+    private func makeWeeklyReportViewModel(weekStart: Date) -> WeeklyReportViewModel {
+        WeeklyReportViewModel(
+            fetchWeeklyReportUseCase: dependencyContainer.fetchWeeklyReportUseCase,
+            weekStart: weekStart
         )
     }
 }
