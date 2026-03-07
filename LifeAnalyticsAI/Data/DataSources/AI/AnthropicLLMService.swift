@@ -66,6 +66,11 @@ final class AnthropicLLMService: LLMServiceProtocol {
     }
 
     private func requestWithCostControl(template: PromptTemplate) async throws -> String {
+        let isProxyAvailable = await MainActor.run { ProxyHealthChecker.shared.isProxyAvailable }
+        guard isProxyAvailable else {
+            throw AppError.networkError(underlying: URLError(.cannotConnectToHost))
+        }
+
         let currentDate = now()
         let key = cacheKey(for: template)
 

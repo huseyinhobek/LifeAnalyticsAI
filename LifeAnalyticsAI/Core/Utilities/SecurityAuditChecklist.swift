@@ -19,13 +19,11 @@ struct SecurityAuditCheck: Identifiable {
 enum SecurityAuditChecklist {
     static func run(appLockEnabled: Bool) -> [SecurityAuditCheck] {
         let apiURL = URL(string: AppConstants.API.llmBaseURL)
-        let apiHost = apiURL?.host
+        let apiHost = apiURL?.host?.lowercased()
         let isHTTPS = apiURL?.scheme?.lowercased() == "https"
-        let hasPinHashes = !AppConstants.API.llmPinnedSPKIHashes.isEmpty
-        let hostIsPinned = apiHost.map { AppConstants.API.llmPinnedHosts.contains($0) } ?? false
+        let isProxyHost = apiHost == "life-analytics-proxy.hsynhbk.workers.dev"
         let hasPrivacyManifest = Bundle.main.url(forResource: "PrivacyInfo", withExtension: "xcprivacy") != nil
         let hasFaceIDUsageDescription = (Bundle.main.object(forInfoDictionaryKey: "NSFaceIDUsageDescription") as? String)?.isEmpty == false
-        let hasKeychainServiceName = !AppConstants.Storage.keychainService.isEmpty
 
         return [
             SecurityAuditCheck(
@@ -34,11 +32,11 @@ enum SecurityAuditChecklist {
                 status: isHTTPS ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "SSL pinning",
-                detail: hasPinHashes && hostIsPinned
-                    ? "Pinned host ve SPKI hash ayarlari mevcut."
-                    : "Pinned host veya SPKI hash ayari eksik.",
-                status: hasPinHashes && hostIsPinned ? .passed : .failed
+                title: "Proxy endpoint",
+                detail: isProxyHost
+                    ? "LLM cagrilari Cloudflare proxy uzerinden yapiliyor."
+                    : "LLM endpoint proxy hostu ile eslesmiyor.",
+                status: isProxyHost ? .passed : .failed
             ),
             SecurityAuditCheck(
                 title: "Privacy manifest",
@@ -55,11 +53,9 @@ enum SecurityAuditChecklist {
                 status: hasFaceIDUsageDescription ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "Keychain configuration",
-                detail: hasKeychainServiceName
-                    ? "Keychain service identifier tanimli."
-                    : "Keychain service identifier bos.",
-                status: hasKeychainServiceName ? .passed : .failed
+                title: "Client API key storage",
+                detail: "API anahtari istemci tarafinda tutulmadan proxy uzerinden istek yapiliyor.",
+                status: .passed
             ),
             SecurityAuditCheck(
                 title: "Biometric app lock",

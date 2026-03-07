@@ -4,16 +4,13 @@ import Foundation
 
 enum AppConstants {
     enum API {
-        static let llmBaseURL = "https://api.anthropic.com/v1/messages"
+        static let llmBaseURL = "https://life-analytics-proxy.hsynhbk.workers.dev/v1/insight"
+        static let healthCheckURL = "https://life-analytics-proxy.hsynhbk.workers.dev/health"
         static let llmModel = "claude-sonnet-4-5-20250929"
         static let maxTokens = 1000
         static let llmDailyTokenLimit = 30_000
         static let llmMonthlyTokenLimit = 500_000
         static let llmCacheTTLSeconds: TimeInterval = 60 * 60 * 6
-        static let llmPinnedHosts = ["api.anthropic.com"]
-        static let llmPinnedSPKIHashes = [
-            "60QDDZy98CjK1XTBTlPbInyzJzi+817KvW+usCk6r+o="
-        ]
     }
 
     enum Health {
@@ -61,13 +58,7 @@ enum AppConstants {
     }
 
     enum Storage {
-        static let keychainService = "com.lifeanalytics.keychain"
         static let userDefaultsSuite = "com.lifeanalytics.defaults"
-
-        enum Keys {
-            static let anthropicAPIKey = "anthropic_api_key"
-            static let anthropicAPIKeyBiometricRequired = "anthropic_api_key_biometric_required"
-        }
     }
 
     enum UI {

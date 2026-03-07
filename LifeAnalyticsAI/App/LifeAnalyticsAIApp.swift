@@ -11,6 +11,7 @@ struct LifeAnalyticsAIApp: App {
 
     @State private var router = NavigationRouter()
     @State private var userDefaultsManager = UserDefaultsManager()
+    @State private var proxyHealthChecker = ProxyHealthChecker.shared
     @StateObject private var dependencyContainer = DependencyContainer()
     @Environment(\.scenePhase) private var scenePhase
     @State private var isAppUnlocked = false
@@ -34,6 +35,10 @@ struct LifeAnalyticsAIApp: App {
                         }
                     )
                 }
+            }
+            .task {
+                await proxyHealthChecker.performHealthCheck()
+                proxyHealthChecker.startPeriodicCheck()
             }
             .task {
                 await authenticateForAppLockIfNeeded()
@@ -124,6 +129,7 @@ struct LifeAnalyticsAIApp: App {
                         AppLogger.notification.error("Reminder scheduling failed: \(error.localizedDescription)")
                     }
                 }
+            .environment(proxyHealthChecker)
         }
         .modelContainer(PersistenceController.shared.container)
     }
