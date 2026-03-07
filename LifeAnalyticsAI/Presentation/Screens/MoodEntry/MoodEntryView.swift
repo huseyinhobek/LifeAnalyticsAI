@@ -6,6 +6,7 @@ struct MoodEntryView: View {
     @StateObject private var viewModel: MoodEntryViewModel
     @State private var highlightedMood: MoodLevel?
     @State private var feedbackTrigger = 0
+    @FocusState private var isNoteFocused: Bool
 
     init(viewModel: MoodEntryViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -84,6 +85,7 @@ struct MoodEntryView: View {
                     .padding(8)
                     .background(Color("BackgroundLight"))
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    .focused($isNoteFocused)
 
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
@@ -118,6 +120,16 @@ struct MoodEntryView: View {
                 .disabled(viewModel.isSaving)
             }
             .padding(Theme.paddingLarge)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .keyboardDismissOnTap()
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Tamam") {
+                    isNoteFocused = false
+                }
+            }
         }
         .background(
             LinearGradient(

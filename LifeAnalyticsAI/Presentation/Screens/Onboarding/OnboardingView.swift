@@ -13,6 +13,7 @@ struct OnboardingView: View {
     @State private var moodNote = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @FocusState private var focusedField: Field?
 
     let onComplete: () -> Void
 
@@ -34,6 +35,10 @@ struct OnboardingView: View {
                 return "Ilk Mood"
             }
         }
+    }
+
+    private enum Field: Hashable {
+        case moodNote
     }
 
     var body: some View {
@@ -71,6 +76,18 @@ struct OnboardingView: View {
         }
         .task {
             healthAuthorized = dependencyContainer.healthKitService.isAuthorized()
+        }
+        .keyboardDismissOnTap()
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Tamam") {
+                    focusedField = nil
+                }
+            }
+        }
+        .onChange(of: currentStep) {
+            focusedField = nil
         }
     }
 
@@ -198,6 +215,11 @@ struct OnboardingView: View {
 
             TextField("Kisa bir not (opsiyonel)", text: $moodNote, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
+                .submitLabel(.done)
+                .focused($focusedField, equals: .moodNote)
+                .onSubmit {
+                    focusedField = nil
+                }
 
             if let errorMessage {
                 Text(errorMessage)
@@ -329,6 +351,8 @@ struct OnboardingView: View {
 
     @MainActor
     private func saveFirstMood() async {
+        focusedField = nil
+
         guard let selectedMood else {
             errorMessage = "Lutfen bir mood sec."
             return
