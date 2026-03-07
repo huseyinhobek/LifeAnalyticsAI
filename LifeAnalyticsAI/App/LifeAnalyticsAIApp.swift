@@ -12,12 +12,45 @@ struct LifeAnalyticsAIApp: App {
     @State private var router = NavigationRouter()
     @State private var userDefaultsManager = UserDefaultsManager()
     @StateObject private var dependencyContainer = DependencyContainer()
+    @Environment(\.scenePhase) private var scenePhase
+    @State private var isAppUnlocked = false
+    @State private var isAuthenticatingLock = false
+    @State private var lockErrorMessage: String?
 
     var body: some Scene {
         WindowGroup {
-            AppRootView(router: router)
-                .environmentObject(dependencyContainer)
-                .task {
+            ZStack {
+                AppRootView(router: router)
+                    .environmentObject(dependencyContainer)
+                    .blur(radius: shouldShowAppLock ? 8 : 0)
+                    .allowsHitTesting(!shouldShowAppLock)
+
+                if shouldShowAppLock {
+                    AppLockOverlayView(
+                        isAuthenticating: isAuthenticatingLock,
+                        errorMessage: lockErrorMessage,
+                        unlockAction: {
+                            Task { await authenticateForAppLockIfNeeded() }
+                        }
+                    )
+                }
+            }
+            .task {
+                await authenticateForAppLockIfNeeded()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .active:
+                    Task { await authenticateForAppLockIfNeeded() }
+                case .background, .inactive:
+                    if userDefaultsManager.appLockEnabled {
+                        isAppUnlocked = false
+                    }
+                @unknown default:
+                    break
+                }
+            }
+            .task {
                     do {
                         _ = try await dependencyContainer.healthKitService.requestAuthorization()
                         try await dependencyContainer.healthKitService.setupBackgroundDelivery()
@@ -95,9 +128,84 @@ struct LifeAnalyticsAIApp: App {
         .modelContainer(PersistenceController.shared.container)
     }
 
+    private var shouldShowAppLock: Bool {
+        userDefaultsManager.appLockEnabled && !isAppUnlocked
+    }
+
+    @MainActor
+    private func authenticateForAppLockIfNeeded() async {
+        guard userDefaultsManager.appLockEnabled else {
+            isAppUnlocked = true
+            lockErrorMessage = nil
+            return
+        }
+
+        do {
+            isAuthenticatingLock = true
+            let success = try await BiometricAuthenticator.authenticate(
+                reason: "LifeAnalyticsAI verilerine erismek icin kimligini dogrula"
+            )
+            isAppUnlocked = success
+            lockErrorMessage = nil
+        } catch {
+            isAppUnlocked = false
+            lockErrorMessage = error.localizedDescription
+        }
+        isAuthenticatingLock = false
+    }
+
     private func trackedDaysSinceOnboarding() -> Int {
         guard let start = userDefaultsManager.dataCollectionStartDate else { return 1 }
         let days = Calendar.current.dateComponents([.day], from: start, to: Date()).day ?? 0
         return max(days, 1)
+    }
+}
+
+private struct AppLockOverlayView: View {
+    let isAuthenticating: Bool
+    let errorMessage: String?
+    let unlockAction: () -> Void
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "lock.shield")
+                .font(.system(size: 44, weight: .semibold))
+                .foregroundStyle(Color("PrimaryBlue"))
+
+            Text("Uygulama Kilitli")
+                .font(Theme.headlineFont)
+                .foregroundStyle(Color("TextPrimary"))
+
+            Text("Face ID veya Touch ID ile devam edebilirsin.")
+                .font(Theme.bodyFont)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(Color("TextSecondary"))
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(Theme.captionFont)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(Color("MoodBad"))
+            }
+
+            Button {
+                unlockAction()
+            } label: {
+                HStack {
+                    if isAuthenticating {
+                        ProgressView().tint(.white)
+                    }
+                    Text("Kilidi Ac")
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color("PrimaryBlue"))
+            .disabled(isAuthenticating)
+        }
+        .padding(24)
+        .background(Color("BackgroundLight"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .padding(24)
     }
 }
