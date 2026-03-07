@@ -38,8 +38,8 @@ final class UserNotificationService: NotificationServiceProtocol {
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
         let safeCheckIns = min(max(moodCheckInsThisWeek, 0), 7)
         let content = UNMutableNotificationContent()
-        content.title = "Aksam mood kontrolu"
-        content.body = "Bu hafta \(safeCheckIns)/7 gun kayit tamamlandi. Aksam mood'unu eklemeyi unutma."
+        content.title = "Aksam degerlendirme"
+        content.body = "Bugunun ozeti hazir, ruh halini kaydet. Bu hafta \(safeCheckIns)/7 gun mood kaydin var."
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.evening
 
