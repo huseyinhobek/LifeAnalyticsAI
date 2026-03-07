@@ -7,6 +7,7 @@ enum AppRoute: Hashable {
     case home
     case moodEntry(preset: Int?)
     case dashboard
+    case profile
     case weeklyReport(weekStart: Date)
     case insightDetail(Insight)
     case settings
@@ -93,7 +94,7 @@ struct AppRootView: View {
                     }
                     .tag(NavigationRouter.Tab.report)
 
-                SettingsView(viewModel: makeSettingsViewModel())
+                SettingsView(viewModel: makeSettingsViewModel(), router: router)
                     .tabItem {
                         Label(NavigationRouter.Tab.settings.title, systemImage: NavigationRouter.Tab.settings.icon)
                     }
@@ -107,12 +108,14 @@ struct AppRootView: View {
                     MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
                 case .dashboard:
                     DashboardView(viewModel: makeDashboardViewModel(), router: router)
+                case .profile:
+                    ProfileView(viewModel: makeProfileViewModel())
                 case let .weeklyReport(weekStart):
                     WeeklyReportView(viewModel: makeWeeklyReportViewModel(weekStart: weekStart), router: router)
                 case let .insightDetail(insight):
                     InsightDetailView(viewModel: makeInsightDetailViewModel(insight: insight))
                 case .settings:
-                    SettingsView(viewModel: makeSettingsViewModel())
+                    SettingsView(viewModel: makeSettingsViewModel(), router: router)
                 case .onboarding:
                     Text("Onboarding")
                 case .insightHistory:
@@ -192,6 +195,13 @@ struct AppRootView: View {
         SettingsViewModel(
             userDefaultsManager: userDefaultsManager,
             notificationService: dependencyContainer.notificationService
+        )
+    }
+
+    private func makeProfileViewModel() -> ProfileViewModel {
+        ProfileViewModel(
+            userDefaultsManager: userDefaultsManager,
+            insightRepository: dependencyContainer.insightRepository
         )
     }
 }
