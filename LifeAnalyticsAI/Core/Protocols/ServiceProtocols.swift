@@ -11,7 +11,7 @@ protocol CalendarServiceProtocol {
 
 protocol NotificationServiceProtocol {
     func requestPermission() async throws -> Bool
-    func scheduleMorning(at components: DateComponents, streakDays: Int) async throws
+    func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws
     func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws
     func cancelAll() async

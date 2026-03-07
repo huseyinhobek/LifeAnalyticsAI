@@ -17,10 +17,10 @@ final class UserNotificationService: NotificationServiceProtocol {
         return try await center.requestAuthorization(options: options)
     }
 
-    func scheduleMorning(at components: DateComponents, streakDays: Int) async throws {
+    func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws {
         let content = UNMutableNotificationContent()
         content.title = "Gunaydin, serini koru"
-        content.body = "Son \(streakDays) gundur kayit yapiyorsun. Bugun ilk mood girisini yap."
+        content.body = morningBody(streakDays: streakDays, predictionText: predictionText)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.morning
 
@@ -75,15 +75,30 @@ final class UserNotificationService: NotificationServiceProtocol {
     func cancelAll() async {
         center.removeAllPendingNotificationRequests()
     }
+
+    private func morningBody(streakDays: Int, predictionText: String?) -> String {
+        let fallback = "Son \(streakDays) gundur kayit yapiyorsun. Takvim ve 7 gunluk patern bazli tahminini gormek icin mood girisi yap."
+        guard let predictionText, !predictionText.isEmpty else {
+            return fallback
+        }
+
+        let containsNumber = predictionText.contains { $0.isNumber }
+        if containsNumber {
+            return predictionText
+        }
+
+        return "\(predictionText) (7 gunluk patern bazli)"
+    }
 }
 
 #else
 final class UserNotificationService: NotificationServiceProtocol {
     func requestPermission() async throws -> Bool { true }
 
-    func scheduleMorning(at components: DateComponents, streakDays: Int) async throws {
+    func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws {
         _ = components
         _ = streakDays
+        _ = predictionText
     }
 
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {

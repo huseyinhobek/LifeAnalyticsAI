@@ -39,14 +39,15 @@ struct LifeAnalyticsAIApp: App {
                         await dependencyContainer.notificationService.cancelAll()
 
                         let trackedDays = trackedDaysSinceOnboarding()
+                        let predictionText = try await dependencyContainer.generatePredictionTextUseCase.execute(for: Date())
 
-                        let morningComponents = Calendar.current.dateComponents(
-                            [.hour, .minute],
-                            from: userDefaultsManager.morningNotificationTime
-                        )
+                        var morningComponents = DateComponents()
+                        morningComponents.hour = AppConstants.Notifications.morningHour
+                        morningComponents.minute = AppConstants.Notifications.morningMinute
                         try await dependencyContainer.notificationService.scheduleMorning(
                             at: morningComponents,
-                            streakDays: trackedDays
+                            streakDays: trackedDays,
+                            predictionText: predictionText
                         )
 
                         let eveningComponents = Calendar.current.dateComponents(
