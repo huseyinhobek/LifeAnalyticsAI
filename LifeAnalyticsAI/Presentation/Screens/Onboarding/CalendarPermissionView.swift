@@ -26,18 +26,18 @@ struct CalendarPermissionView: View {
                     .font(.system(size: 52))
                     .foregroundStyle(Color("PrimaryBlue"))
 
-                Text("Takvim Erisimi")
+                Text("onboarding.calendar.permission_title".localized)
                     .font(Theme.titleFont)
                     .foregroundStyle(Color("TextPrimary"))
 
-                Text("Toplanti yogunlugunu, bos zamanlarini ve haftalik rutinini analiz edebilmemiz icin takvim erisimi gerekiyor.")
+                Text("onboarding.calendar.permission_body".localized)
                     .font(Theme.bodyFont)
                     .foregroundStyle(Color("TextSecondary"))
 
                 HStack(spacing: 10) {
                     Image(systemName: isAuthorized ? "checkmark.circle.fill" : "xmark.circle")
                         .foregroundStyle(isAuthorized ? Color("MoodExcellent") : Color("MoodBad"))
-                    Text(isAuthorized ? "Erisim verildi" : "Erisim bekleniyor")
+                    Text(isAuthorized ? "onboarding.status.granted".localized : "onboarding.status.waiting".localized)
                         .font(Theme.bodyFont)
                         .foregroundStyle(Color("TextPrimary"))
                 }
@@ -57,7 +57,7 @@ struct CalendarPermissionView: View {
                                 ProgressView()
                                     .tint(.white)
                             }
-                            Text("Takvim Erisimi Ver")
+                            Text("onboarding.calendar.permission_button".localized)
                                 .font(.headline)
                         }
                         .frame(maxWidth: .infinity)
@@ -68,7 +68,7 @@ struct CalendarPermissionView: View {
                     }
                     .disabled(isLoading)
 
-                    Button("Simdilik Atla") {
+                    Button("onboarding.skip_now".localized) {
                         onSkip()
                     }
                     .font(.subheadline)

@@ -32,8 +32,8 @@ struct DashboardView: View {
 
                 if viewModel.isLoading && viewModel.sleepPoints.isEmpty {
                     LoadingStateView(
-                        title: "Istatistikler yukleniyor",
-                        subtitle: "Uyku, mood ve aktivite verileri hazirlaniyor",
+                        title: "dashboard.loading_title".localized,
+                        subtitle: "dashboard.loading_subtitle".localized,
                         icon: "chart.bar.doc.horizontal"
                     )
                 } else {
@@ -51,18 +51,18 @@ struct DashboardView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .navigationTitle("Istatistik Panosu")
+        .navigationTitle("dashboard.nav_title".localized)
         .task { await viewModel.load() }
         .refreshable { await viewModel.refresh() }
     }
 
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Kisisel Performans", systemImage: "chart.xyaxis.line")
+            Label("dashboard.header.title".localized, systemImage: "chart.xyaxis.line")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Uyku, mood ve aktivite trendleri tek ekranda")
+            Text("dashboard.header.subtitle".localized)
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextSecondary"))
 
@@ -71,7 +71,7 @@ struct DashboardView: View {
                     router.navigate(to: .weeklyReport(weekStart: Date().startOfWeek))
                 }
             } label: {
-                Label("Haftalik AI Raporu", systemImage: "doc.text.image")
+                Label("dashboard.weekly_ai_report".localized, systemImage: "doc.text.image")
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("SecondaryBlue"))
             }
@@ -113,17 +113,17 @@ struct DashboardView: View {
 
         return LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
             summaryCard(
-                title: "Ortalama Uyku",
-                value: String(format: "%.1f saat", viewModel.averageSleep),
+                title: "dashboard.avg_sleep".localized,
+                value: "dashboard.avg_sleep_value".localized(with: viewModel.averageSleep),
                 icon: "bed.double.fill"
             )
             summaryCard(
-                title: "Ortalama Mood",
-                value: String(format: "%.1f / 5", viewModel.averageMood),
+                title: "dashboard.avg_mood".localized,
+                value: "dashboard.avg_mood_value".localized(with: viewModel.averageMood),
                 icon: "face.smiling.fill"
             )
             summaryCard(
-                title: "Toplanti",
+                title: "dashboard.meetings".localized,
                 value: "\(viewModel.totalMeetings)",
                 icon: "calendar.badge.clock"
             )
@@ -148,7 +148,7 @@ struct DashboardView: View {
 
     private var sleepChartSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Uyku Trendi", systemImage: "moon.stars.fill")
+            Label("dashboard.sleep_trend".localized, systemImage: "moon.stars.fill")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -173,7 +173,7 @@ struct DashboardView: View {
                     )
                     .foregroundStyle(Color("PrimaryBlue"))
                     .annotation(position: .top) {
-                        Text(String(format: "%.1f saat", point.value))
+                        Text("dashboard.sleep_hours_value".localized(with: point.value))
                             .font(Theme.captionFont)
                             .padding(6)
                             .background(Color("BackgroundLight"))
@@ -192,7 +192,7 @@ struct DashboardView: View {
 
     private var moodChartSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Mood Trendi", systemImage: "face.smiling")
+            Label("dashboard.mood_trend".localized, systemImage: "face.smiling")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -233,7 +233,7 @@ struct DashboardView: View {
 
     private var activityChartSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Aktivite Yogunlugu", systemImage: "calendar")
+            Label("dashboard.activity_density".localized, systemImage: "calendar")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -249,7 +249,7 @@ struct DashboardView: View {
                     RuleMark(x: .value("Secim", point.date))
                         .foregroundStyle(Color("TextSecondary").opacity(0.45))
                         .annotation(position: .top) {
-                            Text("\(Int(point.value)) toplanti")
+                            Text("dashboard.meeting_count_value".localized(with: Int(point.value)))
                                 .font(Theme.captionFont)
                                 .padding(6)
                                 .background(Color("BackgroundLight"))

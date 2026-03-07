@@ -118,11 +118,11 @@ final class UserDefaultsManager {
         var title: String {
             switch self {
             case .system:
-                return "Sistem"
+                return "theme.system".localized
             case .light:
-                return "Aydinlik"
+                return "theme.light".localized
             case .dark:
-                return "Karanlik"
+                return "theme.dark".localized
             }
         }
     }

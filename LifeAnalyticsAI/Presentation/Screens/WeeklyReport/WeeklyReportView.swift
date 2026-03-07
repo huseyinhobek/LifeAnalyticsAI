@@ -18,8 +18,8 @@ struct WeeklyReportView: View {
             VStack(alignment: .leading, spacing: Theme.paddingMedium) {
                 if viewModel.isLoading && viewModel.selectedReport == nil {
                     LoadingStateView(
-                        title: "Haftalik rapor hazirlaniyor",
-                        subtitle: "AI ozet ve metrik kartlari yukleniyor",
+                        title: "report.loading_title".localized,
+                        subtitle: "report.loading_subtitle".localized,
                         icon: "doc.text.magnifyingglass"
                     )
                 }
@@ -39,7 +39,7 @@ struct WeeklyReportView: View {
             .padding(Theme.paddingLarge)
         }
         .background(Color("BackgroundLight").opacity(0.35))
-        .navigationTitle("Haftalik Rapor")
+        .navigationTitle("report.nav_title".localized)
         .task { await viewModel.load() }
         .refreshable { await viewModel.refresh() }
     }
@@ -53,14 +53,14 @@ struct WeeklyReportView: View {
             .font(Theme.captionFont)
             .foregroundStyle(Color("SecondaryBlue"))
 
-            Text("AI Haftalik Ozeti")
+            Text("report.ai_weekly_summary".localized)
                 .font(Theme.titleFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             markdownText(report.summary)
 
             if let prediction = report.prediction, !prediction.isEmpty {
-                Text("Tahmin: \(prediction)")
+                Text("report.prediction_prefix".localized(with: prediction))
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("TextSecondary"))
             }
@@ -78,14 +78,14 @@ struct WeeklyReportView: View {
             }
 
         return VStack(alignment: .leading, spacing: 10) {
-            Label("Metrik Kartlari", systemImage: "square.grid.2x2")
+            Label("report.metrics_cards".localized, systemImage: "square.grid.2x2")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             if safeMetrics.isEmpty {
                 EmptyStateView(
-                    title: "Metrik karti bulunamadi",
-                    subtitle: "Raporu yenileyerek yeniden deneyebilirsin.",
+                    title: "report.metrics_empty_title".localized,
+                    subtitle: "report.metrics_empty_subtitle".localized,
                     icon: "chart.bar.xaxis"
                 )
             } else {
@@ -107,14 +107,14 @@ struct WeeklyReportView: View {
 
     private func insightsSection(_ report: WeeklyReport) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Haftalik Icgoruler", systemImage: "lightbulb.max")
+            Label("report.weekly_insights".localized, systemImage: "lightbulb.max")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             if report.insights.isEmpty {
                 EmptyStateView(
-                    title: "Bu hafta icgoru bulunamadi",
-                    subtitle: "Yeni veriler geldikce icgoruler otomatik olusacak.",
+                    title: "report.insights_empty_title".localized,
+                    subtitle: "report.insights_empty_subtitle".localized,
                     icon: "lightbulb.slash"
                 )
             } else {
@@ -132,7 +132,7 @@ struct WeeklyReportView: View {
                                 .font(Theme.captionFont)
                                 .foregroundStyle(Color("TextSecondary"))
                                 .lineLimit(2)
-                            Text("Guven: \(insight.confidenceLevel.label)")
+                            Text("report.confidence".localized(with: insight.confidenceLevel.label))
                                 .font(Theme.captionFont)
                                 .foregroundStyle(Color("SecondaryBlue"))
                         }

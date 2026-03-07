@@ -5,10 +5,12 @@ import SwiftUI
 struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     var router: NavigationRouter?
+    @Environment(LanguageManager.self) private var languageManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var shareURL: URL?
     @State private var isShareSheetPresented = false
+    @State private var showLanguagePicker = false
 
     init(viewModel: SettingsViewModel, router: NavigationRouter? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -18,6 +20,7 @@ struct SettingsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
+                languageCard
                 notificationCard
                 securityCard
                 dataSourceCard
@@ -34,15 +37,18 @@ struct SettingsView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .navigationTitle("Ayarlar")
+        .navigationTitle("settings.title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDismissOnTap()
-        .alert("Bilgi", isPresented: statusAlertBinding) {
-            Button("Tamam", role: .cancel) {
+        .alert("settings.info".localized, isPresented: statusAlertBinding) {
+            Button("general.done".localized, role: .cancel) {
                 viewModel.statusMessage = nil
             }
         } message: {
             Text(viewModel.statusMessage ?? "")
+        }
+        .sheet(isPresented: $showLanguagePicker) {
+            LanguageSelectionView()
         }
  #if canImport(UIKit)
         .sheet(isPresented: $isShareSheetPresented, onDismiss: {
@@ -55,20 +61,47 @@ struct SettingsView: View {
  #endif
     }
 
+    private var languageCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Button {
+                showLanguagePicker = true
+            } label: {
+                HStack {
+                    Label {
+                        Text("settings.language".localized)
+                    } icon: {
+                        Image(systemName: "globe")
+                    }
+                    Spacer()
+                    Text(languageManager.currentLanguage.flag + " " + languageManager.currentLanguage.displayName)
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(Theme.paddingMedium)
+        .background(Color("BackgroundLight"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    }
+
     private var securityCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Guvenlik", systemImage: "lock.shield")
+            Label("settings.security".localized, systemImage: "lock.shield")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Toggle("Uygulama kilidi (Face ID/Touch ID)", isOn: $viewModel.appLockEnabled)
+            Toggle("settings.app_lock".localized, isOn: $viewModel.appLockEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            Text("LLM istekleri Cloudflare proxy uzerinden guvenli sekilde iletilir. API anahtari istemci tarafinda tutulmaz.")
+            Text("settings.proxy_security_info".localized)
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
 
-            Button("Guvenlik Denetimini Calistir") {
+            Button("settings.run_security_audit".localized) {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
                     viewModel.runSecurityAuditChecklist()
                 }
@@ -99,7 +132,7 @@ struct SettingsView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
 
-            Button("Guvenlik Tercihlerini Kaydet") {
+            Button("settings.save_security_preferences".localized) {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
                     viewModel.persistPreferences()
                 }
@@ -154,23 +187,23 @@ struct SettingsView: View {
 
     private var notificationCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Bildirim Tercihleri", systemImage: "bell.badge")
+            Label("settings.notifications".localized, systemImage: "bell.badge")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Toggle("Bildirimleri Ac", isOn: $viewModel.notificationsEnabled)
+            Toggle("settings.notifications_enabled".localized, isOn: $viewModel.notificationsEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            DatePicker("Sabah Hatirlatma", selection: $viewModel.morningNotificationTime, displayedComponents: .hourAndMinute)
+            DatePicker("settings.morning_reminder".localized, selection: $viewModel.morningNotificationTime, displayedComponents: .hourAndMinute)
                 .disabled(!viewModel.notificationsEnabled)
 
-            DatePicker("Aksam Hatirlatma", selection: $viewModel.eveningNotificationTime, displayedComponents: .hourAndMinute)
+            DatePicker("settings.evening_reminder".localized, selection: $viewModel.eveningNotificationTime, displayedComponents: .hourAndMinute)
                 .disabled(!viewModel.notificationsEnabled)
 
-            Toggle("Haftalik rapor bildirimi", isOn: $viewModel.weeklyReportEnabled)
+            Toggle("settings.weekly_report_notification".localized, isOn: $viewModel.weeklyReportEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            Button("Bildirim Ayarlarini Kaydet") {
+            Button("settings.save_notification_settings".localized) {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {}
                 Task { await viewModel.persistNotificationState() }
             }
@@ -185,21 +218,21 @@ struct SettingsView: View {
 
     private var dataSourceCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Veri Kaynaklari", systemImage: "externaldrive.badge.icloud")
+            Label("settings.data_sources".localized, systemImage: "externaldrive.badge.icloud")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Toggle("HealthKit senkronizasyonu", isOn: $viewModel.healthKitSyncEnabled)
+            Toggle("settings.healthkit_sync".localized, isOn: $viewModel.healthKitSyncEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            Toggle("Calendar senkronizasyonu", isOn: $viewModel.calendarSyncEnabled)
+            Toggle("settings.calendar_sync".localized, isOn: $viewModel.calendarSyncEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            Text("Degisiklikler bir sonraki veri senkronunda uygulanir.")
+            Text("settings.data_source_apply_info".localized)
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
 
-            Button("Veri Kaynaklarini Guncelle") {
+            Button("settings.update_data_sources".localized) {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
                     viewModel.persistPreferences()
                 }
@@ -214,24 +247,24 @@ struct SettingsView: View {
 
     private var personalizationCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Tema ve Dil", systemImage: "paintpalette")
+            Label("settings.theme_and_language".localized, systemImage: "paintpalette")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Picker("Tema", selection: $viewModel.preferredTheme) {
+            Picker("settings.theme".localized, selection: $viewModel.preferredTheme) {
                 ForEach(UserDefaultsManager.AppTheme.allCases, id: \.self) { theme in
                     Text(theme.title).tag(theme)
                 }
             }
             .pickerStyle(.segmented)
 
-            Picker("Insight tonu", selection: $viewModel.preferredInsightTone) {
-                Text("Kisa").tag(UserDefaultsManager.InsightTone.concise)
-                Text("Detayli").tag(UserDefaultsManager.InsightTone.detailed)
+            Picker("settings.insight_tone".localized, selection: $viewModel.preferredInsightTone) {
+                Text("settings.insight_tone_short".localized).tag(UserDefaultsManager.InsightTone.concise)
+                Text("settings.insight_tone_detailed".localized).tag(UserDefaultsManager.InsightTone.detailed)
             }
             .pickerStyle(.segmented)
 
-            Button("Tercihleri Kaydet") {
+            Button("settings.save_preferences".localized) {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
                     viewModel.persistPreferences()
                 }
@@ -246,21 +279,21 @@ struct SettingsView: View {
 
     private var exportCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Export", systemImage: "square.and.arrow.up")
+            Label("settings.export".localized, systemImage: "square.and.arrow.up")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Ayarlarin CSV ozetini disa aktarabilirsin.")
+            Text("settings.export_info".localized)
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
 
-            Button("Ayarlari CSV Olarak Aktar") {
+            Button("settings.export_csv".localized) {
                 do {
                     shareURL = try viewModel.exportSettingsSnapshot()
                     isShareSheetPresented = shareURL != nil
                     viewModel.statusMessage = nil
                 } catch {
-                    viewModel.statusMessage = "Export olusturulamadi: \(error.localizedDescription)"
+                    viewModel.statusMessage = "settings.export_failed".localized(with: error.localizedDescription)
                 }
             }
             .font(Theme.captionFont)
@@ -274,7 +307,7 @@ struct SettingsView: View {
 
     private var accountCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Label("Hesap", systemImage: "person.crop.circle")
+            Label("settings.account".localized, systemImage: "person.crop.circle")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -282,12 +315,12 @@ struct SettingsView: View {
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Onboarding'i yeniden baslatmak icin sifirlama yapabilirsin.")
+            Text("settings.reset_onboarding_info".localized)
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
 
             if let router {
-                Button("Profili Goruntule") {
+                Button("settings.view_profile".localized) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
                         router.navigate(to: .profile)
                     }
@@ -297,7 +330,7 @@ struct SettingsView: View {
                 .tint(Color("SecondaryBlue"))
             }
 
-            Button("Hesap Tercihlerini Sifirla") {
+            Button("settings.reset_account_prefs".localized) {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
                     viewModel.resetOnboardingAndPreferences()
                 }

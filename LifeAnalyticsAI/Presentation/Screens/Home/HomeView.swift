@@ -39,7 +39,7 @@ struct HomeView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .navigationTitle("Ana Sayfa")
+        .navigationTitle("home.nav_title".localized)
         .task { await viewModel.load() }
         .refreshable { await viewModel.refresh() }
     }
@@ -47,7 +47,7 @@ struct HomeView: View {
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Label("Bugunun Icgorusu", systemImage: "sparkles.rectangle.stack")
+                Label("home.today_insight".localized, systemImage: "sparkles.rectangle.stack")
                     .font(Theme.headlineFont)
                     .foregroundStyle(Color("TextPrimary"))
                 Spacer()
@@ -83,7 +83,7 @@ struct HomeView: View {
         } label: {
             HStack(spacing: 10) {
                 Image(systemName: "face.smiling")
-                Text("Mood Check-in Yap")
+                Text("home.mood_checkin".localized)
                     .font(.headline)
                 Spacer()
                 Image(systemName: "chevron.right")
@@ -100,11 +100,11 @@ struct HomeView: View {
 
     private var sleepSummaryCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Uyku Ozeti", systemImage: "bed.double.fill")
+            Label("home.sleep_summary".localized, systemImage: "bed.double.fill")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text(String(format: "Son 7 gun ortalamasi %.1f saat", viewModel.averageSleepHours))
+            Text("home.avg_sleep_last7".localized(with: viewModel.averageSleepHours))
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextPrimary"))
         }
@@ -120,13 +120,13 @@ struct HomeView: View {
 
         return LazyVGrid(columns: horizontalSizeClass == .regular ? twoColumns : singleColumn, spacing: Theme.paddingMedium) {
             quickStatCard(
-                title: "Ortalama Mood",
+                title: "home.avg_mood".localized,
                 value: String(format: "%.1f / 5", viewModel.averageMood),
                 icon: "face.smiling.inverse"
             )
 
             quickStatCard(
-                title: "Bugunku Toplanti",
+                title: "home.today_meetings".localized,
                 value: "\(viewModel.todayMeetingCount)",
                 icon: "calendar"
             )
@@ -151,7 +151,7 @@ struct HomeView: View {
 
     private func weeklySummaryCard(_ summary: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Haftalik Ozet", systemImage: "doc.text.magnifyingglass")
+            Label("home.weekly_summary".localized, systemImage: "doc.text.magnifyingglass")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -160,7 +160,7 @@ struct HomeView: View {
                 .foregroundStyle(Color("TextPrimary"))
                 .lineLimit(4)
 
-            Button("Tum raporu gor") {
+            Button("home.view_full_report".localized) {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
                     router.navigate(to: .weeklyReport(weekStart: Date().startOfWeek))
                 }

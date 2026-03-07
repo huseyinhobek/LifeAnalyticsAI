@@ -21,11 +21,11 @@ struct MoodHistoryView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Mood Gecmisi")
+                Text("mood.history.title".localized)
                     .font(Theme.titleFont)
                     .foregroundStyle(Color("TextPrimary"))
 
-                Text("Son 365 gun")
+                Text("mood.history.last_365".localized)
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("TextSecondary"))
 
@@ -52,7 +52,7 @@ struct MoodHistoryView: View {
                     }
                 }
 
-                Text("Kayit Listesi")
+                Text("mood.history.record_list".localized)
                     .font(Theme.headlineFont)
                     .foregroundStyle(Color("TextPrimary"))
 
@@ -60,7 +60,7 @@ struct MoodHistoryView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                 } else if viewModel.entries.isEmpty {
-                    Text("Henuz mood kaydi bulunmuyor.")
+                    Text("mood.history.no_records".localized)
                         .font(Theme.bodyFont)
                         .foregroundStyle(Color("TextSecondary"))
                 } else {
@@ -98,17 +98,17 @@ struct MoodHistoryView: View {
             .padding(Theme.paddingLarge)
         }
         .background(Color("BackgroundLight").opacity(0.4))
-        .navigationTitle("Mood Gecmisi")
+        .navigationTitle("mood.history.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("CSV") {
+                Button("settings.export_csv".localized) {
                     do {
                         shareURL = try viewModel.exportCSVToTemporaryFile()
                         isShareSheetPresented = shareURL != nil
                         viewModel.errorMessage = nil
                     } catch {
-                        viewModel.errorMessage = "CSV olusturulamadi: \(error.localizedDescription)"
+                        viewModel.errorMessage = "mood.history.csv_failed".localized(with: error.localizedDescription)
                     }
                 }
                 .disabled(viewModel.entries.isEmpty)
@@ -130,7 +130,7 @@ struct MoodHistoryView: View {
 
     private var moodTrendChart: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Mood Trend")
+            Text("mood.history.trend".localized)
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
@@ -165,7 +165,7 @@ struct MoodHistoryView: View {
 
     private var moodDistributionChart: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Mood Dagilimi")
+            Text("mood.history.distribution".localized)
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 

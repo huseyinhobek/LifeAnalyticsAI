@@ -26,13 +26,13 @@ struct OnboardingView: View {
         var title: String {
             switch self {
             case .welcome:
-                return "Hos Geldin"
+                return "onboarding.step.welcome".localized
             case .healthKit:
-                return "HealthKit"
+                return "onboarding.step.healthkit".localized
             case .calendar:
-                return "Takvim"
+                return "onboarding.step.calendar".localized
             case .firstMood:
-                return "Ilk Mood"
+                return "onboarding.step.first_mood".localized
             }
         }
     }
@@ -81,7 +81,7 @@ struct OnboardingView: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Tamam") {
+                Button("general.done".localized) {
                     focusedField = nil
                 }
             }
@@ -93,11 +93,11 @@ struct OnboardingView: View {
 
     private var progressHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Onboarding")
+            Text("onboarding.title".localized)
                 .font(Theme.titleFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Adim \(currentStep.rawValue + 1) / \(Step.allCases.count) · \(currentStep.title)")
+            Text("onboarding.step_progress".localized(with: currentStep.rawValue + 1, Step.allCases.count, currentStep.title))
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
 
@@ -112,14 +112,14 @@ struct OnboardingView: View {
     }
 
     private var welcomeStep: some View {
-        stepCard(icon: "sparkles", title: "LifeAnalyticsAI'ya Hos Geldin", subtitle: "4 adimda kurulumu tamamlayip kisisel icgorulere baslayabilirsin.") {
+        stepCard(icon: "sparkles", title: "onboarding.welcome.card_title".localized, subtitle: "onboarding.welcome.card_subtitle".localized) {
             VStack(alignment: .leading, spacing: 10) {
-                bullet("Uyku, mood ve takvim verilerini bagla")
-                bullet("Ilk mood girisini yap")
-                bullet("Kisisel raporlarini hemen gormeye basla")
+                bullet("onboarding.welcome.bullet1".localized)
+                bullet("onboarding.welcome.bullet2".localized)
+                bullet("onboarding.welcome.bullet3".localized)
             }
 
-            Button("Baslayalim") {
+            Button("onboarding.start".localized) {
                 goTo(.healthKit)
             }
             .buttonStyle(.borderedProminent)
@@ -129,8 +129,8 @@ struct OnboardingView: View {
     }
 
     private var healthStep: some View {
-        stepCard(icon: "heart.text.square.fill", title: "HealthKit Erisimi", subtitle: "Uyku ve aktivite analizleri icin HealthKit izni ver.") {
-            statusRow(isDone: healthAuthorized, okText: "Erisim verildi", waitingText: "Izin bekleniyor")
+        stepCard(icon: "heart.text.square.fill", title: "onboarding.health.title".localized, subtitle: "onboarding.health.subtitle".localized) {
+            statusRow(isDone: healthAuthorized, okText: "onboarding.status.granted".localized, waitingText: "onboarding.status.waiting".localized)
 
             if let errorMessage {
                 Text(errorMessage)
@@ -143,7 +143,7 @@ struct OnboardingView: View {
             } label: {
                 HStack {
                     if isLoading { ProgressView().tint(.white) }
-                    Text("HealthKit Izni Ver")
+                    Text("onboarding.health.grant".localized)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -157,8 +157,8 @@ struct OnboardingView: View {
     }
 
     private var calendarStep: some View {
-        stepCard(icon: "calendar.badge.clock", title: "Takvim Erisimi", subtitle: "Toplanti yogunlugu ve rutin analizleri icin takvim izni ver.") {
-            statusRow(isDone: calendarAuthorized, okText: "Erisim verildi", waitingText: "Izin bekleniyor")
+        stepCard(icon: "calendar.badge.clock", title: "onboarding.calendar.title".localized, subtitle: "onboarding.calendar.subtitle".localized) {
+            statusRow(isDone: calendarAuthorized, okText: "onboarding.status.granted".localized, waitingText: "onboarding.status.waiting".localized)
 
             if let errorMessage {
                 Text(errorMessage)
@@ -171,7 +171,7 @@ struct OnboardingView: View {
             } label: {
                 HStack {
                     if isLoading { ProgressView().tint(.white) }
-                    Text("Takvim Izni Ver")
+                    Text("onboarding.calendar.grant".localized)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -185,7 +185,7 @@ struct OnboardingView: View {
     }
 
     private var firstMoodStep: some View {
-        stepCard(icon: "face.smiling", title: "Ilk Mood Girisini Yap", subtitle: "Bugunku ruh halini secerek modeli kalibre et.") {
+        stepCard(icon: "face.smiling", title: "onboarding.first_mood.title".localized, subtitle: "onboarding.first_mood.subtitle".localized) {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                 ForEach(MoodLevel.allCases, id: \.self) { level in
                     Button {
@@ -213,7 +213,7 @@ struct OnboardingView: View {
                 }
             }
 
-            TextField("Kisa bir not (opsiyonel)", text: $moodNote, axis: .vertical)
+            TextField("onboarding.note_placeholder".localized, text: $moodNote, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .submitLabel(.done)
                 .focused($focusedField, equals: .moodNote)
@@ -232,7 +232,7 @@ struct OnboardingView: View {
             } label: {
                 HStack {
                     if isLoading { ProgressView().tint(.white) }
-                    Text("Onboarding'i Tamamla")
+                    Text("onboarding.complete".localized)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -241,7 +241,7 @@ struct OnboardingView: View {
             .font(Theme.captionFont)
             .disabled(selectedMood == nil || isLoading)
 
-            Button("Geri") {
+            Button("onboarding.back".localized) {
                 goTo(.calendar)
             }
             .font(Theme.captionFont)
@@ -251,7 +251,7 @@ struct OnboardingView: View {
 
     private func footerButtons(back: Step, next: Step) -> some View {
         HStack {
-            Button("Geri") {
+            Button("onboarding.back".localized) {
                 goTo(back)
             }
             .font(Theme.captionFont)
@@ -259,7 +259,7 @@ struct OnboardingView: View {
 
             Spacer()
 
-            Button("Atla") {
+            Button("onboarding.skip".localized) {
                 goTo(next)
             }
             .font(Theme.captionFont)
@@ -354,7 +354,7 @@ struct OnboardingView: View {
         focusedField = nil
 
         guard let selectedMood else {
-            errorMessage = "Lutfen bir mood sec."
+            errorMessage = "onboarding.select_mood_error".localized
             return
         }
 

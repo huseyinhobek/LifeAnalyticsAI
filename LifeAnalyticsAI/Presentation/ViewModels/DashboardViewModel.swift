@@ -12,11 +12,11 @@ final class DashboardViewModel: ObservableObject {
         var title: String {
             switch self {
             case .week:
-                return "7 Gun"
+                return "dashboard.window.7".localized
             case .twoWeeks:
-                return "14 Gun"
+                return "dashboard.window.14".localized
             case .month:
-                return "30 Gun"
+                return "dashboard.window.30".localized
             }
         }
     }

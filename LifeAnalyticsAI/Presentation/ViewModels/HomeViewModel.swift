@@ -4,7 +4,7 @@ import Foundation
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    @Published private(set) var todayInsightText = "Bugunun icgorusu hazirlaniyor..."
+    @Published private(set) var todayInsightText = "home.insight_loading".localized
     @Published private(set) var averageSleepHours = 0.0
     @Published private(set) var averageMood = 0.0
     @Published private(set) var todayMeetingCount = 0
@@ -57,7 +57,7 @@ final class HomeViewModel: ObservableObject {
             let moods = try await moodEntries
             let summary = try await dailySummary
 
-            todayInsightText = insight ?? "Bugun icin yeni bir icgoru bulunamadi."
+            todayInsightText = insight ?? "home.insight_empty".localized
             weeklyReportSummary = reports.first?.summary
             averageSleepHours = sleep
             averageMood = moods.isEmpty ? 0 : moods.map { Double($0.value) }.reduce(0, +) / Double(moods.count)
@@ -66,7 +66,7 @@ final class HomeViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
             if todayInsightText.isEmpty {
-                todayInsightText = "Icgoru yuklenemedi. Lutfen tekrar deneyin."
+                todayInsightText = "home.insight_failed".localized
             }
         }
     }
