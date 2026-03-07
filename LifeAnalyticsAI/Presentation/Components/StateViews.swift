@@ -34,7 +34,7 @@ struct LoadingStateView: View {
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
         .accessibilityElement(children: .combine)
         .accessibilityLabel(title)
-        .accessibilityValue(subtitle ?? "Yukleniyor")
+        .accessibilityValue(subtitle ?? "general.loading".localized)
     }
 }
 
@@ -81,7 +81,7 @@ struct EmptyStateView: View {
 
 struct ErrorStateView: View {
     let message: String
-    var retryTitle: String = "Tekrar Dene"
+    var retryTitle: String = "error.retry".localized
     var retryAction: (() -> Void)?
 
     var body: some View {

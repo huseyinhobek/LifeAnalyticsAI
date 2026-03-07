@@ -19,7 +19,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
     func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws {
         let content = UNMutableNotificationContent()
-        content.title = "Gunaydin, serini koru"
+        content.title = "notification.morning.title".localized
         content.body = NotificationContentBuilder.morningBody(streakDays: streakDays, predictionText: predictionText)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.morning
@@ -38,7 +38,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
         let content = UNMutableNotificationContent()
-        content.title = "Aksam degerlendirme"
+        content.title = "notification.evening.title".localized
         content.body = NotificationContentBuilder.eveningBody(moodCheckInsThisWeek: moodCheckInsThisWeek)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.evening
@@ -57,7 +57,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
     func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
         let content = UNMutableNotificationContent()
-        content.title = "Haftalik rapor bildirimi"
+        content.title = "notification.weekly.title".localized
         content.body = NotificationContentBuilder.weeklyBody(trackedDays: trackedDays)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.weekly
@@ -81,7 +81,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
 enum NotificationContentBuilder {
     static func morningBody(streakDays: Int, predictionText: String?) -> String {
-        let fallback = "Son \(max(streakDays, 1)) gundur kayit yapiyorsun. Takvim ve 7 gunluk patern bazli tahminini gormek icin mood girisi yap."
+        let fallback = "notification.morning.fallback".localized(with: max(streakDays, 1))
         guard let predictionText, !predictionText.isEmpty else {
             return fallback
         }
@@ -91,17 +91,17 @@ enum NotificationContentBuilder {
             return predictionText
         }
 
-        return "\(predictionText) (7 gunluk patern bazli)"
+        return "notification.morning.suffix".localized(with: predictionText)
     }
 
     static func eveningBody(moodCheckInsThisWeek: Int) -> String {
         let safeCheckIns = min(max(moodCheckInsThisWeek, 0), 7)
-        return "Bugunun ozeti hazir, ruh halini kaydet. Bu hafta \(safeCheckIns)/7 gun mood kaydin var."
+        return "notification.evening.body".localized(with: safeCheckIns)
     }
 
     static func weeklyBody(trackedDays: Int) -> String {
         let safeTrackedDays = max(trackedDays, 0)
-        return "Bu haftanin yasam raporun hazir. AI yeni bir patern kesfetti: son \(safeTrackedDays) gunde veri toplandi."
+        return "notification.weekly.body".localized(with: safeTrackedDays)
     }
 }
 

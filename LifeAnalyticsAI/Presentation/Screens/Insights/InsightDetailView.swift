@@ -27,7 +27,7 @@ struct InsightDetailView: View {
             .padding(Theme.paddingLarge)
         }
         .background(Color("BackgroundLight").opacity(0.35))
-        .navigationTitle("Insight Detay")
+        .navigationTitle("insight.detail.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
     }
 
@@ -38,7 +38,7 @@ struct InsightDetailView: View {
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("SecondaryBlue"))
                 Spacer()
-                Text("Guven: \(viewModel.insight.confidenceLevel.label)")
+                Text("insight.detail.confidence".localized(with: viewModel.insight.confidenceLevel.label))
                     .font(Theme.captionFont)
                     .foregroundStyle(Color("TextSecondary"))
             }
@@ -59,12 +59,12 @@ struct InsightDetailView: View {
 
     private var relatedMetricsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Ilgili Metrikler", systemImage: "chart.bar.xaxis")
+            Label("insight.detail.related_metrics".localized, systemImage: "chart.bar.xaxis")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             if viewModel.metricChartData.isEmpty {
-                Text("Ilgili metrik bulunamadi.")
+                Text("insight.detail.no_related_metrics".localized)
                     .font(Theme.bodyFont)
                     .foregroundStyle(Color("TextSecondary"))
             } else {
@@ -86,13 +86,13 @@ struct InsightDetailView: View {
 
     private var feedbackSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("Bu icgoru faydali miydi?", systemImage: "hand.thumbsup")
+            Label("insight.detail.helpful_question".localized, systemImage: "hand.thumbsup")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             HStack(spacing: 10) {
-                feedbackButton(title: "Faydali", icon: "hand.thumbsup.fill", feedback: .helpful)
-                feedbackButton(title: "Gelismeli", icon: "hand.thumbsdown.fill", feedback: .notHelpful)
+                feedbackButton(title: "insight.detail.feedback.helpful".localized, icon: "hand.thumbsup.fill", feedback: .helpful)
+                feedbackButton(title: "insight.detail.feedback.improve".localized, icon: "hand.thumbsdown.fill", feedback: .notHelpful)
             }
         }
         .padding(Theme.paddingMedium)

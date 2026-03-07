@@ -33,7 +33,7 @@ struct ProfileView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .navigationTitle("Profil")
+        .navigationTitle("profile.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .refreshable { await viewModel.load() }
@@ -41,11 +41,11 @@ struct ProfileView: View {
 
     private var summaryHeader: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Veri Profili", systemImage: "person.crop.circle.badge.checkmark")
+            Label("profile.data_profile".localized, systemImage: "person.crop.circle.badge.checkmark")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Veri toplama baslangici: \(viewModel.dataCollectionStartDate.formatted(date: .abbreviated, time: .omitted))")
+            Text("profile.collection_start".localized(with: viewModel.dataCollectionStartDate.formatted(date: .abbreviated, time: .omitted)))
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextSecondary"))
         }
@@ -62,12 +62,12 @@ struct ProfileView: View {
 
         return LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
             profileCard(
-                title: "Toplam Gun",
+                title: "profile.total_days".localized,
                 value: "\(viewModel.totalTrackedDays)",
                 icon: "calendar.badge.clock"
             )
             profileCard(
-                title: "Ortalama Guven",
+                title: "profile.avg_confidence".localized,
                 value: "%\(Int((viewModel.averageConfidence * 100).rounded()))",
                 icon: "checkmark.seal"
             )
@@ -92,14 +92,14 @@ struct ProfileView: View {
 
     private var confidenceSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Guven Skoru Gelisimi", systemImage: "chart.line.uptrend.xyaxis")
+            Label("profile.confidence_trend".localized, systemImage: "chart.line.uptrend.xyaxis")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             if viewModel.confidenceTrend.isEmpty {
                 EmptyStateView(
-                    title: "Henuz yeterli insight verisi yok",
-                    subtitle: "Veri toplandikca guven skoru gelisimi otomatik guncellenir.",
+                    title: "profile.empty_confidence_title".localized,
+                    subtitle: "profile.empty_confidence_subtitle".localized,
                     icon: "chart.line.flattrend.xyaxis"
                 )
             } else {

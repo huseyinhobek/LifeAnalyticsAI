@@ -51,14 +51,14 @@ final class SettingsViewModel: ObservableObject {
 
         guard notificationsEnabled else {
             await notificationService.cancelAll()
-            statusMessage = "Bildirimler kapatildi."
+            statusMessage = "settings.status.notifications_disabled".localized
             return
         }
 
         do {
             let permissionGranted = try await notificationService.requestPermission()
             guard permissionGranted else {
-                statusMessage = "Bildirim izni verilmedi. Ayarlardan izin verebilirsin."
+                statusMessage = "settings.status.permission_denied".localized
                 return
             }
 
@@ -106,9 +106,9 @@ final class SettingsViewModel: ObservableObject {
                 try await notificationService.scheduleWeekly(at: weeklyComponents, trackedDays: trackedDays)
             }
 
-            statusMessage = "Kisisel bildirim planin optimize edildi. Sabah \(morningHour):30, aksam \(eveningHour):00, haftalik \(weeklyHour):00."
+            statusMessage = "settings.status.notification_plan".localized(with: morningHour, eveningHour, weeklyHour)
         } catch {
-            statusMessage = "Bildirim ayarlari kaydedilemedi: \(error.localizedDescription)"
+            statusMessage = "settings.status.notification_save_failed".localized(with: error.localizedDescription)
         }
     }
 
@@ -118,12 +118,12 @@ final class SettingsViewModel: ObservableObject {
         userDefaultsManager.healthKitSyncEnabled = healthKitSyncEnabled
         userDefaultsManager.calendarSyncEnabled = calendarSyncEnabled
         userDefaultsManager.appLockEnabled = appLockEnabled
-        statusMessage = "Tercihler guncellendi."
+        statusMessage = "settings.status.preferences_updated".localized
     }
 
     func resetOnboardingAndPreferences() {
         userDefaultsManager.hasCompletedOnboarding = false
-        statusMessage = "Hesap tercihleri sifirlandi. Onboarding bir sonraki acilista tekrar gosterilir."
+        statusMessage = "settings.status.preferences_reset".localized
     }
 
     func runSecurityAuditChecklist() {
@@ -134,11 +134,11 @@ final class SettingsViewModel: ObservableObject {
         let warningCount = results.filter { $0.status == .warning }.count
 
         if failedCount > 0 {
-            statusMessage = "Guvenlik denetimi tamamlandi: \(failedCount) kritik bulgu, \(warningCount) uyari."
+            statusMessage = "settings.status.audit_failed".localized(with: failedCount, warningCount)
         } else if warningCount > 0 {
-            statusMessage = "Guvenlik denetimi tamamlandi: kritik bulgu yok, \(warningCount) uyari var."
+            statusMessage = "settings.status.audit_warning".localized(with: warningCount)
         } else {
-            statusMessage = "Guvenlik denetimi basarili: tum kontroller gecti."
+            statusMessage = "settings.status.audit_success".localized
         }
     }
 

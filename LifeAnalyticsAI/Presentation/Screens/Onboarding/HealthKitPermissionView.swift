@@ -26,18 +26,18 @@ struct HealthKitPermissionView: View {
                     .font(.system(size: 52))
                     .foregroundStyle(Color("PrimaryBlue"))
 
-                Text("Saglik Verileri Izni")
+                Text("onboarding.health.permission_title".localized)
                     .font(Theme.titleFont)
                     .foregroundStyle(Color("TextPrimary"))
 
-                Text("Uyku, adim ve kalp hizi verilerini analiz ederek kisisel icgoruler sunabilmemiz icin HealthKit erisimi gerekli.")
+                Text("onboarding.health.permission_body".localized)
                     .font(Theme.bodyFont)
                     .foregroundStyle(Color("TextSecondary"))
 
                 HStack(spacing: 10) {
                     Image(systemName: isAuthorized ? "checkmark.circle.fill" : "xmark.circle")
                         .foregroundStyle(isAuthorized ? Color("MoodExcellent") : Color("MoodBad"))
-                    Text(isAuthorized ? "Erisim verildi" : "Erisim bekleniyor")
+                    Text(isAuthorized ? "onboarding.status.granted".localized : "onboarding.status.waiting".localized)
                         .font(Theme.bodyFont)
                         .foregroundStyle(Color("TextPrimary"))
                 }
@@ -57,7 +57,7 @@ struct HealthKitPermissionView: View {
                                 ProgressView()
                                     .tint(.white)
                             }
-                            Text("Saglik Verilerime Erisim Ver")
+                            Text("onboarding.health.permission_button".localized)
                                 .font(.headline)
                         }
                         .frame(maxWidth: .infinity)
@@ -68,7 +68,7 @@ struct HealthKitPermissionView: View {
                     }
                     .disabled(isLoading)
 
-                    Button("Simdilik Atla") {
+                    Button("onboarding.skip_now".localized) {
                         onSkip()
                     }
                     .font(.subheadline)

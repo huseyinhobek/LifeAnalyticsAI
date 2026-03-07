@@ -51,7 +51,10 @@ final class GenerateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProt
     }
 
     private static func defaultLanguageCode() -> String {
-        let preferred = Locale.preferredLanguages.first?.lowercased() ?? "en"
-        return preferred.hasPrefix("tr") ? "tr" : "en"
+        let saved = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)?.string(forKey: "app_language")
+        if let saved, saved.hasPrefix("tr") {
+            return "tr"
+        }
+        return "en"
     }
 }

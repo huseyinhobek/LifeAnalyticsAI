@@ -11,6 +11,7 @@ struct LifeAnalyticsAIApp: App {
 
     @State private var router = NavigationRouter()
     @State private var userDefaultsManager = UserDefaultsManager()
+    @State private var languageManager = LanguageManager()
     @State private var proxyHealthChecker = ProxyHealthChecker.shared
     @StateObject private var dependencyContainer = DependencyContainer()
     @Environment(\.scenePhase) private var scenePhase
@@ -22,6 +23,7 @@ struct LifeAnalyticsAIApp: App {
         WindowGroup {
             ZStack {
                 AppRootView(router: router)
+                    .id(languageManager.currentLanguage.rawValue)
                     .environmentObject(dependencyContainer)
                     .blur(radius: shouldShowAppLock ? 8 : 0)
                     .allowsHitTesting(!shouldShowAppLock)
@@ -128,8 +130,9 @@ struct LifeAnalyticsAIApp: App {
                     } catch {
                         AppLogger.notification.error("Reminder scheduling failed: \(error.localizedDescription)")
                     }
-                }
+            }
             .environment(proxyHealthChecker)
+            .environment(languageManager)
         }
         .modelContainer(PersistenceController.shared.container)
     }
@@ -149,7 +152,7 @@ struct LifeAnalyticsAIApp: App {
         do {
             isAuthenticatingLock = true
             let success = try await BiometricAuthenticator.authenticate(
-                reason: "LifeAnalyticsAI verilerine erismek icin kimligini dogrula"
+                reason: "app_lock.auth_reason".localized
             )
             isAppUnlocked = success
             lockErrorMessage = nil
@@ -178,11 +181,11 @@ private struct AppLockOverlayView: View {
                 .font(.system(size: 44, weight: .semibold))
                 .foregroundStyle(Color("PrimaryBlue"))
 
-            Text("Uygulama Kilitli")
+            Text("app_lock.title".localized)
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Face ID veya Touch ID ile devam edebilirsin.")
+            Text("app_lock.subtitle".localized)
                 .font(Theme.bodyFont)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(Color("TextSecondary"))
@@ -201,7 +204,7 @@ private struct AppLockOverlayView: View {
                     if isAuthenticating {
                         ProgressView().tint(.white)
                     }
-                    Text("Kilidi Ac")
+                    Text("app_lock.unlock".localized)
                 }
                 .frame(maxWidth: .infinity)
             }

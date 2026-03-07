@@ -15,7 +15,7 @@ struct MoodEntryView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Bugun nasil hissediyorsun?")
+                Text("mood.entry.how_feeling".localized)
                     .font(Theme.titleFont)
                     .foregroundStyle(Color("TextPrimary"))
 
@@ -53,7 +53,7 @@ struct MoodEntryView: View {
                     }
                 }
 
-                Text("Aktiviteler")
+                Text("mood.entry.activities".localized)
                     .font(Theme.headlineFont)
                     .foregroundStyle(Color("TextPrimary"))
 
@@ -76,7 +76,7 @@ struct MoodEntryView: View {
                     }
                 }
 
-                Text("Not (opsiyonel)")
+                Text("mood.entry.note_optional".localized)
                     .font(Theme.headlineFont)
                     .foregroundStyle(Color("TextPrimary"))
 
@@ -94,7 +94,7 @@ struct MoodEntryView: View {
                 }
 
                 if viewModel.didSave {
-                    Text("Mood kaydedildi")
+                    Text("mood.entry.saved".localized)
                         .font(Theme.captionFont)
                         .foregroundStyle(Color("MoodExcellent"))
                 }
@@ -108,7 +108,7 @@ struct MoodEntryView: View {
                                 .tint(.white)
                         }
 
-                        Text("Kaydet")
+                        Text("mood.entry.save".localized)
                             .font(.headline)
                     }
                     .frame(maxWidth: .infinity)
@@ -126,7 +126,7 @@ struct MoodEntryView: View {
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 Spacer()
-                Button("Tamam") {
+                Button("general.done".localized) {
                     isNoteFocused = false
                 }
             }
@@ -142,7 +142,7 @@ struct MoodEntryView: View {
             )
             .animation(.easeInOut(duration: 0.25), value: viewModel.selectedMoodLevel)
         )
-        .navigationTitle("Mood Girisi")
+        .navigationTitle("mood.entry.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .sensoryFeedback(.impact, trigger: feedbackTrigger)
     }

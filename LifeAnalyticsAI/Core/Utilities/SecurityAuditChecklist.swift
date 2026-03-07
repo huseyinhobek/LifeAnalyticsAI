@@ -27,41 +27,41 @@ enum SecurityAuditChecklist {
 
         return [
             SecurityAuditCheck(
-                title: "LLM endpoint HTTPS",
-                detail: isHTTPS ? "LLM baglantisi HTTPS ile yapiliyor." : "LLM endpoint HTTPS degil.",
+                title: "security.audit.https.title".localized,
+                detail: isHTTPS ? "security.audit.https.pass".localized : "security.audit.https.fail".localized,
                 status: isHTTPS ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "Proxy endpoint",
+                title: "security.audit.proxy.title".localized,
                 detail: isProxyHost
-                    ? "LLM cagrilari Cloudflare proxy uzerinden yapiliyor."
-                    : "LLM endpoint proxy hostu ile eslesmiyor.",
+                    ? "security.audit.proxy.pass".localized
+                    : "security.audit.proxy.fail".localized,
                 status: isProxyHost ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "Privacy manifest",
+                title: "security.audit.privacy.title".localized,
                 detail: hasPrivacyManifest
-                    ? "PrivacyInfo.xcprivacy bundle icinde bulundu."
-                    : "PrivacyInfo.xcprivacy bundle icinde bulunamadi.",
+                    ? "security.audit.privacy.pass".localized
+                    : "security.audit.privacy.fail".localized,
                 status: hasPrivacyManifest ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "Face ID usage description",
+                title: "security.audit.faceid.title".localized,
                 detail: hasFaceIDUsageDescription
-                    ? "NSFaceIDUsageDescription tanimli."
-                    : "NSFaceIDUsageDescription eksik.",
+                    ? "security.audit.faceid.pass".localized
+                    : "security.audit.faceid.fail".localized,
                 status: hasFaceIDUsageDescription ? .passed : .failed
             ),
             SecurityAuditCheck(
-                title: "Client API key storage",
-                detail: "API anahtari istemci tarafinda tutulmadan proxy uzerinden istek yapiliyor.",
+                title: "security.audit.client_key.title".localized,
+                detail: "security.audit.client_key.pass".localized,
                 status: .passed
             ),
             SecurityAuditCheck(
-                title: "Biometric app lock",
+                title: "security.audit.biometric.title".localized,
                 detail: appLockEnabled
-                    ? "Uygulama kilidi acik."
-                    : "Uygulama kilidi kapali; guvenlik icin acilmasi onerilir.",
+                    ? "security.audit.biometric.pass".localized
+                    : "security.audit.biometric.warn".localized,
                 status: appLockEnabled ? .passed : .warning
             )
         ]

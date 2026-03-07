@@ -35,7 +35,7 @@ final class MoodEntryViewModel: ObservableObject {
 
     func saveEntry() async {
         guard let selectedMoodLevel else {
-            errorMessage = "Lutfen bir mood seciniz."
+            errorMessage = "onboarding.select_mood_error".localized
             return
         }
 

@@ -55,9 +55,15 @@ actor NetworkManager {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
+        let userLang = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)?
+            .string(forKey: "app_language") ?? "en"
+        let langInstruction = LanguageManager.AppLanguage(rawValue: userLang)?.systemPromptInstruction
+            ?? LanguageManager.AppLanguage.english.systemPromptInstruction
+        let fullSystemPrompt = langInstruction + "\n\n" + systemPrompt
+
         let body: [String: Any] = [
             "prompt": prompt,
-            "system_prompt": systemPrompt,
+            "system_prompt": fullSystemPrompt,
             "model": AppConstants.API.llmModel,
             "max_tokens": AppConstants.API.maxTokens
         ]

@@ -30,13 +30,13 @@ final class NavigationRouter {
         var title: String {
             switch self {
             case .home:
-                return "Ana Sayfa"
+                return "tab.home".localized
             case .insights:
-                return "Icgoruler"
+                return "tab.insights".localized
             case .report:
-                return "Rapor"
+                return "tab.report".localized
             case .settings:
-                return "Ayarlar"
+                return "tab.settings".localized
             }
         }
 
@@ -137,7 +137,7 @@ struct AppRootView: View {
                             : Color.clear
                     )
                     .accessibilityLabel(tab.title)
-                    .accessibilityValue(tab == router.selectedTab ? "Secili" : "Secili degil")
+                    .accessibilityValue(tab == router.selectedTab ? "general.selected".localized : "general.not_selected".localized)
                 }
             }
             .navigationTitle("Life Analytics")
@@ -234,7 +234,7 @@ struct AppRootView: View {
         case .settings:
             SettingsView(viewModel: makeSettingsViewModel(), router: router)
         case .onboarding:
-            Text("Onboarding")
+            Text("onboarding.title".localized)
         case .insightHistory:
             InsightHistoryView(viewModel: makeInsightHistoryViewModel(), router: router)
         }

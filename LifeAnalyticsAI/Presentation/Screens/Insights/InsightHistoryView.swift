@@ -26,8 +26,8 @@ struct InsightHistoryView: View {
 
                 if viewModel.isLoading && viewModel.insights.isEmpty {
                     LoadingStateView(
-                        title: "Icgoruler yukleniyor",
-                        subtitle: "Arsiv ve filtre verileri hazirlaniyor",
+                        title: "insights.loading_title".localized,
+                        subtitle: "insights.loading_subtitle".localized,
                         icon: "clock.arrow.trianglehead.counterclockwise.rotate.90"
                     )
                 } else if viewModel.filteredInsights.isEmpty {
@@ -45,20 +45,20 @@ struct InsightHistoryView: View {
                 endPoint: .bottomTrailing
             )
         )
-        .navigationTitle("Insight Gecmisi")
+        .navigationTitle("insights.history.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
-        .searchable(text: $viewModel.searchText, prompt: "Insight ara")
+        .searchable(text: $viewModel.searchText, prompt: "insights.search_prompt".localized)
         .task { await viewModel.load() }
         .refreshable { await viewModel.refresh() }
     }
 
     private var headerCard: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("Tum Icgoruler", systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
+            Label("insights.all".localized, systemImage: "clock.arrow.trianglehead.counterclockwise.rotate.90")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text("Kronolojik sirayla \(viewModel.filteredInsights.count) kayit")
+            Text("insights.records_count".localized(with: viewModel.filteredInsights.count))
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextSecondary"))
         }
@@ -70,13 +70,13 @@ struct InsightHistoryView: View {
 
     private var filterSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Filtrele")
+            Text("insights.filter".localized)
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    filterChip(title: "Tum Tipler", icon: "line.3.horizontal.decrease.circle", isSelected: viewModel.selectedType == nil) {
+                    filterChip(title: "insights.all_types".localized, icon: "line.3.horizontal.decrease.circle", isSelected: viewModel.selectedType == nil) {
                         withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                             viewModel.selectedType = nil
                         }
@@ -142,10 +142,10 @@ struct InsightHistoryView: View {
 
     private var emptyState: some View {
         EmptyStateView(
-            title: "Filtreye uygun insight bulunamadi",
-            subtitle: "Arama kelimesini veya secili filtreleri degistir.",
+            title: "insights.empty_filtered_title".localized,
+            subtitle: "insights.empty_filtered_subtitle".localized,
             icon: "magnifyingglass",
-            actionTitle: viewModel.hasActiveFilters ? "Filtreleri Temizle" : nil,
+            actionTitle: viewModel.hasActiveFilters ? "insights.clear_filters".localized : nil,
             action: viewModel.hasActiveFilters ? {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
                     viewModel.clearFilters()
@@ -187,15 +187,15 @@ private extension Insight.InsightType {
     var displayName: String {
         switch self {
         case .correlation:
-            return "Korelasyon"
+            return "insights.type.correlation".localized
         case .anomaly:
-            return "Anomali"
+            return "insights.type.anomaly".localized
         case .prediction:
-            return "Tahmin"
+            return "insights.type.prediction".localized
         case .trend:
-            return "Trend"
+            return "insights.type.trend".localized
         case .seasonal:
-            return "Mevsimsel"
+            return "insights.type.seasonal".localized
         }
     }
 
