@@ -43,17 +43,38 @@ final class SettingsViewModel: ObservableObject {
         userDefaultsManager.weeklyReportEnabled = weeklyReportEnabled
 
         guard notificationsEnabled else {
+            await notificationService.cancelAll()
             statusMessage = "Bildirimler kapatildi."
             return
         }
 
         do {
-            try await notificationService.requestAuthorization()
+            let permissionGranted = try await notificationService.requestPermission()
+            guard permissionGranted else {
+                statusMessage = "Bildirim izni verilmedi. Ayarlardan izin verebilirsin."
+                return
+            }
 
-            let components = Calendar.current.dateComponents([.hour, .minute], from: morningNotificationTime)
-            try await notificationService.scheduleDailyMoodReminder(at: components)
+            await notificationService.cancelAll()
 
-            statusMessage = "Gunluk mood hatirlatmasi kaydedildi."
+            let trackedDays = trackedDaysSinceOnboarding()
+
+            let morningComponents = Calendar.current.dateComponents([.hour, .minute], from: morningNotificationTime)
+            try await notificationService.scheduleMorning(at: morningComponents, streakDays: trackedDays)
+
+            let eveningComponents = Calendar.current.dateComponents([.hour, .minute], from: eveningNotificationTime)
+            let moodCheckIns = min(max(trackedDays % 8, 1), 7)
+            try await notificationService.scheduleEvening(at: eveningComponents, moodCheckInsThisWeek: moodCheckIns)
+
+            if weeklyReportEnabled {
+                var weeklyComponents = DateComponents()
+                weeklyComponents.weekday = AppConstants.Notifications.weeklyReportDay
+                weeklyComponents.hour = eveningComponents.hour ?? AppConstants.Notifications.eveningHour
+                weeklyComponents.minute = eveningComponents.minute ?? AppConstants.Notifications.eveningMinute
+                try await notificationService.scheduleWeekly(at: weeklyComponents, trackedDays: trackedDays)
+            }
+
+            statusMessage = "Kisisel bildirim planin kaydedildi."
         } catch {
             statusMessage = "Bildirim ayarlari kaydedilemedi: \(error.localizedDescription)"
         }
@@ -95,5 +116,11 @@ final class SettingsViewModel: ObservableObject {
 
         try lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
         return url
+    }
+
+    private func trackedDaysSinceOnboarding() -> Int {
+        guard let start = userDefaultsManager.dataCollectionStartDate else { return 1 }
+        let days = Calendar.current.dateComponents([.day], from: start, to: Date()).day ?? 0
+        return max(days, 1)
     }
 }
