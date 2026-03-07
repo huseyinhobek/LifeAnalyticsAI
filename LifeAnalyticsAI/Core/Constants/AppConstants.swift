@@ -10,6 +10,10 @@ enum AppConstants {
         static let llmDailyTokenLimit = 30_000
         static let llmMonthlyTokenLimit = 500_000
         static let llmCacheTTLSeconds: TimeInterval = 60 * 60 * 6
+        static let llmPinnedHosts = ["api.anthropic.com"]
+        static let llmPinnedSPKIHashes = [
+            "60QDDZy98CjK1XTBTlPbInyzJzi+817KvW+usCk6r+o="
+        ]
     }
 
     enum Health {

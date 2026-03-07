@@ -6,6 +6,7 @@ actor NetworkManager {
     static let shared = NetworkManager()
 
     private let session: URLSession
+    private let sslPinningDelegate: SSLPinningDelegate
     private let parser: LLMResponseParsing
     private let credentialStore: SecureCredentialStore
     private let maxRetryCount = 2
@@ -17,7 +18,12 @@ actor NetworkManager {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.waitsForConnectivity = true
-        session = URLSession(configuration: config)
+        let sslPinningDelegate = SSLPinningDelegate(
+            pinnedHosts: AppConstants.API.llmPinnedHosts,
+            pinnedSPKIHashes: AppConstants.API.llmPinnedSPKIHashes
+        )
+        self.sslPinningDelegate = sslPinningDelegate
+        session = URLSession(configuration: config, delegate: sslPinningDelegate, delegateQueue: nil)
         self.parser = parser
         self.credentialStore = credentialStore
     }
