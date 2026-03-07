@@ -23,31 +23,35 @@ final class SleepRepository: SleepRepositoryProtocol {
             sortBy: [SortDescriptor(\.date, order: .reverse)]
         )
 
-        let entities = try modelContext.fetch(descriptor)
-        return entities.map { $0.toDomain() }
+        return try await MainActor.run {
+            let entities = try modelContext.fetch(descriptor)
+            return entities.map { $0.toDomain() }
+        }
     }
 
     func saveSleepRecord(_ record: SleepRecord) async throws {
-        var fetchByID = FetchDescriptor<SleepRecordEntity>(
-            predicate: #Predicate<SleepRecordEntity> { $0.id == record.id }
-        )
-        fetchByID.fetchLimit = 1
+        try await MainActor.run {
+            var fetchByID = FetchDescriptor<SleepRecordEntity>(
+                predicate: #Predicate<SleepRecordEntity> { $0.id == record.id }
+            )
+            fetchByID.fetchLimit = 1
 
-        if let existing = try modelContext.fetch(fetchByID).first {
-            existing.date = record.date
-            existing.bedtime = record.bedtime
-            existing.wakeTime = record.wakeTime
-            existing.totalMinutes = record.totalMinutes
-            existing.deepSleepMinutes = record.deepSleepMinutes
-            existing.remSleepMinutes = record.remSleepMinutes
-            existing.efficiency = record.efficiency
-            existing.source = record.source.rawValue
-        } else {
-            let entity = SleepRecordEntity.fromDomain(record)
-            modelContext.insert(entity)
+            if let existing = try modelContext.fetch(fetchByID).first {
+                existing.date = record.date
+                existing.bedtime = record.bedtime
+                existing.wakeTime = record.wakeTime
+                existing.totalMinutes = record.totalMinutes
+                existing.deepSleepMinutes = record.deepSleepMinutes
+                existing.remSleepMinutes = record.remSleepMinutes
+                existing.efficiency = record.efficiency
+                existing.source = record.source.rawValue
+            } else {
+                let entity = SleepRecordEntity.fromDomain(record)
+                modelContext.insert(entity)
+            }
+
+            try modelContext.save()
         }
-
-        try modelContext.save()
     }
 
     func getAverageSleep(days: Int) async throws -> Double {
