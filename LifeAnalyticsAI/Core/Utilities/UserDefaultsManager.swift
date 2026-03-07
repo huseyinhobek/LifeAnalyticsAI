@@ -95,6 +95,16 @@ final class UserDefaultsManager {
         set { defaults.set(newValue, forKey: Keys.calendarSyncEnabled) }
     }
 
+    var appLockEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.appLockEnabled) == nil {
+                return false
+            }
+            return defaults.bool(forKey: Keys.appLockEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.appLockEnabled) }
+    }
+
     enum InsightTone: String {
         case concise
         case detailed
@@ -137,4 +147,5 @@ private enum Keys {
     static let preferredTheme = "preferredTheme"
     static let healthKitSyncEnabled = "healthKitSyncEnabled"
     static let calendarSyncEnabled = "calendarSyncEnabled"
+    static let appLockEnabled = "appLockEnabled"
 }

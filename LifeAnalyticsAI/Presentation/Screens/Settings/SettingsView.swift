@@ -83,6 +83,9 @@ struct SettingsView: View {
             Toggle("Biyometrik koruma", isOn: $viewModel.requireBiometricForAPIKey)
                 .tint(Color("PrimaryBlue"))
 
+            Toggle("Uygulama kilidi (Face ID/Touch ID)", isOn: $viewModel.appLockEnabled)
+                .tint(Color("PrimaryBlue"))
+
             Text("API anahtari cihaz keychain'inde saklanir. Biyometrik koruma acik oldugunda erisim Face ID/Touch ID ile dogrulanir.")
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
@@ -104,6 +107,14 @@ struct SettingsView: View {
                 .buttonStyle(.bordered)
                 .tint(Color("MoodBad"))
             }
+
+            Button("Guvenlik Tercihlerini Kaydet") {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
+                    viewModel.persistPreferences()
+                }
+            }
+            .font(Theme.captionFont)
+            .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
         .background(Color("BackgroundLight"))

@@ -12,6 +12,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var preferredTheme: UserDefaultsManager.AppTheme
     @Published var healthKitSyncEnabled: Bool
     @Published var calendarSyncEnabled: Bool
+    @Published var appLockEnabled: Bool
     @Published var anthropicAPIKeyDraft: String
     @Published var requireBiometricForAPIKey: Bool
     @Published var statusMessage: String?
@@ -42,6 +43,7 @@ final class SettingsViewModel: ObservableObject {
         preferredTheme = userDefaultsManager.preferredTheme
         healthKitSyncEnabled = userDefaultsManager.healthKitSyncEnabled
         calendarSyncEnabled = userDefaultsManager.calendarSyncEnabled
+        appLockEnabled = userDefaultsManager.appLockEnabled
         anthropicAPIKeyDraft = ""
         requireBiometricForAPIKey = true
     }
@@ -120,6 +122,7 @@ final class SettingsViewModel: ObservableObject {
         userDefaultsManager.preferredTheme = preferredTheme
         userDefaultsManager.healthKitSyncEnabled = healthKitSyncEnabled
         userDefaultsManager.calendarSyncEnabled = calendarSyncEnabled
+        userDefaultsManager.appLockEnabled = appLockEnabled
         statusMessage = "Tercihler guncellendi."
     }
 
@@ -171,7 +174,8 @@ final class SettingsViewModel: ObservableObject {
             "preferredInsightTone,\(preferredInsightTone.rawValue)",
             "preferredTheme,\(preferredTheme.rawValue)",
             "healthKitSyncEnabled,\(healthKitSyncEnabled)",
-            "calendarSyncEnabled,\(calendarSyncEnabled)"
+            "calendarSyncEnabled,\(calendarSyncEnabled)",
+            "appLockEnabled,\(appLockEnabled)"
         ]
 
         let url = FileManager.default.temporaryDirectory

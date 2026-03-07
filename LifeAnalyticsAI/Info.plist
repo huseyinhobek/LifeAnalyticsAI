@@ -12,6 +12,8 @@
 	<string>Life Analytics AI, ruh hali verilerinizi Apple Health ile senkronize edebilir.</string>
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>Kisisel icgoruler ve haftalik yasam raporunuz icin bildirim gondeririz.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Uygulama verilerini korumak icin Face ID veya Touch ID ile kimlik dogrulama isteriz.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict/>
