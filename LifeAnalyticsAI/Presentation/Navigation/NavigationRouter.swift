@@ -94,6 +94,11 @@ struct AppRootView: View {
                     .value
                     .flatMap(Int.init)
                 router.navigate(to: .moodEntry(preset: preset))
+            } else if url.host == "report" {
+                withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
+                    router.selectedTab = .report
+                    router.goToRoot()
+                }
             }
         }
         .preferredColorScheme(preferredScheme(forTheme: userDefaultsManager.preferredTheme))

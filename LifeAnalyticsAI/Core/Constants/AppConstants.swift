@@ -30,6 +30,28 @@ enum AppConstants {
         static let eveningHour = 21
         static let eveningMinute = 0
         static let weeklyReportDay = 1 // Pazar
+
+        enum RequestID {
+            static let morningReminder = "morningMoodReminder"
+            static let eveningReminder = "eveningMoodReminder"
+            static let weeklyReminder = "weeklyInsightReminder"
+        }
+
+        enum Category {
+            static let morning = "morningMoodCategory"
+            static let evening = "eveningMoodCategory"
+            static let weekly = "weeklyReportCategory"
+        }
+
+        enum Action {
+            static let openMoodEntry = "openMoodEntryAction"
+            static let openReport = "openReportAction"
+        }
+
+        enum DeepLink {
+            static let moodEntry = "lifeanalytics://mood-entry"
+            static let report = "lifeanalytics://report"
+        }
     }
 
     enum Storage {
