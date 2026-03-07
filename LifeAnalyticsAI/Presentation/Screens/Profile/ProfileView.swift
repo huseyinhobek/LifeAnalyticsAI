@@ -19,9 +19,9 @@ struct ProfileView: View {
                 confidenceSection
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(Theme.captionFont)
-                        .foregroundStyle(Color("MoodBad"))
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.load() }
+                    }
                 }
             }
             .padding(Theme.paddingLarge)
@@ -97,13 +97,11 @@ struct ProfileView: View {
                 .foregroundStyle(Color("TextPrimary"))
 
             if viewModel.confidenceTrend.isEmpty {
-                Text("Henüz yeterli insight verisi yok.")
-                    .font(Theme.bodyFont)
-                    .foregroundStyle(Color("TextSecondary"))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(Theme.paddingMedium)
-                    .background(Color("BackgroundLight"))
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                EmptyStateView(
+                    title: "Henuz yeterli insight verisi yok",
+                    subtitle: "Veri toplandikca guven skoru gelisimi otomatik guncellenir.",
+                    icon: "chart.line.flattrend.xyaxis"
+                )
             } else {
                 Chart(viewModel.confidenceTrend) { point in
                     LineMark(

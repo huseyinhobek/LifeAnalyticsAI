@@ -25,9 +25,9 @@ struct HomeView: View {
                 }
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(Theme.captionFont)
-                        .foregroundStyle(Color("MoodBad"))
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.refresh() }
+                    }
                 }
             }
             .padding(Theme.paddingLarge)

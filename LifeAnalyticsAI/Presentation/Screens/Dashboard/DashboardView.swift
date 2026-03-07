@@ -25,15 +25,17 @@ struct DashboardView: View {
                 summaryCards
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(Theme.captionFont)
-                        .foregroundStyle(Color("MoodBad"))
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.refresh() }
+                    }
                 }
 
                 if viewModel.isLoading && viewModel.sleepPoints.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, Theme.paddingLarge)
+                    LoadingStateView(
+                        title: "Istatistikler yukleniyor",
+                        subtitle: "Uyku, mood ve aktivite verileri hazirlaniyor",
+                        icon: "chart.bar.doc.horizontal"
+                    )
                 } else {
                     sleepChartSection
                     moodChartSection

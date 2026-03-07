@@ -19,15 +19,17 @@ struct InsightHistoryView: View {
                 filterSection
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(Theme.captionFont)
-                        .foregroundStyle(Color("MoodBad"))
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.refresh() }
+                    }
                 }
 
                 if viewModel.isLoading && viewModel.insights.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, Theme.paddingLarge)
+                    LoadingStateView(
+                        title: "Icgoruler yukleniyor",
+                        subtitle: "Arsiv ve filtre verileri hazirlaniyor",
+                        icon: "clock.arrow.trianglehead.counterclockwise.rotate.90"
+                    )
                 } else if viewModel.filteredInsights.isEmpty {
                     emptyState
                 } else {
@@ -139,30 +141,17 @@ struct InsightHistoryView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 24, weight: .semibold))
-                .foregroundStyle(Color("TextSecondary"))
-
-            Text("Filtreye uygun insight bulunamadi")
-                .font(Theme.bodyFont)
-                .foregroundStyle(Color("TextPrimary"))
-
-            if viewModel.hasActiveFilters {
-                Button("Filtreleri Temizle") {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
-                        viewModel.clearFilters()
-                    }
+        EmptyStateView(
+            title: "Filtreye uygun insight bulunamadi",
+            subtitle: "Arama kelimesini veya secili filtreleri degistir.",
+            icon: "magnifyingglass",
+            actionTitle: viewModel.hasActiveFilters ? "Filtreleri Temizle" : nil,
+            action: viewModel.hasActiveFilters ? {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                    viewModel.clearFilters()
                 }
-                .font(Theme.captionFont)
-                .foregroundStyle(Color("SecondaryBlue"))
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, Theme.paddingLarge)
-        .padding(.horizontal, Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            } : nil
+        )
     }
 
     private var gridColumns: [GridItem] {
