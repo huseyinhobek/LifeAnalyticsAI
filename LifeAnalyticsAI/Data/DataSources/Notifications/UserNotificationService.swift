@@ -22,15 +22,16 @@ final class UserNotificationService: NotificationServiceProtocol {
         content.title = "Gunaydin, serini koru"
         content.body = "Son \(streakDays) gundur kayit yapiyorsun. Bugun ilk mood girisini yap."
         content.sound = .default
+        content.categoryIdentifier = AppConstants.Notifications.Category.morning
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         let request = UNNotificationRequest(
-            identifier: NotificationIdentifiers.morningReminder,
+            identifier: AppConstants.Notifications.RequestID.morningReminder,
             content: content,
             trigger: trigger
         )
 
-        center.removePendingNotificationRequests(withIdentifiers: [NotificationIdentifiers.morningReminder])
+        center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.morningReminder])
         try await center.add(request)
     }
 
@@ -40,15 +41,16 @@ final class UserNotificationService: NotificationServiceProtocol {
         content.title = "Aksam mood kontrolu"
         content.body = "Bu hafta \(safeCheckIns)/7 gun kayit tamamlandi. Aksam mood'unu eklemeyi unutma."
         content.sound = .default
+        content.categoryIdentifier = AppConstants.Notifications.Category.evening
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         let request = UNNotificationRequest(
-            identifier: NotificationIdentifiers.eveningReminder,
+            identifier: AppConstants.Notifications.RequestID.eveningReminder,
             content: content,
             trigger: trigger
         )
 
-        center.removePendingNotificationRequests(withIdentifiers: [NotificationIdentifiers.eveningReminder])
+        center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.eveningReminder])
         try await center.add(request)
     }
 
@@ -57,27 +59,22 @@ final class UserNotificationService: NotificationServiceProtocol {
         content.title = "Haftalik rapor hazirligi"
         content.body = "Son \(max(trackedDays, 0)) gunde veri topladin. Haftalik raporun icin son mood girisini yap."
         content.sound = .default
+        content.categoryIdentifier = AppConstants.Notifications.Category.weekly
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
         let request = UNNotificationRequest(
-            identifier: NotificationIdentifiers.weeklyReminder,
+            identifier: AppConstants.Notifications.RequestID.weeklyReminder,
             content: content,
             trigger: trigger
         )
 
-        center.removePendingNotificationRequests(withIdentifiers: [NotificationIdentifiers.weeklyReminder])
+        center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.weeklyReminder])
         try await center.add(request)
     }
 
     func cancelAll() async {
         center.removeAllPendingNotificationRequests()
     }
-}
-
-private enum NotificationIdentifiers {
-    static let morningReminder = "morningMoodReminder"
-    static let eveningReminder = "eveningMoodReminder"
-    static let weeklyReminder = "weeklyInsightReminder"
 }
 
 #else
