@@ -9,7 +9,6 @@ struct SettingsView: View {
 
     @State private var shareURL: URL?
     @State private var isShareSheetPresented = false
-    @FocusState private var isAPIKeyFieldFocused: Bool
 
     init(viewModel: SettingsViewModel, router: NavigationRouter? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -38,14 +37,6 @@ struct SettingsView: View {
         .navigationTitle("Ayarlar")
         .navigationBarTitleDisplayMode(.inline)
         .keyboardDismissOnTap()
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Tamam") {
-                    isAPIKeyFieldFocused = false
-                }
-            }
-        }
         .alert("Bilgi", isPresented: statusAlertBinding) {
             Button("Tamam", role: .cancel) {
                 viewModel.statusMessage = nil
@@ -70,43 +61,12 @@ struct SettingsView: View {
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            TextField("Anthropic API Key", text: $viewModel.anthropicAPIKeyDraft)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-                .textFieldStyle(.roundedBorder)
-                .focused($isAPIKeyFieldFocused)
-                .submitLabel(.done)
-                .onSubmit {
-                    isAPIKeyFieldFocused = false
-                }
-
-            Toggle("Biyometrik koruma", isOn: $viewModel.requireBiometricForAPIKey)
-                .tint(Color("PrimaryBlue"))
-
             Toggle("Uygulama kilidi (Face ID/Touch ID)", isOn: $viewModel.appLockEnabled)
                 .tint(Color("PrimaryBlue"))
 
-            Text("API anahtari cihaz keychain'inde saklanir. Biyometrik koruma acik oldugunda erisim Face ID/Touch ID ile dogrulanir.")
+            Text("LLM istekleri Cloudflare proxy uzerinden guvenli sekilde iletilir. API anahtari istemci tarafinda tutulmaz.")
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
-
-            HStack(spacing: 10) {
-                Button("API Key Kaydet") {
-                    isAPIKeyFieldFocused = false
-                    Task { await viewModel.saveAPIKeyToKeychain() }
-                }
-                .font(Theme.captionFont)
-                .buttonStyle(.borderedProminent)
-                .tint(Color("PrimaryBlue"))
-
-                Button("API Key Sil") {
-                    isAPIKeyFieldFocused = false
-                    Task { await viewModel.clearAPIKeyFromKeychain() }
-                }
-                .font(Theme.captionFont)
-                .buttonStyle(.bordered)
-                .tint(Color("MoodBad"))
-            }
 
             Button("Guvenlik Denetimini Calistir") {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {

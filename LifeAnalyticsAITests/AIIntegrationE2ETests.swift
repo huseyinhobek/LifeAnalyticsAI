@@ -9,10 +9,6 @@ final class AIIntegrationE2ETests: XCTestCase {
             throw XCTSkip("Set LAI_ENABLE_REAL_API_TESTS=1 to run real API integration tests")
         }
 
-        guard let apiKey = ProcessInfo.processInfo.environment["ANTHROPIC_API_KEY"], !apiKey.isEmpty else {
-            throw XCTSkip("Missing ANTHROPIC_API_KEY for real API integration test")
-        }
-
         let insight = Insight(
             id: UUID(),
             date: Date(),
@@ -25,7 +21,7 @@ final class AIIntegrationE2ETests: XCTestCase {
         )
 
         let template = PromptTemplateManager().makeInsightExplanationTemplate(insight: insight, languageCode: "tr")
-        let raw = try await makeRealAnthropicRequest(apiKey: apiKey, userPrompt: template.userPrompt, systemPrompt: template.systemPrompt)
+        let raw = try await makeRealProxyRequest(userPrompt: template.userPrompt, systemPrompt: template.systemPrompt)
         let response = HTTPURLResponse(url: URL(string: AppConstants.API.llmBaseURL)!, statusCode: 200, httpVersion: nil, headerFields: nil)!
         let parsed = try LLMResponseParser().parse(data: raw, response: response)
 
@@ -54,7 +50,7 @@ final class AIIntegrationE2ETests: XCTestCase {
         XCTAssertTrue(fallback.contains("Cevrimdisi ozet"))
     }
 
-    private func makeRealAnthropicRequest(apiKey: String, userPrompt: String, systemPrompt: String) async throws -> Data {
+    private func makeRealProxyRequest(userPrompt: String, systemPrompt: String) async throws -> Data {
         guard let url = URL(string: AppConstants.API.llmBaseURL) else {
             throw AppError.llmError(message: "Gecersiz LLM URL")
         }
@@ -62,21 +58,19 @@ final class AIIntegrationE2ETests: XCTestCase {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
 
         let body: [String: Any] = [
+            "prompt": userPrompt,
+            "system_prompt": systemPrompt,
             "model": AppConstants.API.llmModel,
-            "max_tokens": AppConstants.API.maxTokens,
-            "messages": [["role": "user", "content": userPrompt]],
-            "system": systemPrompt
+            "max_tokens": AppConstants.API.maxTokens
         ]
 
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
-            throw AppError.llmError(message: "Real API request failed")
+            throw AppError.llmError(message: "Real proxy request failed")
         }
 
         return data

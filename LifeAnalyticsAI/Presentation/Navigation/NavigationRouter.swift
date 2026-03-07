@@ -291,8 +291,7 @@ struct AppRootView: View {
         SettingsViewModel(
             userDefaultsManager: userDefaultsManager,
             notificationService: dependencyContainer.notificationService,
-            generatePredictionTextUseCase: dependencyContainer.generatePredictionTextUseCase,
-            secureCredentialStore: dependencyContainer.secureCredentialStore
+            generatePredictionTextUseCase: dependencyContainer.generatePredictionTextUseCase
         )
     }
 
