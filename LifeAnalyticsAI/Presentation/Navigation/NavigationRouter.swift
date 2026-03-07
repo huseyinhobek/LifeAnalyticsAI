@@ -71,6 +71,7 @@ final class NavigationRouter {
 struct AppRootView: View {
     @Bindable var router: NavigationRouter
     @EnvironmentObject private var dependencyContainer: DependencyContainer
+    @Environment(\.accessibilityDifferentiateWithoutColor) private var differentiateWithoutColor
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var userDefaultsManager = UserDefaultsManager()
 
@@ -114,8 +115,15 @@ struct AppRootView: View {
                     Button {
                         tabSelectionBinding.wrappedValue = tab
                     } label: {
-                        Label(tab.title, systemImage: tab.icon)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack(spacing: 10) {
+                            Label(tab.title, systemImage: tab.icon)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            if differentiateWithoutColor, tab == router.selectedTab {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color("TextPrimary"))
+                                    .accessibilityHidden(true)
+                            }
+                        }
                     }
                     .buttonStyle(.plain)
                     .listRowBackground(
@@ -123,6 +131,8 @@ struct AppRootView: View {
                             ? Color("SecondaryBlue").opacity(0.14)
                             : Color.clear
                     )
+                    .accessibilityLabel(tab.title)
+                    .accessibilityValue(tab == router.selectedTab ? "Secili" : "Secili degil")
                 }
             }
             .navigationTitle("Life Analytics")
