@@ -20,7 +20,7 @@ final class UserNotificationService: NotificationServiceProtocol {
     func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws {
         let content = UNMutableNotificationContent()
         content.title = "Gunaydin, serini koru"
-        content.body = morningBody(streakDays: streakDays, predictionText: predictionText)
+        content.body = NotificationContentBuilder.morningBody(streakDays: streakDays, predictionText: predictionText)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.morning
 
@@ -37,10 +37,9 @@ final class UserNotificationService: NotificationServiceProtocol {
     }
 
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
-        let safeCheckIns = min(max(moodCheckInsThisWeek, 0), 7)
         let content = UNMutableNotificationContent()
         content.title = "Aksam degerlendirme"
-        content.body = "Bugunun ozeti hazir, ruh halini kaydet. Bu hafta \(safeCheckIns)/7 gun mood kaydin var."
+        content.body = NotificationContentBuilder.eveningBody(moodCheckInsThisWeek: moodCheckInsThisWeek)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.evening
 
@@ -57,10 +56,9 @@ final class UserNotificationService: NotificationServiceProtocol {
     }
 
     func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
-        let safeTrackedDays = max(trackedDays, 0)
         let content = UNMutableNotificationContent()
         content.title = "Haftalik rapor bildirimi"
-        content.body = "Bu haftanin yasam raporun hazir. AI yeni bir patern kesfetti: son \(safeTrackedDays) gunde veri toplandi."
+        content.body = NotificationContentBuilder.weeklyBody(trackedDays: trackedDays)
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.weekly
 
@@ -79,9 +77,11 @@ final class UserNotificationService: NotificationServiceProtocol {
     func cancelAll() async {
         center.removeAllPendingNotificationRequests()
     }
+}
 
-    private func morningBody(streakDays: Int, predictionText: String?) -> String {
-        let fallback = "Son \(streakDays) gundur kayit yapiyorsun. Takvim ve 7 gunluk patern bazli tahminini gormek icin mood girisi yap."
+enum NotificationContentBuilder {
+    static func morningBody(streakDays: Int, predictionText: String?) -> String {
+        let fallback = "Son \(max(streakDays, 1)) gundur kayit yapiyorsun. Takvim ve 7 gunluk patern bazli tahminini gormek icin mood girisi yap."
         guard let predictionText, !predictionText.isEmpty else {
             return fallback
         }
@@ -92,6 +92,16 @@ final class UserNotificationService: NotificationServiceProtocol {
         }
 
         return "\(predictionText) (7 gunluk patern bazli)"
+    }
+
+    static func eveningBody(moodCheckInsThisWeek: Int) -> String {
+        let safeCheckIns = min(max(moodCheckInsThisWeek, 0), 7)
+        return "Bugunun ozeti hazir, ruh halini kaydet. Bu hafta \(safeCheckIns)/7 gun mood kaydin var."
+    }
+
+    static func weeklyBody(trackedDays: Int) -> String {
+        let safeTrackedDays = max(trackedDays, 0)
+        return "Bu haftanin yasam raporun hazir. AI yeni bir patern kesfetti: son \(safeTrackedDays) gunde veri toplandi."
     }
 }
 
