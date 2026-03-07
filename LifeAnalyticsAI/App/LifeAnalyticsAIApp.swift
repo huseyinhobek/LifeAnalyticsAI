@@ -41,8 +41,24 @@ struct LifeAnalyticsAIApp: App {
                         let trackedDays = trackedDaysSinceOnboarding()
                         let predictionText = try await dependencyContainer.generatePredictionTextUseCase.execute(for: Date())
 
+                        let morningHour = NotificationTimingOptimizer.optimalHour(
+                            for: .morning,
+                            fallback: AppConstants.Notifications.morningHour,
+                            allowedRange: 6...10
+                        )
+                        let eveningHour = NotificationTimingOptimizer.optimalHour(
+                            for: .evening,
+                            fallback: AppConstants.Notifications.eveningHour,
+                            allowedRange: 19...22
+                        )
+                        let weeklyHour = NotificationTimingOptimizer.optimalHour(
+                            for: .weekly,
+                            fallback: AppConstants.Notifications.weeklyReportHour,
+                            allowedRange: 17...21
+                        )
+
                         var morningComponents = DateComponents()
-                        morningComponents.hour = AppConstants.Notifications.morningHour
+                        morningComponents.hour = morningHour
                         morningComponents.minute = AppConstants.Notifications.morningMinute
                         try await dependencyContainer.notificationService.scheduleMorning(
                             at: morningComponents,
@@ -51,7 +67,7 @@ struct LifeAnalyticsAIApp: App {
                         )
 
                         var eveningComponents = DateComponents()
-                        eveningComponents.hour = AppConstants.Notifications.eveningHour
+                        eveningComponents.hour = eveningHour
                         eveningComponents.minute = AppConstants.Notifications.eveningMinute
                         let moodCheckIns = min(max(trackedDays % 8, 1), 7)
                         try await dependencyContainer.notificationService.scheduleEvening(
@@ -62,7 +78,7 @@ struct LifeAnalyticsAIApp: App {
                         if userDefaultsManager.weeklyReportEnabled {
                             var weeklyComponents = DateComponents()
                             weeklyComponents.weekday = AppConstants.Notifications.weeklyReportDay
-                            weeklyComponents.hour = AppConstants.Notifications.weeklyReportHour
+                            weeklyComponents.hour = weeklyHour
                             weeklyComponents.minute = AppConstants.Notifications.weeklyReportMinute
                             try await dependencyContainer.notificationService.scheduleWeekly(
                                 at: weeklyComponents,
