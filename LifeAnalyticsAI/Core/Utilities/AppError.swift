@@ -11,6 +11,7 @@ enum AppError: LocalizedError {
     case insufficientData(required: Int, current: Int)
     case networkError(underlying: Error)
     case llmError(message: String)
+    case securityError(message: String)
     case persistenceError(underlying: Error)
     case unknown(underlying: Error)
 
@@ -30,6 +31,8 @@ enum AppError: LocalizedError {
             return "Ag hatasi olustu: \(underlying.localizedDescription)"
         case let .llmError(message):
             return "LLM hatasi: \(message)"
+        case let .securityError(message):
+            return "Guvenlik hatasi: \(message)"
         case let .persistenceError(underlying):
             return "Kayit hatasi olustu: \(underlying.localizedDescription)"
         case let .unknown(underlying):

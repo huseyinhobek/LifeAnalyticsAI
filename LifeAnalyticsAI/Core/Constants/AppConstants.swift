@@ -59,6 +59,11 @@ enum AppConstants {
     enum Storage {
         static let keychainService = "com.lifeanalytics.keychain"
         static let userDefaultsSuite = "com.lifeanalytics.defaults"
+
+        enum Keys {
+            static let anthropicAPIKey = "anthropic_api_key"
+            static let anthropicAPIKeyBiometricRequired = "anthropic_api_key_biometric_required"
+        }
     }
 
     enum UI {

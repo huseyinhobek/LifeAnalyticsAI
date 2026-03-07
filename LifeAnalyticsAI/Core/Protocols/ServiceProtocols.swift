@@ -17,6 +17,12 @@ protocol NotificationServiceProtocol {
     func cancelAll() async
 }
 
+protocol SecureCredentialStoreProtocol {
+    func setAnthropicAPIKey(_ apiKey: String, requireBiometric: Bool) async throws
+    func getAnthropicAPIKey(localizedReason: String) async throws -> String?
+    func clearAnthropicAPIKey() async throws
+}
+
 protocol InsightEngineProtocol {
     func analyzeCorrelations() async throws -> [Insight]
     func detectAnomalies() async throws -> [Insight]

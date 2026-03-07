@@ -1,22 +1,25 @@
 // MARK: - Core.Utilities
 
 import Foundation
-import KeychainAccess
 
 actor NetworkManager {
     static let shared = NetworkManager()
 
     private let session: URLSession
     private let parser: LLMResponseParsing
-    private let keychain = Keychain(service: AppConstants.Storage.keychainService)
+    private let credentialStore: SecureCredentialStore
     private let maxRetryCount = 2
 
-    init(parser: LLMResponseParsing = LLMResponseParser()) {
+    init(
+        parser: LLMResponseParsing = LLMResponseParser(),
+        credentialStore: SecureCredentialStore = .shared
+    ) {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
         config.waitsForConnectivity = true
         session = URLSession(configuration: config)
         self.parser = parser
+        self.credentialStore = credentialStore
     }
 
     func sendLLMRequest(prompt: String, systemPrompt: String) async throws -> String {
@@ -47,7 +50,7 @@ actor NetworkManager {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
 
-        guard let apiKey = try keychain.get("anthropic_api_key"), !apiKey.isEmpty else {
+        guard let apiKey = try await credentialStore.getAnthropicAPIKey(), !apiKey.isEmpty else {
             throw AppError.llmError(message: "Anthropic API anahtari bulunamadi")
         }
 

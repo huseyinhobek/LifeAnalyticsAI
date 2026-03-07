@@ -12,6 +12,8 @@ final class SettingsViewModel: ObservableObject {
     @Published var preferredTheme: UserDefaultsManager.AppTheme
     @Published var healthKitSyncEnabled: Bool
     @Published var calendarSyncEnabled: Bool
+    @Published var anthropicAPIKeyDraft: String
+    @Published var requireBiometricForAPIKey: Bool
     @Published var statusMessage: String?
 
     let accountEmail = "user@lifeanalytics.ai"
@@ -19,15 +21,18 @@ final class SettingsViewModel: ObservableObject {
     private let userDefaultsManager: UserDefaultsManager
     private let notificationService: NotificationServiceProtocol
     private let generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol
+    private let secureCredentialStore: SecureCredentialStoreProtocol
 
     init(
         userDefaultsManager: UserDefaultsManager,
         notificationService: NotificationServiceProtocol,
-        generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol
+        generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol,
+        secureCredentialStore: SecureCredentialStoreProtocol
     ) {
         self.userDefaultsManager = userDefaultsManager
         self.notificationService = notificationService
         self.generatePredictionTextUseCase = generatePredictionTextUseCase
+        self.secureCredentialStore = secureCredentialStore
 
         notificationsEnabled = userDefaultsManager.notificationsEnabled
         morningNotificationTime = userDefaultsManager.morningNotificationTime
@@ -37,6 +42,8 @@ final class SettingsViewModel: ObservableObject {
         preferredTheme = userDefaultsManager.preferredTheme
         healthKitSyncEnabled = userDefaultsManager.healthKitSyncEnabled
         calendarSyncEnabled = userDefaultsManager.calendarSyncEnabled
+        anthropicAPIKeyDraft = ""
+        requireBiometricForAPIKey = true
     }
 
     func persistNotificationState() async {
@@ -119,6 +126,34 @@ final class SettingsViewModel: ObservableObject {
     func resetOnboardingAndPreferences() {
         userDefaultsManager.hasCompletedOnboarding = false
         statusMessage = "Hesap tercihleri sifirlandi. Onboarding bir sonraki acilista tekrar gosterilir."
+    }
+
+    func saveAPIKeyToKeychain() async {
+        let trimmed = anthropicAPIKeyDraft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            statusMessage = "API anahtari bos olamaz."
+            return
+        }
+
+        do {
+            try await secureCredentialStore.setAnthropicAPIKey(trimmed, requireBiometric: requireBiometricForAPIKey)
+            anthropicAPIKeyDraft = ""
+            statusMessage = requireBiometricForAPIKey
+                ? "API anahtari Keychain'e kaydedildi ve biyometrik koruma etkinlestirildi."
+                : "API anahtari Keychain'e kaydedildi."
+        } catch {
+            statusMessage = "API anahtari kaydedilemedi: \(error.localizedDescription)"
+        }
+    }
+
+    func clearAPIKeyFromKeychain() async {
+        do {
+            try await secureCredentialStore.clearAnthropicAPIKey()
+            anthropicAPIKeyDraft = ""
+            statusMessage = "API anahtari Keychain'den silindi."
+        } catch {
+            statusMessage = "API anahtari silinemedi: \(error.localizedDescription)"
+        }
     }
 
     func exportSettingsSnapshot() throws -> URL {
