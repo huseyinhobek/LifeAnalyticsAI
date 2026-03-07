@@ -40,7 +40,15 @@ final class PromptTemplateManager: PromptFeedbackOptimizing {
             systemPrompt: systemPrompt(languageCode: languageCode, insightType: nil),
             userPrompt: """
             Gorev: Haftalik anonimlestirilmis paternleri kullanarak rapor yaz.
+            Hedef kitle: Kurumsal profesyoneller ve yoneticiler.
             Cikti: 3 kisa bolum (Ozet, Gozlem, Oneri).
+            Markdown baslik hiyerarsisi kullan:
+            - Ana baslik: # Haftalik Ozet
+            - Alt basliklar: ## Ozet, ## Gozlem, ## Oneri
+            - Kritik vurgu gerekiyorsa sadece gerekli yerlerde **kalin** kullan.
+            - Her basligi ayri satira yaz, metni basliga bitistirme.
+            - Her bolum arasina bir bos satir koy.
+            Ton: profesyonel, olculu, abartisiz, aksiyona donuk.
 
             Veri:
             - Hafta baslangici: \(isoDate(report.weekStartDate))
@@ -75,6 +83,7 @@ final class PromptTemplateManager: PromptFeedbackOptimizing {
         You are a wellness analytics assistant. Write in \(locale).
         Use only anonymized pattern summaries. Do not ask for personal identifiers.
         Keep explanations practical, neutral, and concise.
+        Use a professional, corporate-friendly tone.
         Prompt optimization hint: \(optimizationHint)
         """
     }
