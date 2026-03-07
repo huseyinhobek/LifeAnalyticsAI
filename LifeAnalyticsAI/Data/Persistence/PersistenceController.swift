@@ -16,12 +16,59 @@ final class PersistenceController {
             WeeklyReportEntity.self
         ])
 
+        if !inMemory {
+            Self.configureDataProtectionForApplicationSupport()
+        }
+
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
 
         do {
             container = try ModelContainer(for: schema, configurations: [config])
+            if !inMemory {
+                Self.applyDataProtectionToPersistenceFiles()
+            }
         } catch {
             fatalError("ModelContainer olusturulamadi: \(error.localizedDescription)")
+        }
+    }
+
+    private static func configureDataProtectionForApplicationSupport() {
+        let manager = FileManager.default
+        guard let appSupportURL = manager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        do {
+            try manager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+            try manager.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: appSupportURL.path
+            )
+        } catch {
+            AppLogger.notification.error("Data protection directory setup failed: \(error.localizedDescription)")
+        }
+    }
+
+    private static func applyDataProtectionToPersistenceFiles() {
+        let manager = FileManager.default
+        guard let appSupportURL = manager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        let defaultStoreCandidates = ["default.store", "default.store-wal", "default.store-shm"]
+
+        for name in defaultStoreCandidates {
+            let url = appSupportURL.appendingPathComponent(name)
+            guard manager.fileExists(atPath: url.path) else { continue }
+
+            do {
+                try manager.setAttributes(
+                    [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                    ofItemAtPath: url.path
+                )
+            } catch {
+                AppLogger.notification.error("Data protection apply failed for \(name): \(error.localizedDescription)")
+            }
         }
     }
 
