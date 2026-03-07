@@ -4,13 +4,15 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
+    var router: NavigationRouter?
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var shareURL: URL?
     @State private var isShareSheetPresented = false
 
-    init(viewModel: SettingsViewModel) {
+    init(viewModel: SettingsViewModel, router: NavigationRouter? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.router = router
     }
 
     var body: some View {
@@ -202,6 +204,17 @@ struct SettingsView: View {
             Text("Onboarding'i yeniden baslatmak icin sifirlama yapabilirsin.")
                 .font(Theme.captionFont)
                 .foregroundStyle(Color("TextSecondary"))
+
+            if let router {
+                Button("Profili Goruntule") {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                        router.navigate(to: .profile)
+                    }
+                }
+                .font(Theme.captionFont)
+                .buttonStyle(.borderedProminent)
+                .tint(Color("SecondaryBlue"))
+            }
 
             Button("Hesap Tercihlerini Sifirla") {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
