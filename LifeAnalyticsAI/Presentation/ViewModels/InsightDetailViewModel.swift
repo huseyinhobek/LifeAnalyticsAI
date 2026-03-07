@@ -33,9 +33,11 @@ final class InsightDetailViewModel: ObservableObject {
     }
 
     var metricChartData: [MetricChartPoint] {
-        insight.relatedMetrics.map {
-            MetricChartPoint(name: $0.name, value: $0.value, trend: $0.trend)
-        }
+        insight.relatedMetrics
+            .filter { $0.value.isFinite && !$0.value.isNaN }
+            .map {
+                MetricChartPoint(name: $0.name, value: max(0, $0.value), trend: $0.trend)
+            }
     }
 }
 

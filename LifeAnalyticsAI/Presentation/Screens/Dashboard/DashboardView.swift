@@ -265,6 +265,7 @@ struct DashboardView: View {
     }
 
     private func chartMax(for points: [DashboardViewModel.DataPoint]) -> Double {
-        points.map(\.value).max() ?? 0
+        let finiteValues = points.map(\.value).filter { $0.isFinite && !$0.isNaN }
+        return finiteValues.max() ?? 0
     }
 }

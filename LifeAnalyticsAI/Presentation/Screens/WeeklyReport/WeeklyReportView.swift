@@ -43,7 +43,7 @@ struct WeeklyReportView: View {
     }
 
     private func summaryCard(_ report: WeeklyReport) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        return VStack(alignment: .leading, spacing: 10) {
             Label(
                 report.weekStartDate.formatted(date: .abbreviated, time: .omitted),
                 systemImage: "doc.text.image"
@@ -71,17 +71,23 @@ struct WeeklyReportView: View {
     }
 
     private func metricsSection(_ report: WeeklyReport) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let safeMetrics = report.keyMetrics
+            .filter { $0.value.isFinite && !$0.value.isNaN }
+            .map { metric in
+                MetricReference(name: metric.name, value: max(0, metric.value), unit: metric.unit, trend: metric.trend)
+            }
+
+        return VStack(alignment: .leading, spacing: 10) {
             Label("Metrik Kartlari", systemImage: "square.grid.2x2")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            if report.keyMetrics.isEmpty {
+            if safeMetrics.isEmpty {
                 Text("Bu hafta metrik karti bulunamadi.")
                     .font(Theme.bodyFont)
                     .foregroundStyle(Color("TextSecondary"))
             } else {
-                Chart(report.keyMetrics.prefix(6), id: \.name) { metric in
+                Chart(safeMetrics.prefix(6), id: \.name) { metric in
                     BarMark(
                         x: .value("Metrik", metric.name),
                         y: .value("Deger", metric.value)
