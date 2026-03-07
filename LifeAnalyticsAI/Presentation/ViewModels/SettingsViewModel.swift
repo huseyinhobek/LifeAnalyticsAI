@@ -18,13 +18,16 @@ final class SettingsViewModel: ObservableObject {
 
     private let userDefaultsManager: UserDefaultsManager
     private let notificationService: NotificationServiceProtocol
+    private let generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol
 
     init(
         userDefaultsManager: UserDefaultsManager,
-        notificationService: NotificationServiceProtocol
+        notificationService: NotificationServiceProtocol,
+        generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol
     ) {
         self.userDefaultsManager = userDefaultsManager
         self.notificationService = notificationService
+        self.generatePredictionTextUseCase = generatePredictionTextUseCase
 
         notificationsEnabled = userDefaultsManager.notificationsEnabled
         morningNotificationTime = userDefaultsManager.morningNotificationTime
@@ -58,9 +61,16 @@ final class SettingsViewModel: ObservableObject {
             await notificationService.cancelAll()
 
             let trackedDays = trackedDaysSinceOnboarding()
+            let predictionText = try await generatePredictionTextUseCase.execute(for: Date())
 
-            let morningComponents = Calendar.current.dateComponents([.hour, .minute], from: morningNotificationTime)
-            try await notificationService.scheduleMorning(at: morningComponents, streakDays: trackedDays)
+            var morningComponents = DateComponents()
+            morningComponents.hour = AppConstants.Notifications.morningHour
+            morningComponents.minute = AppConstants.Notifications.morningMinute
+            try await notificationService.scheduleMorning(
+                at: morningComponents,
+                streakDays: trackedDays,
+                predictionText: predictionText
+            )
 
             let eveningComponents = Calendar.current.dateComponents([.hour, .minute], from: eveningNotificationTime)
             let moodCheckIns = min(max(trackedDays % 8, 1), 7)

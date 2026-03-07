@@ -290,7 +290,8 @@ struct AppRootView: View {
     private func makeSettingsViewModel() -> SettingsViewModel {
         SettingsViewModel(
             userDefaultsManager: userDefaultsManager,
-            notificationService: dependencyContainer.notificationService
+            notificationService: dependencyContainer.notificationService,
+            generatePredictionTextUseCase: dependencyContainer.generatePredictionTextUseCase
         )
     }
 
