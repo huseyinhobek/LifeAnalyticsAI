@@ -62,8 +62,8 @@ struct LifeAnalyticsAIApp: App {
                         if userDefaultsManager.weeklyReportEnabled {
                             var weeklyComponents = DateComponents()
                             weeklyComponents.weekday = AppConstants.Notifications.weeklyReportDay
-                            weeklyComponents.hour = eveningComponents.hour ?? AppConstants.Notifications.eveningHour
-                            weeklyComponents.minute = eveningComponents.minute ?? AppConstants.Notifications.eveningMinute
+                            weeklyComponents.hour = AppConstants.Notifications.weeklyReportHour
+                            weeklyComponents.minute = AppConstants.Notifications.weeklyReportMinute
                             try await dependencyContainer.notificationService.scheduleWeekly(
                                 at: weeklyComponents,
                                 trackedDays: trackedDays

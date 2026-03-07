@@ -30,6 +30,8 @@ enum AppConstants {
         static let eveningHour = 21
         static let eveningMinute = 0
         static let weeklyReportDay = 1 // Pazar
+        static let weeklyReportHour = 19
+        static let weeklyReportMinute = 0
 
         enum RequestID {
             static let morningReminder = "morningMoodReminder"

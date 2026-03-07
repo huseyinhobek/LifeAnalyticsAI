@@ -55,9 +55,10 @@ final class UserNotificationService: NotificationServiceProtocol {
     }
 
     func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
+        let safeTrackedDays = max(trackedDays, 0)
         let content = UNMutableNotificationContent()
-        content.title = "Haftalik rapor hazirligi"
-        content.body = "Son \(max(trackedDays, 0)) gunde veri topladin. Haftalik raporun icin son mood girisini yap."
+        content.title = "Haftalik rapor bildirimi"
+        content.body = "Bu haftanin yasam raporun hazir. AI yeni bir patern kesfetti: son \(safeTrackedDays) gunde veri toplandi."
         content.sound = .default
         content.categoryIdentifier = AppConstants.Notifications.Category.weekly
 
