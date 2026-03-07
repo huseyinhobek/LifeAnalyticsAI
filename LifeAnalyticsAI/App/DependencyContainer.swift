@@ -123,9 +123,23 @@ final class DependencyContainer: ObservableObject {
 }
 
 private struct PlaceholderNotificationService: NotificationServiceProtocol {
-    func requestAuthorization() async throws {}
+    func requestPermission() async throws -> Bool { true }
 
-    func scheduleDailyMoodReminder(at components: DateComponents) async throws {
+    func scheduleMorning(at components: DateComponents, streakDays: Int) async throws {
         _ = components
+        _ = streakDays
+    }
+
+    func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
+        _ = components
+        _ = moodCheckInsThisWeek
+    }
+
+    func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
+        _ = components
+        _ = trackedDays
+    }
+
+    func cancelAll() async {
     }
 }

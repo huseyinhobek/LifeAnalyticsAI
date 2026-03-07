@@ -10,8 +10,11 @@ protocol CalendarServiceProtocol {
 }
 
 protocol NotificationServiceProtocol {
-    func requestAuthorization() async throws
-    func scheduleDailyMoodReminder(at components: DateComponents) async throws
+    func requestPermission() async throws -> Bool
+    func scheduleMorning(at components: DateComponents, streakDays: Int) async throws
+    func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws
+    func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws
+    func cancelAll() async
 }
 
 protocol InsightEngineProtocol {

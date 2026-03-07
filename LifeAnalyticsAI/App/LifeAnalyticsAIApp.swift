@@ -30,18 +30,58 @@ struct LifeAnalyticsAIApp: App {
                     guard userDefaultsManager.notificationsEnabled else { return }
 
                     do {
-                        try await dependencyContainer.notificationService.requestAuthorization()
-                        let components = Calendar.current.dateComponents(
+                        let permissionGranted = try await dependencyContainer.notificationService.requestPermission()
+                        guard permissionGranted else {
+                            AppLogger.notification.info("Notification permission not granted")
+                            return
+                        }
+
+                        await dependencyContainer.notificationService.cancelAll()
+
+                        let trackedDays = trackedDaysSinceOnboarding()
+
+                        let morningComponents = Calendar.current.dateComponents(
+                            [.hour, .minute],
+                            from: userDefaultsManager.morningNotificationTime
+                        )
+                        try await dependencyContainer.notificationService.scheduleMorning(
+                            at: morningComponents,
+                            streakDays: trackedDays
+                        )
+
+                        let eveningComponents = Calendar.current.dateComponents(
                             [.hour, .minute],
                             from: userDefaultsManager.eveningNotificationTime
                         )
-                        try await dependencyContainer.notificationService.scheduleDailyMoodReminder(at: components)
-                        AppLogger.notification.info("Daily mood reminder scheduled")
+                        let moodCheckIns = min(max(trackedDays % 8, 1), 7)
+                        try await dependencyContainer.notificationService.scheduleEvening(
+                            at: eveningComponents,
+                            moodCheckInsThisWeek: moodCheckIns
+                        )
+
+                        if userDefaultsManager.weeklyReportEnabled {
+                            var weeklyComponents = DateComponents()
+                            weeklyComponents.weekday = AppConstants.Notifications.weeklyReportDay
+                            weeklyComponents.hour = eveningComponents.hour ?? AppConstants.Notifications.eveningHour
+                            weeklyComponents.minute = eveningComponents.minute ?? AppConstants.Notifications.eveningMinute
+                            try await dependencyContainer.notificationService.scheduleWeekly(
+                                at: weeklyComponents,
+                                trackedDays: trackedDays
+                            )
+                        }
+
+                        AppLogger.notification.info("Personalized reminder notifications scheduled")
                     } catch {
-                        AppLogger.notification.error("Mood reminder scheduling failed: \(error.localizedDescription)")
+                        AppLogger.notification.error("Reminder scheduling failed: \(error.localizedDescription)")
                     }
                 }
         }
         .modelContainer(PersistenceController.shared.container)
+    }
+
+    private func trackedDaysSinceOnboarding() -> Int {
+        guard let start = userDefaultsManager.dataCollectionStartDate else { return 1 }
+        let days = Calendar.current.dateComponents([.day], from: start, to: Date()).day ?? 0
+        return max(days, 1)
     }
 }
