@@ -33,6 +33,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
         center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.morningReminder])
         try await center.add(request)
+        NotificationEngagementTracker.recordScheduled(for: .morning)
     }
 
     func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
@@ -52,6 +53,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
         center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.eveningReminder])
         try await center.add(request)
+        NotificationEngagementTracker.recordScheduled(for: .evening)
     }
 
     func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
@@ -71,6 +73,7 @@ final class UserNotificationService: NotificationServiceProtocol {
 
         center.removePendingNotificationRequests(withIdentifiers: [AppConstants.Notifications.RequestID.weeklyReminder])
         try await center.add(request)
+        NotificationEngagementTracker.recordScheduled(for: .weekly)
     }
 
     func cancelAll() async {

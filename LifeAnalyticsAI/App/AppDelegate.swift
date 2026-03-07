@@ -89,6 +89,10 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ = center
         let category = response.notification.request.content.categoryIdentifier
         NotificationTimingOptimizer.recordOpen(categoryIdentifier: category)
+        NotificationEngagementTracker.recordOpened(
+            categoryIdentifier: category,
+            actionIdentifier: response.actionIdentifier
+        )
 
         switch response.actionIdentifier {
         case UNNotificationDefaultActionIdentifier, AppConstants.Notifications.Action.openMoodEntry:
