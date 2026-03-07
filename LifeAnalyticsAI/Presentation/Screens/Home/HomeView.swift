@@ -155,7 +155,7 @@ struct HomeView: View {
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text(summary)
+            Text(WeeklyReportTextFormatter.previewText(summary))
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextPrimary"))
                 .lineLimit(4)
@@ -173,4 +173,5 @@ struct HomeView: View {
         .background(Color("BackgroundLight"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
     }
+
 }

@@ -57,9 +57,7 @@ struct WeeklyReportView: View {
                 .font(Theme.titleFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            Text(report.summary)
-                .font(Theme.bodyFont)
-                .foregroundStyle(Color("TextPrimary"))
+            markdownText(report.summary)
 
             if let prediction = report.prediction, !prediction.isEmpty {
                 Text("Tahmin: \(prediction)")
@@ -157,6 +155,28 @@ struct WeeklyReportView: View {
             return Color("MoodBad")
         case .stable:
             return Color("SecondaryBlue")
+        }
+    }
+
+    @ViewBuilder
+    private func markdownText(_ value: String) -> some View {
+        let normalized = WeeklyReportTextFormatter.normalizedMarkdown(value)
+
+        if let attributed = try? AttributedString(
+            markdown: normalized,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .full,
+                failurePolicy: .returnPartiallyParsedIfPossible
+            )
+        ) {
+            Text(attributed)
+                .foregroundStyle(Color("TextPrimary"))
+                .fixedSize(horizontal: false, vertical: true)
+        } else {
+            Text(normalized)
+                .font(Theme.bodyFont)
+                .foregroundStyle(Color("TextPrimary"))
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 }
