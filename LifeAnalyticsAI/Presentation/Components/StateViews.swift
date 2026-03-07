@@ -12,6 +12,7 @@ struct LoadingStateView: View {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(Color("PrimaryBlue"))
+                .accessibilityHidden(true)
 
             ProgressView()
                 .tint(Color("PrimaryBlue"))
@@ -31,6 +32,9 @@ struct LoadingStateView: View {
         .padding(.horizontal, Theme.paddingMedium)
         .background(Color("BackgroundLight"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(title)
+        .accessibilityValue(subtitle ?? "Yukleniyor")
     }
 }
 
@@ -46,6 +50,7 @@ struct EmptyStateView: View {
             Image(systemName: icon)
                 .font(.system(size: 24, weight: .semibold))
                 .foregroundStyle(Color("TextSecondary"))
+                .accessibilityHidden(true)
 
             Text(title)
                 .font(Theme.bodyFont)
@@ -70,6 +75,7 @@ struct EmptyStateView: View {
         .padding(.horizontal, Theme.paddingMedium)
         .background(Color("BackgroundLight"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .accessibilityElement(children: .contain)
     }
 }
 
@@ -83,6 +89,7 @@ struct ErrorStateView: View {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 22, weight: .bold))
                 .foregroundStyle(Color("MoodBad"))
+                .accessibilityHidden(true)
 
             Text(message)
                 .font(Theme.captionFont)
@@ -101,5 +108,6 @@ struct ErrorStateView: View {
         .padding(.horizontal, Theme.paddingMedium)
         .background(Color("BackgroundLight"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .accessibilityElement(children: .contain)
     }
 }
