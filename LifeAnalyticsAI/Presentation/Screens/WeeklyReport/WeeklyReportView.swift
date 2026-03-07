@@ -17,9 +17,11 @@ struct WeeklyReportView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.paddingMedium) {
                 if viewModel.isLoading && viewModel.selectedReport == nil {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
+                    LoadingStateView(
+                        title: "Haftalik rapor hazirlaniyor",
+                        subtitle: "AI ozet ve metrik kartlari yukleniyor",
+                        icon: "doc.text.magnifyingglass"
+                    )
                 }
 
                 if let report = viewModel.selectedReport {
@@ -29,9 +31,9 @@ struct WeeklyReportView: View {
                 }
 
                 if let error = viewModel.errorMessage {
-                    Text(error)
-                        .font(Theme.captionFont)
-                        .foregroundStyle(Color("MoodBad"))
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.refresh() }
+                    }
                 }
             }
             .padding(Theme.paddingLarge)
@@ -83,9 +85,11 @@ struct WeeklyReportView: View {
                 .foregroundStyle(Color("TextPrimary"))
 
             if safeMetrics.isEmpty {
-                Text("Bu hafta metrik karti bulunamadi.")
-                    .font(Theme.bodyFont)
-                    .foregroundStyle(Color("TextSecondary"))
+                EmptyStateView(
+                    title: "Metrik karti bulunamadi",
+                    subtitle: "Raporu yenileyerek yeniden deneyebilirsin.",
+                    icon: "chart.bar.xaxis"
+                )
             } else {
                 Chart(safeMetrics.prefix(6), id: \.name) { metric in
                     BarMark(
@@ -110,9 +114,11 @@ struct WeeklyReportView: View {
                 .foregroundStyle(Color("TextPrimary"))
 
             if report.insights.isEmpty {
-                Text("Bu hafta icgoru bulunamadi.")
-                    .font(Theme.bodyFont)
-                    .foregroundStyle(Color("TextSecondary"))
+                EmptyStateView(
+                    title: "Bu hafta icgoru bulunamadi",
+                    subtitle: "Yeni veriler geldikce icgoruler otomatik olusacak.",
+                    icon: "lightbulb.slash"
+                )
             } else {
                 ForEach(report.insights) { insight in
                     Button {
