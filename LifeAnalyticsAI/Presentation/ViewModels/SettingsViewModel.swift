@@ -63,8 +63,24 @@ final class SettingsViewModel: ObservableObject {
             let trackedDays = trackedDaysSinceOnboarding()
             let predictionText = try await generatePredictionTextUseCase.execute(for: Date())
 
+            let morningHour = NotificationTimingOptimizer.optimalHour(
+                for: .morning,
+                fallback: AppConstants.Notifications.morningHour,
+                allowedRange: 6...10
+            )
+            let eveningHour = NotificationTimingOptimizer.optimalHour(
+                for: .evening,
+                fallback: AppConstants.Notifications.eveningHour,
+                allowedRange: 19...22
+            )
+            let weeklyHour = NotificationTimingOptimizer.optimalHour(
+                for: .weekly,
+                fallback: AppConstants.Notifications.weeklyReportHour,
+                allowedRange: 17...21
+            )
+
             var morningComponents = DateComponents()
-            morningComponents.hour = AppConstants.Notifications.morningHour
+            morningComponents.hour = morningHour
             morningComponents.minute = AppConstants.Notifications.morningMinute
             try await notificationService.scheduleMorning(
                 at: morningComponents,
@@ -73,7 +89,7 @@ final class SettingsViewModel: ObservableObject {
             )
 
             var eveningComponents = DateComponents()
-            eveningComponents.hour = AppConstants.Notifications.eveningHour
+            eveningComponents.hour = eveningHour
             eveningComponents.minute = AppConstants.Notifications.eveningMinute
             let moodCheckIns = min(max(trackedDays % 8, 1), 7)
             try await notificationService.scheduleEvening(at: eveningComponents, moodCheckInsThisWeek: moodCheckIns)
@@ -81,12 +97,12 @@ final class SettingsViewModel: ObservableObject {
             if weeklyReportEnabled {
                 var weeklyComponents = DateComponents()
                 weeklyComponents.weekday = AppConstants.Notifications.weeklyReportDay
-                weeklyComponents.hour = AppConstants.Notifications.weeklyReportHour
+                weeklyComponents.hour = weeklyHour
                 weeklyComponents.minute = AppConstants.Notifications.weeklyReportMinute
                 try await notificationService.scheduleWeekly(at: weeklyComponents, trackedDays: trackedDays)
             }
 
-            statusMessage = "Kisisel bildirim planin kaydedildi. Aksam degerlendirme hatirlatmasi 21:00 icin ayarlandi."
+            statusMessage = "Kisisel bildirim planin optimize edildi. Sabah \(morningHour):30, aksam \(eveningHour):00, haftalik \(weeklyHour):00."
         } catch {
             statusMessage = "Bildirim ayarlari kaydedilemedi: \(error.localizedDescription)"
         }
