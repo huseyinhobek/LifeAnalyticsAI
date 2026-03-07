@@ -15,6 +15,7 @@ final class SettingsViewModel: ObservableObject {
     @Published var appLockEnabled: Bool
     @Published var anthropicAPIKeyDraft: String
     @Published var requireBiometricForAPIKey: Bool
+    @Published var securityAuditResults: [SecurityAuditCheck]
     @Published var statusMessage: String?
 
     let accountEmail = "user@lifeanalytics.ai"
@@ -46,6 +47,7 @@ final class SettingsViewModel: ObservableObject {
         appLockEnabled = userDefaultsManager.appLockEnabled
         anthropicAPIKeyDraft = ""
         requireBiometricForAPIKey = true
+        securityAuditResults = []
     }
 
     func persistNotificationState() async {
@@ -156,6 +158,22 @@ final class SettingsViewModel: ObservableObject {
             statusMessage = "API anahtari Keychain'den silindi."
         } catch {
             statusMessage = "API anahtari silinemedi: \(error.localizedDescription)"
+        }
+    }
+
+    func runSecurityAuditChecklist() {
+        let results = SecurityAuditChecklist.run(appLockEnabled: appLockEnabled)
+        securityAuditResults = results
+
+        let failedCount = results.filter { $0.status == .failed }.count
+        let warningCount = results.filter { $0.status == .warning }.count
+
+        if failedCount > 0 {
+            statusMessage = "Guvenlik denetimi tamamlandi: \(failedCount) kritik bulgu, \(warningCount) uyari."
+        } else if warningCount > 0 {
+            statusMessage = "Guvenlik denetimi tamamlandi: kritik bulgu yok, \(warningCount) uyari var."
+        } else {
+            statusMessage = "Guvenlik denetimi basarili: tum kontroller gecti."
         }
     }
 

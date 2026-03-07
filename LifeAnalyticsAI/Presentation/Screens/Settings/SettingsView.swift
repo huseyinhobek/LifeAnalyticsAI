@@ -108,6 +108,37 @@ struct SettingsView: View {
                 .tint(Color("MoodBad"))
             }
 
+            Button("Guvenlik Denetimini Calistir") {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                    viewModel.runSecurityAuditChecklist()
+                }
+            }
+            .font(Theme.captionFont)
+            .buttonStyle(.borderedProminent)
+            .tint(Color("SecondaryBlue"))
+
+            if !viewModel.securityAuditResults.isEmpty {
+                VStack(alignment: .leading, spacing: 8) {
+                    ForEach(viewModel.securityAuditResults) { check in
+                        HStack(alignment: .top, spacing: 8) {
+                            Image(systemName: iconName(for: check.status))
+                                .foregroundStyle(iconColor(for: check.status))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(check.title)
+                                    .font(Theme.captionFont.weight(.semibold))
+                                    .foregroundStyle(Color("TextPrimary"))
+                                Text(check.detail)
+                                    .font(.caption2)
+                                    .foregroundStyle(Color("TextSecondary"))
+                            }
+                        }
+                    }
+                }
+                .padding(10)
+                .background(Color("SecondaryBlue").opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
             Button("Guvenlik Tercihlerini Kaydet") {
                 withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
                     viewModel.persistPreferences()
@@ -119,6 +150,28 @@ struct SettingsView: View {
         .padding(Theme.paddingMedium)
         .background(Color("BackgroundLight"))
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    }
+
+    private func iconName(for status: SecurityAuditCheck.Status) -> String {
+        switch status {
+        case .passed:
+            return "checkmark.seal.fill"
+        case .warning:
+            return "exclamationmark.triangle.fill"
+        case .failed:
+            return "xmark.octagon.fill"
+        }
+    }
+
+    private func iconColor(for status: SecurityAuditCheck.Status) -> Color {
+        switch status {
+        case .passed:
+            return .green
+        case .warning:
+            return .orange
+        case .failed:
+            return .red
+        }
     }
 
     private var columns: [GridItem] {
