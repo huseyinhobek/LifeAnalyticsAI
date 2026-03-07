@@ -50,10 +50,9 @@ struct LifeAnalyticsAIApp: App {
                             predictionText: predictionText
                         )
 
-                        let eveningComponents = Calendar.current.dateComponents(
-                            [.hour, .minute],
-                            from: userDefaultsManager.eveningNotificationTime
-                        )
+                        var eveningComponents = DateComponents()
+                        eveningComponents.hour = AppConstants.Notifications.eveningHour
+                        eveningComponents.minute = AppConstants.Notifications.eveningMinute
                         let moodCheckIns = min(max(trackedDays % 8, 1), 7)
                         try await dependencyContainer.notificationService.scheduleEvening(
                             at: eveningComponents,

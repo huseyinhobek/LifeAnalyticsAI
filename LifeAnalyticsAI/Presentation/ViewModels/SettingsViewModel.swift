@@ -72,7 +72,9 @@ final class SettingsViewModel: ObservableObject {
                 predictionText: predictionText
             )
 
-            let eveningComponents = Calendar.current.dateComponents([.hour, .minute], from: eveningNotificationTime)
+            var eveningComponents = DateComponents()
+            eveningComponents.hour = AppConstants.Notifications.eveningHour
+            eveningComponents.minute = AppConstants.Notifications.eveningMinute
             let moodCheckIns = min(max(trackedDays % 8, 1), 7)
             try await notificationService.scheduleEvening(at: eveningComponents, moodCheckInsThisWeek: moodCheckIns)
 
@@ -84,7 +86,7 @@ final class SettingsViewModel: ObservableObject {
                 try await notificationService.scheduleWeekly(at: weeklyComponents, trackedDays: trackedDays)
             }
 
-            statusMessage = "Kisisel bildirim planin kaydedildi."
+            statusMessage = "Kisisel bildirim planin kaydedildi. Aksam degerlendirme hatirlatmasi 21:00 icin ayarlandi."
         } catch {
             statusMessage = "Bildirim ayarlari kaydedilemedi: \(error.localizedDescription)"
         }
