@@ -71,12 +71,6 @@ struct AppRootView: View {
     @Bindable var router: NavigationRouter
     @EnvironmentObject private var dependencyContainer: DependencyContainer
     @State private var userDefaultsManager = UserDefaultsManager()
-    @State private var onboardingStep: OnboardingStep = .healthKit
-
-    private enum OnboardingStep {
-        case healthKit
-        case calendar
-    }
 
     var body: some View {
         NavigationStack(path: $router.path) {
@@ -126,26 +120,10 @@ struct AppRootView: View {
                 }
             }
             .fullScreenCover(isPresented: $router.showOnboarding) {
-                switch onboardingStep {
-                case .healthKit:
-                    HealthKitPermissionView(
-                        onContinue: {
-                            onboardingStep = .calendar
-                        },
-                        onSkip: {
-                            onboardingStep = .calendar
-                        }
-                    )
-                case .calendar:
-                    CalendarPermissionView(
-                        onContinue: completeOnboarding,
-                        onSkip: completeOnboarding
-                    )
-                }
+                OnboardingView(onComplete: completeOnboarding)
             }
             .task {
                 if !userDefaultsManager.hasCompletedOnboarding {
-                    onboardingStep = .healthKit
                     router.showOnboarding = true
                 }
             }
