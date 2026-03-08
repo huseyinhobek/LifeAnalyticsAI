@@ -61,6 +61,16 @@ enum AppConstants {
         static let userDefaultsSuite = "com.lifeanalytics.defaults"
     }
 
+    enum Subscription {
+        static let groupID = "premium_group"
+        static let monthlyID = "com.lifeanalytics.premium.monthly"
+        static let yearlyID = "com.lifeanalytics.premium.yearly"
+        static let allProductIDs: Set<String> = [monthlyID, yearlyID]
+        static let freeInsightsPerDay = 1
+        static let freeInsightHistoryLimit = 3
+        static let freeChartDaysLimit = 7
+    }
+
     enum UI {
         static let primaryColor = "PrimaryBlue"
         static let animationDuration = 0.3

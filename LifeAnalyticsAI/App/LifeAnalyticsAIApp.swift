@@ -25,6 +25,7 @@ struct LifeAnalyticsAIApp: App {
                 AppRootView(router: router)
                     .id(languageManager.currentLanguage.rawValue)
                     .environmentObject(dependencyContainer)
+                    .environment(dependencyContainer.subscriptionManager)
                     .blur(radius: shouldShowAppLock ? 8 : 0)
                     .allowsHitTesting(!shouldShowAppLock)
 

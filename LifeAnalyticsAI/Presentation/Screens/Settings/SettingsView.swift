@@ -1,16 +1,21 @@
 // MARK: - Presentation.Screens.Settings
 
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SettingsView: View {
     @StateObject private var viewModel: SettingsViewModel
     var router: NavigationRouter?
     @Environment(LanguageManager.self) private var languageManager
+    @Environment(SubscriptionManager.self) private var subscriptionManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var shareURL: URL?
     @State private var isShareSheetPresented = false
     @State private var showLanguagePicker = false
+    @State private var showPaywall = false
 
     init(viewModel: SettingsViewModel, router: NavigationRouter? = nil) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -20,6 +25,7 @@ struct SettingsView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
+                premiumCard
                 languageCard
                 notificationCard
                 securityCard
@@ -49,6 +55,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showLanguagePicker) {
             LanguageSelectionView()
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView()
         }
  #if canImport(UIKit)
         .sheet(isPresented: $isShareSheetPresented, onDismiss: {
@@ -82,6 +91,54 @@ struct SettingsView: View {
                 }
             }
             .buttonStyle(.plain)
+        }
+        .padding(Theme.paddingMedium)
+        .background(Color("BackgroundLight"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    }
+
+    private var premiumCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Label("premium.title".localized, systemImage: "crown")
+                .font(Theme.headlineFont)
+                .foregroundStyle(Color("TextPrimary"))
+
+            if subscriptionManager.isPremium {
+                Text("premium.active".localized)
+                    .font(Theme.bodyFont.weight(.semibold))
+                    .foregroundStyle(Color("PrimaryBlue"))
+
+                Button("premium.manage".localized) {
+                    #if canImport(UIKit)
+                    if let url = URL(string: "https://apps.apple.com/account/subscriptions") {
+                        UIApplication.shared.open(url)
+                    }
+                    #endif
+                }
+                .font(Theme.captionFont)
+                .buttonStyle(.bordered)
+            } else {
+                Button {
+                    showPaywall = true
+                } label: {
+                    HStack {
+                        Text("premium_unlock_button".localized)
+                            .font(Theme.bodyFont.weight(.semibold))
+                            .foregroundStyle(Color("PrimaryBlue"))
+                        Spacer()
+                        Text("\(subscriptionManager.dailyInsightsRemaining) " + "premium.insights_remaining".localized)
+                            .font(Theme.captionFont)
+                            .foregroundStyle(Color("TextSecondary"))
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+
+            Button("premium.restore".localized) {
+                Task { await subscriptionManager.restore() }
+            }
+            .font(Theme.captionFont)
+            .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
         .background(Color("BackgroundLight"))
@@ -299,6 +356,7 @@ struct SettingsView: View {
             .font(Theme.captionFont)
             .buttonStyle(.borderedProminent)
             .tint(Color("SecondaryBlue"))
+            .premiumGate(.dataExport)
         }
         .padding(Theme.paddingMedium)
         .background(Color("BackgroundLight"))

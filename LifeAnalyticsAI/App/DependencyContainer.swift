@@ -67,7 +67,8 @@ final class DependencyContainer: ObservableObject {
     lazy var generateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProtocol = {
         GenerateDailyInsightCardUseCase(
             insightEngine: insightEngine,
-            llmService: llmService
+            llmService: llmService,
+            subscriptionManager: subscriptionManager
         )
     }()
 
@@ -101,6 +102,7 @@ final class DependencyContainer: ObservableObject {
     lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
     lazy var promptTemplateManager: PromptTemplateManager = PromptTemplateManager()
     lazy var llmService: LLMServiceProtocol = AnthropicLLMService(promptTemplateManager: promptTemplateManager)
+    lazy var subscriptionManager: SubscriptionManager = SubscriptionManager()
     lazy var insightEngine: InsightEngineProtocol = {
         PatternInsightEngine(
             sleepRepository: sleepRepository,

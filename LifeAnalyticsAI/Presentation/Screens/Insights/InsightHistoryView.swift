@@ -96,48 +96,57 @@ struct InsightHistoryView: View {
 
     private var insightsGrid: some View {
         LazyVGrid(columns: gridColumns, spacing: Theme.paddingMedium) {
-            ForEach(viewModel.filteredInsights) { insight in
-                Button {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
-                        router.navigate(to: .insightDetail(insight))
-                    }
-                } label: {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .top) {
-                            Label(insight.type.displayName, systemImage: insight.type.iconName)
-                                .font(Theme.captionFont)
-                                .foregroundStyle(Color("SecondaryBlue"))
-
-                            Spacer()
-
-                            Text(insight.confidenceLevel.label)
-                                .font(Theme.captionFont)
-                                .foregroundStyle(Color("TextSecondary"))
-                        }
-
-                        Text(insight.title)
-                            .font(.headline)
-                            .foregroundStyle(Color("TextPrimary"))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Text(insight.body)
-                            .font(Theme.bodyFont)
-                            .foregroundStyle(Color("TextSecondary"))
-                            .lineLimit(3)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Text(insight.date.formatted(date: .abbreviated, time: .shortened))
-                            .font(Theme.captionFont)
-                            .foregroundStyle(Color("TextSecondary"))
-                    }
-                    .padding(Theme.paddingMedium)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color("BackgroundLight"))
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            ForEach(Array(viewModel.filteredInsights.enumerated()), id: \.element.id) { index, insight in
+                if index >= AppConstants.Subscription.freeInsightHistoryLimit {
+                    insightCard(insight)
+                        .premiumGate(.fullInsightHistory)
+                } else {
+                    insightCard(insight)
                 }
-                .buttonStyle(.plain)
             }
         }
+    }
+
+    private func insightCard(_ insight: Insight) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                router.navigate(to: .insightDetail(insight))
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top) {
+                    Label(insight.type.displayName, systemImage: insight.type.iconName)
+                        .font(Theme.captionFont)
+                        .foregroundStyle(Color("SecondaryBlue"))
+
+                    Spacer()
+
+                    Text(insight.confidenceLevel.label)
+                        .font(Theme.captionFont)
+                        .foregroundStyle(Color("TextSecondary"))
+                }
+
+                Text(insight.title)
+                    .font(.headline)
+                    .foregroundStyle(Color("TextPrimary"))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(insight.body)
+                    .font(Theme.bodyFont)
+                    .foregroundStyle(Color("TextSecondary"))
+                    .lineLimit(3)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Text(insight.date.formatted(date: .abbreviated, time: .shortened))
+                    .font(Theme.captionFont)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+            .padding(Theme.paddingMedium)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Color("BackgroundLight"))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        }
+        .buttonStyle(.plain)
     }
 
     private var emptyState: some View {

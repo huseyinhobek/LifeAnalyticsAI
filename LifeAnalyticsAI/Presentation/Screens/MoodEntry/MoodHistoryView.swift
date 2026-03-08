@@ -112,6 +112,7 @@ struct MoodHistoryView: View {
                     }
                 }
                 .disabled(viewModel.entries.isEmpty)
+                .premiumGate(.dataExport)
             }
         }
         .task {

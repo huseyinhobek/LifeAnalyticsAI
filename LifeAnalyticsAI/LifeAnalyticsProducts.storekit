@@ -1,0 +1,109 @@
+{
+  "identifier" : "D4A11B61-8BDF-4E0A-95E1-4F9AF2727A2E",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_applicationInternalID" : "1",
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "E8414A2E-5454-4F2F-8A57-60148F866845",
+      "localizations" : [
+        {
+          "description" : "Unlimited AI insights, weekly reports, and advanced analytics.",
+          "displayName" : "Life Analytics Premium",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "Sinirsiz AI icgoru, haftalik raporlar ve gelismis analizler.",
+          "displayName" : "Life Analytics Premium",
+          "locale" : "tr_TR"
+        }
+      ],
+      "name" : "Life Analytics Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "7.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "1001",
+          "introductoryOffer" : {
+            "internalID" : "intro-monthly-1w",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Unlimited AI insights, weekly reports and all features.",
+              "displayName" : "Premium Monthly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Sinirsiz AI icgoru, haftalik rapor ve tum ozellikler.",
+              "displayName" : "Premium Aylik",
+              "locale" : "tr_TR"
+            }
+          ],
+          "productID" : "com.lifeanalytics.premium.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Premium Monthly",
+          "subscriptionGroupID" : "E8414A2E-5454-4F2F-8A57-60148F866845",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "1002",
+          "introductoryOffer" : {
+            "internalID" : "intro-yearly-1w",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Unlimited AI insights, weekly reports and all features.",
+              "displayName" : "Premium Yearly",
+              "locale" : "en_US"
+            },
+            {
+              "description" : "Sinirsiz AI icgoru, haftalik rapor ve tum ozellikler.",
+              "displayName" : "Premium Yillik",
+              "locale" : "tr_TR"
+            }
+          ],
+          "productID" : "com.lifeanalytics.premium.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Premium Yearly",
+          "subscriptionGroupID" : "E8414A2E-5454-4F2F-8A57-60148F866845",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 2,
+    "minor" : 0
+  }
+}
