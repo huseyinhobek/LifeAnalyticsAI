@@ -6,8 +6,9 @@ import XCTest
 final class GenerateInsightUseCaseTests: XCTestCase {
     func testExecuteUsesLLMExplanationForGeneratedInsights() async throws {
         let baseInsight = makeInsight(body: "raw-body")
+        let repository = StubInsightRepository(storedInsights: [])
         let useCase = GenerateInsightUseCase(
-            repository: StubInsightRepository(storedInsights: []),
+            repository: repository,
             insightEngine: StubInsightEngine(correlations: [baseInsight]),
             llmService: StubLLMService(response: "Natural language explanation"),
             languageCodeProvider: { "en" }
@@ -17,6 +18,8 @@ final class GenerateInsightUseCaseTests: XCTestCase {
 
         XCTAssertEqual(result.count, 1)
         XCTAssertEqual(result.first?.body, "Natural language explanation")
+        let savedCount = await repository.savedCount
+        XCTAssertEqual(savedCount, 1)
     }
 
     func testExecuteFallsBackToRepositoryWhenEngineReturnsEmpty() async throws {
@@ -34,6 +37,33 @@ final class GenerateInsightUseCaseTests: XCTestCase {
         XCTAssertEqual(result.first?.body, "stored-insight")
     }
 
+    func testExecuteSkipsSavingDuplicateInsightForSameDay() async throws {
+        let existing = makeInsight(body: "Natural language explanation")
+        let generated = Insight(
+            id: UUID(),
+            date: existing.date,
+            type: existing.type,
+            title: existing.title,
+            body: "raw-body",
+            confidenceLevel: existing.confidenceLevel,
+            relatedMetrics: existing.relatedMetrics,
+            userFeedback: nil
+        )
+
+        let repository = StubInsightRepository(storedInsights: [existing])
+        let useCase = GenerateInsightUseCase(
+            repository: repository,
+            insightEngine: StubInsightEngine(correlations: [generated]),
+            llmService: StubLLMService(response: "Natural language explanation"),
+            languageCodeProvider: { "en" }
+        )
+
+        _ = try await useCase.execute()
+
+        let savedCount = await repository.savedCount
+        XCTAssertEqual(savedCount, 0)
+    }
+
     private func makeInsight(body: String) -> Insight {
         Insight(
             id: UUID(),
@@ -49,14 +79,16 @@ final class GenerateInsightUseCaseTests: XCTestCase {
 }
 
 private actor StubInsightRepository: InsightRepositoryProtocol {
-    let storedInsights: [Insight]
+    private var storedInsights: [Insight]
+    private(set) var savedCount = 0
 
     init(storedInsights: [Insight]) {
         self.storedInsights = storedInsights
     }
 
     func saveInsight(_ insight: Insight) async throws {
-        _ = insight
+        storedInsights.append(insight)
+        savedCount += 1
     }
 
     func fetchInsights(limit: Int) async throws -> [Insight] {

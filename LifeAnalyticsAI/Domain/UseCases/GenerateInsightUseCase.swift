@@ -57,7 +57,33 @@ final class GenerateInsightUseCase: GenerateInsightUseCaseProtocol {
             )
         }
 
+        try await persistNewInsights(explainedInsights)
+
         return explainedInsights
+    }
+
+    private func persistNewInsights(_ generatedInsights: [Insight]) async throws {
+        guard !generatedInsights.isEmpty else { return }
+
+        var existing = try await repository.fetchInsights(limit: 200)
+
+        for insight in generatedInsights {
+            if isDuplicate(insight, in: existing) {
+                continue
+            }
+
+            try await repository.saveInsight(insight)
+            existing.append(insight)
+        }
+    }
+
+    private func isDuplicate(_ candidate: Insight, in existing: [Insight]) -> Bool {
+        existing.contains { item in
+            item.type == candidate.type
+                && item.title == candidate.title
+                && item.body == candidate.body
+                && Calendar.current.isDate(item.date, inSameDayAs: candidate.date)
+        }
     }
 
     private static func defaultLanguageCode() -> String {
