@@ -6,9 +6,12 @@ import XCTest
 final class GenerateDailyInsightCardUseCaseTests: XCTestCase {
     func testExecuteReturnsShortenedFirstSentence() async throws {
         let longText = "Bugun enerji seviyen dunde gore daha yuksek. Ayni rutini koruman faydali olabilir."
+        let subscriptionManager = SubscriptionManager()
+        subscriptionManager.isPremium = true
         let useCase = GenerateDailyInsightCardUseCase(
             insightEngine: StubInsightEngineForDailyCard(insight: makeInsight()),
             llmService: StubLLMServiceForDailyCard(response: longText),
+            subscriptionManager: subscriptionManager,
             languageCodeProvider: { "tr" }
         )
 
@@ -18,9 +21,12 @@ final class GenerateDailyInsightCardUseCaseTests: XCTestCase {
     }
 
     func testExecuteReturnsNilWhenNoDailyInsight() async throws {
+        let subscriptionManager = SubscriptionManager()
+        subscriptionManager.isPremium = true
         let useCase = GenerateDailyInsightCardUseCase(
             insightEngine: StubInsightEngineForDailyCard(insight: nil),
             llmService: StubLLMServiceForDailyCard(response: "unused"),
+            subscriptionManager: subscriptionManager,
             languageCodeProvider: { "en" }
         )
 

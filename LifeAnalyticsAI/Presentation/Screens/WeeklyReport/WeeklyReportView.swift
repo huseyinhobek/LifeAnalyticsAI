@@ -24,11 +24,14 @@ struct WeeklyReportView: View {
                     )
                 }
 
-                if let report = viewModel.selectedReport {
-                    summaryCard(report)
-                    metricsSection(report)
-                    insightsSection(report)
+                Group {
+                    if let report = viewModel.selectedReport {
+                        summaryCard(report)
+                        metricsSection(report)
+                        insightsSection(report)
+                    }
                 }
+                .premiumGate(.weeklyReport)
 
                 if let error = viewModel.errorMessage {
                     ErrorStateView(message: error) {

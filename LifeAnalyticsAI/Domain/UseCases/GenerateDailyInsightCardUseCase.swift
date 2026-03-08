@@ -9,25 +9,33 @@ protocol GenerateDailyInsightCardUseCaseProtocol {
 final class GenerateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProtocol {
     private let insightEngine: InsightEngineProtocol
     private let llmService: LLMServiceProtocol
+    private let subscriptionManager: SubscriptionManager
     private let languageCodeProvider: @Sendable () -> String
 
     init(
         insightEngine: InsightEngineProtocol,
         llmService: LLMServiceProtocol,
+        subscriptionManager: SubscriptionManager,
         languageCodeProvider: @escaping @Sendable () -> String = { GenerateDailyInsightCardUseCase.defaultLanguageCode() }
     ) {
         self.insightEngine = insightEngine
         self.llmService = llmService
+        self.subscriptionManager = subscriptionManager
         self.languageCodeProvider = languageCodeProvider
     }
 
     func execute(for date: Date = Date()) async throws -> String? {
+        if !subscriptionManager.isPremium && subscriptionManager.dailyInsightsRemaining <= 0 {
+            throw AppError.premiumRequired(feature: .unlimitedInsights)
+        }
+
         guard let insight = try await insightEngine.generateDailyInsight(for: date) else {
             return nil
         }
 
         let languageCode = languageCodeProvider()
         let explanation = await llmService.generateInsightExplanation(insight: insight, languageCode: languageCode)
+        subscriptionManager.recordInsightUsage()
         return shortCardMessage(from: explanation)
     }
 

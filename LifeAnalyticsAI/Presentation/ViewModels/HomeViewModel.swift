@@ -64,9 +64,15 @@ final class HomeViewModel: ObservableObject {
             todayMeetingCount = summary.totalMeetings
             errorMessage = nil
         } catch {
-            errorMessage = error.localizedDescription
-            if todayInsightText.isEmpty {
-                todayInsightText = "home.insight_failed".localized
+            if let appError = error as? AppError,
+               case .premiumRequired = appError {
+                todayInsightText = "premium.free_insight_used".localized
+                errorMessage = nil
+            } else {
+                errorMessage = error.localizedDescription
+                if todayInsightText.isEmpty {
+                    todayInsightText = "home.insight_failed".localized
+                }
             }
         }
     }

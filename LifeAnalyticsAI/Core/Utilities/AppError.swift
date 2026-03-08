@@ -11,6 +11,7 @@ enum AppError: LocalizedError {
     case insufficientData(required: Int, current: Int)
     case networkError(underlying: Error)
     case llmError(message: String)
+    case premiumRequired(feature: PremiumFeature)
     case securityError(message: String)
     case persistenceError(underlying: Error)
     case unknown(underlying: Error)
@@ -31,6 +32,9 @@ enum AppError: LocalizedError {
             return "error.network".localized(with: underlying.localizedDescription)
         case let .llmError(message):
             return "error.llm".localized(with: message)
+        case let .premiumRequired(feature):
+            _ = feature
+            return "premium.free_insight_used".localized
         case let .securityError(message):
             return "error.security".localized(with: message)
         case let .persistenceError(underlying):
