@@ -13,9 +13,15 @@ final class InsightHistoryViewModel: ObservableObject {
     @Published var errorMessage: String?
 
     private let repository: InsightRepositoryProtocol
+    private let generateInsightUseCase: GenerateInsightUseCaseProtocol
+    private var hasAttemptedBootstrapGeneration = false
 
-    init(repository: InsightRepositoryProtocol) {
+    init(
+        repository: InsightRepositoryProtocol,
+        generateInsightUseCase: GenerateInsightUseCaseProtocol
+    ) {
         self.repository = repository
+        self.generateInsightUseCase = generateInsightUseCase
     }
 
     func load() async {
@@ -28,7 +34,15 @@ final class InsightHistoryViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            insights = try await repository.fetchInsights(limit: 200)
+            var fetchedInsights = try await repository.fetchInsights(limit: 200)
+
+            if fetchedInsights.isEmpty && !hasAttemptedBootstrapGeneration {
+                hasAttemptedBootstrapGeneration = true
+                _ = try await generateInsightUseCase.execute()
+                fetchedInsights = try await repository.fetchInsights(limit: 200)
+            }
+
+            insights = fetchedInsights
             errorMessage = nil
         } catch {
             insights = []

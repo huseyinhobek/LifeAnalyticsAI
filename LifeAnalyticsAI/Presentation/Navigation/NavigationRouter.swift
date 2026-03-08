@@ -284,7 +284,10 @@ struct AppRootView: View {
     }
 
     private func makeInsightHistoryViewModel() -> InsightHistoryViewModel {
-        InsightHistoryViewModel(repository: dependencyContainer.insightRepository)
+        InsightHistoryViewModel(
+            repository: dependencyContainer.insightRepository,
+            generateInsightUseCase: dependencyContainer.generateInsightUseCase
+        )
     }
 
     private func makeSettingsViewModel() -> SettingsViewModel {
