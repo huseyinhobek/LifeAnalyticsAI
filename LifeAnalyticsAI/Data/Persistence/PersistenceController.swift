@@ -21,14 +21,28 @@ final class PersistenceController {
         }
 
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+        let resolvedContainer: ModelContainer
+        var didLoadPersistentStore = false
 
         do {
-            container = try ModelContainer(for: schema, configurations: [config])
-            if !inMemory {
-                Self.applyDataProtectionToPersistenceFiles()
-            }
+            resolvedContainer = try ModelContainer(for: schema, configurations: [config])
+            didLoadPersistentStore = !inMemory
         } catch {
-            fatalError("ModelContainer olusturulamadi: \(error.localizedDescription)")
+            AppLogger.insight.error("ModelContainer initialization failed, attempting in-memory recovery: \(error.localizedDescription)")
+
+            do {
+                let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+                resolvedContainer = try ModelContainer(for: schema, configurations: [fallbackConfig])
+                AppLogger.insight.warning("Using in-memory SwiftData store after initialization failure")
+            } catch {
+                fatalError("ModelContainer tamamen baslatilamadi: \(error.localizedDescription)")
+            }
+        }
+
+        container = resolvedContainer
+
+        if didLoadPersistentStore {
+            Self.applyDataProtectionToPersistenceFiles()
         }
     }
 

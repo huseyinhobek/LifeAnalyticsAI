@@ -6,6 +6,7 @@ import SwiftUI
 enum AppRoute: Hashable {
     case home
     case moodEntry(preset: Int?)
+    case moodHistory
     case dashboard
     case profile
     case weeklyReport(weekStart: Date)
@@ -13,6 +14,7 @@ enum AppRoute: Hashable {
     case settings
     case onboarding
     case insightHistory
+    case correlationAnalysis
 }
 
 @Observable
@@ -222,7 +224,9 @@ struct AppRootView: View {
         case .home:
             HomeView(viewModel: makeHomeViewModel(), router: router)
         case let .moodEntry(preset):
-            MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset))
+            MoodEntryView(viewModel: makeMoodEntryViewModel(preset: preset), router: router)
+        case .moodHistory:
+            MoodHistoryView(viewModel: makeMoodHistoryViewModel())
         case .dashboard:
             DashboardView(viewModel: makeDashboardViewModel(), router: router)
         case .profile:
@@ -237,6 +241,8 @@ struct AppRootView: View {
             Text("onboarding.title".localized)
         case .insightHistory:
             InsightHistoryView(viewModel: makeInsightHistoryViewModel(), router: router)
+        case .correlationAnalysis:
+            CorrelationAnalysisView(viewModel: makeCorrelationAnalysisViewModel())
         }
     }
 
@@ -259,6 +265,10 @@ struct AppRootView: View {
             moodRepository: dependencyContainer.moodRepository,
             calendarRepository: dependencyContainer.calendarRepository
         )
+    }
+
+    private func makeMoodHistoryViewModel() -> MoodHistoryViewModel {
+        MoodHistoryViewModel(fetchMoodEntriesUseCase: dependencyContainer.fetchMoodEntriesUseCase)
     }
 
     private func makeInsightDetailViewModel(insight: Insight) -> InsightDetailViewModel {
@@ -302,6 +312,18 @@ struct AppRootView: View {
         ProfileViewModel(
             userDefaultsManager: userDefaultsManager,
             insightRepository: dependencyContainer.insightRepository
+        )
+    }
+
+    private func makeCorrelationAnalysisViewModel() -> CorrelationAnalysisViewModel {
+        CorrelationAnalysisViewModel(
+            sleepRepository: dependencyContainer.sleepRepository,
+            moodRepository: dependencyContainer.moodRepository,
+            calendarRepository: dependencyContainer.calendarRepository,
+            normalizeUseCase: dependencyContainer.normalizeTimeSeriesDataUseCase,
+            crossSourceAnalysisUseCase: dependencyContainer.crossSourceAnalysisUseCase,
+            confidenceScoringUseCase: dependencyContainer.confidenceScoringUseCase,
+            significanceCalculator: dependencyContainer.correlationSignificanceCalculator
         )
     }
 

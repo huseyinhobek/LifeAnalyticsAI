@@ -4,12 +4,16 @@ import SwiftUI
 
 struct MoodEntryView: View {
     @StateObject private var viewModel: MoodEntryViewModel
+    @Bindable var router: NavigationRouter
+    @Environment(\.dismiss) private var dismiss
     @State private var highlightedMood: MoodLevel?
     @State private var feedbackTrigger = 0
+    @State private var showSavedToast = false
     @FocusState private var isNoteFocused: Bool
 
-    init(viewModel: MoodEntryViewModel) {
+    init(viewModel: MoodEntryViewModel, router: NavigationRouter) {
         _viewModel = StateObject(wrappedValue: viewModel)
+        self.router = router
     }
 
     var body: some View {
@@ -99,6 +103,10 @@ struct MoodEntryView: View {
                         .foregroundStyle(Color("MoodExcellent"))
                 }
 
+                Text("mood.entry.usage_hint".localized)
+                    .font(Theme.captionFont)
+                    .foregroundStyle(Color("TextSecondary"))
+
                 Button {
                     Task { await viewModel.saveEntry() }
                 } label: {
@@ -118,6 +126,25 @@ struct MoodEntryView: View {
                     .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
                 }
                 .disabled(viewModel.isSaving)
+
+                Button {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.84)) {
+                        router.navigate(to: .moodHistory)
+                    }
+                } label: {
+                    Label("mood.entry.history".localized, systemImage: "clock.arrow.circlepath")
+                        .font(Theme.bodyFont.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .foregroundStyle(Color("TextPrimary"))
+                        .background(Color("BackgroundLight"))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                                .stroke(Color("PrimaryBlue").opacity(0.25), lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                }
+                .buttonStyle(.plain)
             }
             .padding(Theme.paddingLarge)
         }
@@ -145,5 +172,31 @@ struct MoodEntryView: View {
         .navigationTitle("mood.entry.nav_title".localized)
         .navigationBarTitleDisplayMode(.inline)
         .sensoryFeedback(.impact, trigger: feedbackTrigger)
+        .overlay(alignment: .bottom) {
+            if showSavedToast {
+                Text("mood.entry.saved_toast".localized)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color("PrimaryBlue"))
+                    .clipShape(Capsule())
+                    .padding(.bottom, 16)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .onChange(of: viewModel.didSave) { _, didSave in
+            guard didSave else { return }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.84)) {
+                showSavedToast = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    showSavedToast = false
+                }
+                dismiss()
+            }
+        }
     }
 }

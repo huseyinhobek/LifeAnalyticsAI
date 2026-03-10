@@ -11,17 +11,18 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        application.setMinimumBackgroundFetchInterval(UIApplication.backgroundFetchIntervalMinimum)
+        _ = application
+        _ = launchOptions
         configureNotifications()
 
         NotificationCenter.default.addObserver(
             forName: .healthKitSleepDataDidUpdate,
             object: nil,
             queue: .main
-        ) { [weak self] _ in
+        ) { _ in
             Task {
                 do {
-                    try await self?.handleBackgroundDelivery()
+                    try await self.handleBackgroundDelivery()
                 } catch {
                     AppLogger.health.error("Notification-driven sleep refresh failed: \(error.localizedDescription)")
                 }

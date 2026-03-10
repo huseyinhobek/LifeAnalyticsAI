@@ -46,7 +46,7 @@ final class GeneratePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol
 
     private func loadRecentPoints(referenceDate: Date) async throws -> [TimeSeriesDataPoint] {
         let end = referenceDate.endOfDay
-        let start = end.daysAgo(30)
+        let start = end.daysAgo(AppConstants.Insights.predictionWindowDays)
 
         async let sleep = sleepRepository.fetchSleepRecords(from: start, to: end)
         async let mood = moodRepository.fetchMoodEntries(from: start, to: end)

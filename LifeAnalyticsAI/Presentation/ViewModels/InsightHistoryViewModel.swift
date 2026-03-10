@@ -34,12 +34,17 @@ final class InsightHistoryViewModel: ObservableObject {
         defer { isLoading = false }
 
         do {
-            var fetchedInsights = try await repository.fetchInsights(limit: 200)
+            var fetchedInsights = try await repository.fetchInsights(limit: AppConstants.Insights.historyFetchLimit)
 
             if fetchedInsights.isEmpty && !hasAttemptedBootstrapGeneration {
                 hasAttemptedBootstrapGeneration = true
-                _ = try await generateInsightUseCase.execute()
-                fetchedInsights = try await repository.fetchInsights(limit: 200)
+                do {
+                    _ = try await generateInsightUseCase.execute()
+                    fetchedInsights = try await repository.fetchInsights(limit: AppConstants.Insights.historyFetchLimit)
+                } catch {
+                    hasAttemptedBootstrapGeneration = false
+                    throw error
+                }
             }
 
             insights = fetchedInsights

@@ -122,18 +122,36 @@ struct HomeView: View {
             quickStatCard(
                 title: "home.avg_mood".localized,
                 value: String(format: "%.1f / 5", viewModel.averageMood),
-                icon: "face.smiling.inverse"
+                icon: "face.smiling.inverse",
+                sparkline: viewModel.moodTrend,
+                color: ChartStyleGuide.SemanticColor.mood
             )
 
             quickStatCard(
                 title: "home.today_meetings".localized,
                 value: "\(viewModel.todayMeetingCount)",
-                icon: "calendar"
+                icon: "calendar",
+                sparkline: viewModel.meetingTrend,
+                color: ChartStyleGuide.SemanticColor.meetings
+            )
+
+            quickStatCard(
+                title: "home.sleep_summary".localized,
+                value: "home.avg_sleep_last7".localized(with: viewModel.averageSleepHours),
+                icon: "bed.double.fill",
+                sparkline: viewModel.sleepTrend,
+                color: ChartStyleGuide.SemanticColor.sleep
             )
         }
     }
 
-    private func quickStatCard(title: String, value: String, icon: String) -> some View {
+    private func quickStatCard(
+        title: String,
+        value: String,
+        icon: String,
+        sparkline: [Double],
+        color: Color
+    ) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Label(title, systemImage: icon)
                 .font(Theme.captionFont)
@@ -142,6 +160,11 @@ struct HomeView: View {
             Text(value)
                 .font(.system(size: 24, weight: .semibold, design: .rounded))
                 .foregroundStyle(Color("TextPrimary"))
+
+            if !sparkline.isEmpty {
+                SparklineView(data: sparkline, color: color)
+                    .frame(height: ChartStyleGuide.Sizing.sparklineHeight)
+            }
         }
         .padding(Theme.paddingMedium)
         .frame(maxWidth: .infinity, alignment: .leading)

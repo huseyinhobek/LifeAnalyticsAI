@@ -17,8 +17,11 @@ final class CalendarDomainUseCasesTests: XCTestCase {
 
         XCTAssertEqual(result, expected)
         let range = await repository.lastFetchRange
-        XCTAssertEqual(range?.from.timeIntervalSince1970, from.timeIntervalSince1970, accuracy: 0.001)
-        XCTAssertEqual(range?.to.timeIntervalSince1970, to.timeIntervalSince1970, accuracy: 0.001)
+        XCTAssertNotNil(range)
+        if let range {
+            XCTAssertEqual(range.from.timeIntervalSince1970, from.timeIntervalSince1970, accuracy: 0.001)
+            XCTAssertEqual(range.to.timeIntervalSince1970, to.timeIntervalSince1970, accuracy: 0.001)
+        }
     }
 
     func testFetchWeeklyMeetingAnalysisUseCaseReturnsRepositoryValue() async throws {

@@ -29,8 +29,11 @@ final class MoodDomainUseCasesTests: XCTestCase {
 
         XCTAssertEqual(result, expected)
         let capturedRange = await repository.lastFetchRange
-        XCTAssertEqual(capturedRange?.from.timeIntervalSince1970, from.timeIntervalSince1970, accuracy: 0.001)
-        XCTAssertEqual(capturedRange?.to.timeIntervalSince1970, to.timeIntervalSince1970, accuracy: 0.001)
+        XCTAssertNotNil(capturedRange)
+        if let capturedRange {
+            XCTAssertEqual(capturedRange.from.timeIntervalSince1970, from.timeIntervalSince1970, accuracy: 0.001)
+            XCTAssertEqual(capturedRange.to.timeIntervalSince1970, to.timeIntervalSince1970, accuracy: 0.001)
+        }
     }
 
     func testMoodStatisticsAverageAndTrend() async throws {

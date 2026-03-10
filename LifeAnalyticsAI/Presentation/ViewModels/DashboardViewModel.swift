@@ -4,23 +4,6 @@ import Foundation
 
 @MainActor
 final class DashboardViewModel: ObservableObject {
-    enum TimeWindow: Int, CaseIterable {
-        case week = 7
-        case twoWeeks = 14
-        case month = 30
-
-        var title: String {
-            switch self {
-            case .week:
-                return "dashboard.window.7".localized
-            case .twoWeeks:
-                return "dashboard.window.14".localized
-            case .month:
-                return "dashboard.window.30".localized
-            }
-        }
-    }
-
     struct DataPoint: Identifiable {
         let date: Date
         let value: Double
@@ -32,7 +15,7 @@ final class DashboardViewModel: ObservableObject {
     @Published private(set) var moodPoints: [DataPoint] = []
     @Published private(set) var activityPoints: [DataPoint] = []
     @Published private(set) var isLoading = false
-    @Published var selectedWindow: TimeWindow = .twoWeeks
+    @Published var selectedPeriod: ChartStyleGuide.TimePeriod = .month30
     @Published var errorMessage: String?
 
     private let sleepRepository: SleepRepositoryProtocol
@@ -59,7 +42,7 @@ final class DashboardViewModel: ObservableObject {
         defer { isLoading = false }
 
         let endDate = Date().endOfDay
-        let startDate = endDate.daysAgo(selectedWindow.rawValue - 1).startOfDay
+        let startDate = endDate.daysAgo(selectedPeriod.days - 1).startOfDay
 
         do {
             async let sleepRecords = sleepRepository.fetchSleepRecords(from: startDate, to: endDate)

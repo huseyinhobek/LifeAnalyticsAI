@@ -75,7 +75,6 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      storeKitConfigurationFile = "container:LifeAnalyticsAI/LifeAnalyticsProducts.storekit"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
@@ -87,6 +86,9 @@
             ReferencedContainer = "container:LifeAnalyticsAI.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <StoreKitConfigurationFileReference
+         identifier = "../../LifeAnalyticsAI/LifeAnalyticsProducts.storekit">
+      </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

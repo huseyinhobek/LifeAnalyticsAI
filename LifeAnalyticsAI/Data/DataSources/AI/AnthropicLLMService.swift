@@ -81,12 +81,12 @@ final class AnthropicLLMService: LLMServiceProtocol {
         let estimatedTokens = estimateTokens(template.userPrompt) + estimateTokens(template.systemPrompt)
         let isAllowedByRateLimit = await rateLimiter.isAllowed(at: currentDate)
         guard isAllowedByRateLimit else {
-            throw AppError.llmError(message: "LLM saatlik istek limiti asildi")
+            throw AppError.llmError(message: "error.llm.rate_limit_exceeded".localized)
         }
 
         let hasBudget = await usageTracker.canConsume(tokens: estimatedTokens, at: currentDate)
         guard hasBudget else {
-            throw AppError.llmError(message: "LLM token limiti asildi")
+            throw AppError.llmError(message: "error.llm.token_limit_exceeded".localized)
         }
 
         let response = try await sendRequest(template.userPrompt, template.systemPrompt)
@@ -105,7 +105,9 @@ final class AnthropicLLMService: LLMServiceProtocol {
 
     private func estimateTokens(_ text: String) -> Int {
         guard !text.isEmpty else { return 1 }
-        return max(1, text.count / 4)
+        let hasNonASCII = text.unicodeScalars.contains { $0.value > 127 }
+        let charsPerToken: Double = hasNonASCII ? 2.5 : 4.0
+        return max(1, Int(Double(text.count) / charsPerToken))
     }
 
 }

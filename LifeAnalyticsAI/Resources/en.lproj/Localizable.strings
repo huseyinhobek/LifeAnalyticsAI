@@ -34,6 +34,8 @@
 
 /* ===== SETTINGS ===== */
 "settings.title" = "Settings";
+"settings.overview_subtitle" = "Manage notifications, security, and data preferences";
+"settings.premium_cta_subtitle" = "Unlock all professional analytics";
 "settings.language" = "Language / Dil";
 "settings.info" = "Info";
 "settings.notifications" = "Notification Preferences";
@@ -103,6 +105,12 @@
 "mood.entry.note_optional" = "Note (optional)";
 "mood.entry.saved" = "Mood saved";
 "mood.entry.save" = "Save";
+"mood.entry.saved_toast" = "Mood check-in saved";
+"mood.entry.usage_hint" = "This entry is used for dashboard trends, AI insights, correlation analysis, and weekly reports.";
+"mood.entry.history" = "Mood History";
+
+"home.insight_fallback_with_mood" = "You have %d meetings today. Your average mood is %.1f/5 and your 7-day sleep average is %.1f hours. If your calendar is dense, work in energy blocks.";
+"home.insight_fallback_no_mood" = "You have %d meetings today. Your 7-day sleep average is %.1f hours. Add a mood check-in today for stronger insights.";
 "mood.history.nav_title" = "Mood History";
 "mood.history.title" = "Mood History";
 "mood.history.last_365" = "Last 365 days";
@@ -136,6 +144,9 @@
 "insight.detail.helpful_question" = "Was this insight helpful?";
 "insight.detail.feedback.helpful" = "Helpful";
 "insight.detail.feedback.improve" = "Needs Improvement";
+"insight.detail.feedback.hint" = "This feedback is used to improve the tone and clarity of future AI insights.";
+"insight.detail.metric_value" = "level";
+"insight.detail.single_metric_hint" = "This insight has one dominant metric. A comparative chart appears automatically when multiple metrics exist.";
 
 /* ===== DASHBOARD ===== */
 "dashboard.nav_title" = "Statistics Dashboard";
@@ -144,6 +155,7 @@
 "dashboard.header.title" = "Personal Performance";
 "dashboard.header.subtitle" = "Sleep, mood, and activity trends in one place";
 "dashboard.weekly_ai_report" = "Weekly AI Report";
+"dashboard.correlation_analysis" = "Correlation Analysis";
 "dashboard.avg_sleep" = "Average Sleep";
 "dashboard.avg_sleep_value" = "%.1f hours";
 "dashboard.avg_mood" = "Average Mood";
@@ -201,6 +213,8 @@
 "error.insufficient_data" = "At least %d days of data is required for insights. Current: %d days.";
 "error.network" = "Network error occurred: %@";
 "error.llm" = "LLM error: %@";
+"error.llm.rate_limit_exceeded" = "Hourly LLM request limit exceeded.";
+"error.llm.token_limit_exceeded" = "Daily LLM token budget exceeded.";
 "error.security" = "Security error: %@";
 "error.persistence" = "Persistence error occurred: %@";
 "error.unknown" = "Unknown error: %@";
@@ -280,6 +294,9 @@
 "premium.start" = "Start Premium";
 "premium.trial" = "Try free for one week";
 "premium.cancel_anytime" = "Cancel anytime.";
+"premium.best_value" = "Best value";
+"premium.products_unavailable" = "Products are currently unavailable. Check your connection and try again.";
+"premium.retry" = "Retry";
 "premium.restore" = "Restore Purchases";
 "premium.active" = "Premium Active";
 "premium.manage" = "Manage Subscription";
@@ -311,3 +328,40 @@
 "dataExport_desc" = "Download your data as CSV and PDF";
 "priorityAI_title" = "Priority AI";
 "priorityAI_desc" = "Faster AI response time";
+
+"chart.vs_average" = "Vs average";
+"chart.confidence" = "Confidence";
+"chart.sample_size" = "Sample";
+"chart.days" = "days";
+"chart.compare_previous" = "Compare previous period";
+"chart.no_data" = "Not enough data yet";
+"chart.accessibility_summary" = "Latest value: %@ %@";
+"period.days_short" = "days";
+"period.year_short" = "year";
+"chart.collecting" = "Collecting data";
+"chart.collecting_detail" = "At least %d days of data are required for this chart. So far, %d days collected.";
+"chart.metric_direction_up" = "upward";
+"chart.metric_direction_down" = "downward";
+"chart.metric_direction_stable" = "stable";
+
+"insight.correlation.title" = "Cross-source relationship detected";
+"insight.correlation.body" = "A meaningful relationship was observed between %@ and %@.";
+"insight.anomaly.title" = "Unexpected change detected";
+"insight.anomaly.body" = "%@ moved outside the normal range (z=%@).";
+"insight.seasonal.title" = "Weekly cycle pattern detected";
+"insight.seasonal.body" = "Weekend effect %@, Monday syndrome strength %@.";
+
+"metric.unit.effect" = "effect";
+"metric.unit.sample" = "sample";
+"metric.unit.raw" = "raw";
+"metric.unit.mood" = "mood";
+"metric.unit.score" = "score";
+"metric.unit.hour" = "hour";
+
+"report.prediction.next_day" = "Predicted mood for tomorrow: %@";
+"report.summary.generated" = "Pattern engine weekly summary generated.";
+
+"widget.quick_mood.title" = "Quick Mood Entry";
+"widget.quick_mood.subtitle" = "Selection opens the mood screen in the app";
+"widget.quick_mood.display_name" = "Quick Mood";
+"widget.quick_mood.description" = "Log a mood quickly from the home screen.";

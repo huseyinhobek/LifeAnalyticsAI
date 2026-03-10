@@ -29,7 +29,7 @@ final class PromptTemplateManager: PromptFeedbackOptimizing {
             - Tip: \(insight.type.rawValue)
             - Baslik: \(insight.title)
             - Aciklama: \(insight.body)
-            - Guven: \(insight.confidenceLevel.rawValue)
+            - Güven: \(insight.confidenceLevel.rawValue)
             - Ilgili metrik ozetleri: \(metricSummary(insight.relatedMetrics))
             """
         )
@@ -39,7 +39,7 @@ final class PromptTemplateManager: PromptFeedbackOptimizing {
         PromptTemplate(
             systemPrompt: systemPrompt(languageCode: languageCode, insightType: nil),
             userPrompt: """
-            Gorev: Haftalik anonimlestirilmis paternleri kullanarak rapor yaz.
+            Gorev: Haftalık anonimlestirilmis paternleri kullanarak rapor yaz.
             Hedef kitle: Kurumsal profesyoneller ve yoneticiler.
             Cikti: 3 kisa bolum (Ozet, Gozlem, Oneri).
             Markdown baslik hiyerarsisi kullan:

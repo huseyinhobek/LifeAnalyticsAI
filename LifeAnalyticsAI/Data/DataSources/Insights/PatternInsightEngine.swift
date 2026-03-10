@@ -52,12 +52,12 @@ final class PatternInsightEngine: InsightEngineProtocol {
                 id: UUID(),
                 date: Date(),
                 type: .correlation,
-                title: "Kaynaklar arasi iliski bulundu",
-                body: "\(score.lhsMetric.rawValue) ve \(score.rhsMetric.rawValue) arasinda anlamli bir iliski goruldu.",
+                title: "insight.correlation.title".localized,
+                body: "insight.correlation.body".localized(with: score.lhsMetric.rawValue, score.rhsMetric.rawValue),
                 confidenceLevel: score.confidence,
                 relatedMetrics: [
-                    MetricReference(name: score.lhsMetric.rawValue, value: score.effectSize, unit: "effect", trend: .stable),
-                    MetricReference(name: score.rhsMetric.rawValue, value: Double(score.sampleSize), unit: "orneklem", trend: .stable)
+                    MetricReference(name: score.lhsMetric.rawValue, value: score.effectSize, unit: "metric.unit.effect".localized, trend: .stable),
+                    MetricReference(name: score.rhsMetric.rawValue, value: Double(score.sampleSize), unit: "metric.unit.sample".localized, trend: .stable)
                 ],
                 userFeedback: nil
             )
@@ -77,11 +77,11 @@ final class PatternInsightEngine: InsightEngineProtocol {
                 id: UUID(),
                 date: anomaly.date,
                 type: .anomaly,
-                title: "Beklenmeyen degisim tespit edildi",
-                body: "\(anomaly.metric.rawValue) degeri kisinin normal araligindan saptı (z=\(String(format: "%.2f", anomaly.zScore))).",
+                title: "insight.anomaly.title".localized,
+                body: "insight.anomaly.body".localized(with: anomaly.metric.rawValue, String(format: "%.2f", anomaly.zScore)),
                 confidenceLevel: .high,
                 relatedMetrics: [
-                    MetricReference(name: anomaly.metric.rawValue, value: anomaly.value, unit: "ham", trend: trend)
+                    MetricReference(name: anomaly.metric.rawValue, value: anomaly.value, unit: "metric.unit.raw".localized, trend: trend)
                 ],
                 userFeedback: nil
             )
@@ -96,12 +96,12 @@ final class PatternInsightEngine: InsightEngineProtocol {
             id: UUID(),
             date: Date(),
             type: .seasonal,
-            title: "Haftalik dongu paterni bulundu",
-            body: "Hafta sonu etkisi \(String(format: "%.2f", seasonality.weekendEffect)), Monday sendromu gucu \(String(format: "%.2f", seasonality.mondaySyndromeStrength)).",
+            title: "insight.seasonal.title".localized,
+            body: "insight.seasonal.body".localized(with: String(format: "%.2f", seasonality.weekendEffect), String(format: "%.2f", seasonality.mondaySyndromeStrength)),
             confidenceLevel: .medium,
             relatedMetrics: [
-                MetricReference(name: "WeekendEffect", value: seasonality.weekendEffect, unit: "mood", trend: seasonality.weekendEffect >= 0 ? .up : .down),
-                MetricReference(name: "MondaySyndrome", value: seasonality.mondaySyndromeStrength, unit: "mood", trend: seasonality.mondaySyndromeStrength >= 0 ? .down : .up)
+                MetricReference(name: "WeekendEffect", value: seasonality.weekendEffect, unit: "metric.unit.mood".localized, trend: seasonality.weekendEffect >= 0 ? .up : .down),
+                MetricReference(name: "MondaySyndrome", value: seasonality.mondaySyndromeStrength, unit: "metric.unit.mood".localized, trend: seasonality.mondaySyndromeStrength >= 0 ? .down : .up)
             ],
             userFeedback: nil
         )
@@ -131,16 +131,16 @@ final class PatternInsightEngine: InsightEngineProtocol {
 
         var keyMetrics: [MetricReference] = []
         if let profile {
-            keyMetrics.append(MetricReference(name: "BestDayMood", value: profile.averageMood, unit: "puan", trend: .up))
-            keyMetrics.append(MetricReference(name: "BestDaySleep", value: profile.averageSleepHours, unit: "saat", trend: .up))
+            keyMetrics.append(MetricReference(name: "BestDayMood", value: profile.averageMood, unit: "metric.unit.score".localized, trend: .up))
+            keyMetrics.append(MetricReference(name: "BestDaySleep", value: profile.averageSleepHours, unit: "metric.unit.hour".localized, trend: .up))
         }
         if let prediction {
-            keyMetrics.append(MetricReference(name: "NextWeekMood", value: prediction.predictedMoodNextWeekAverage, unit: "puan", trend: .stable))
+            keyMetrics.append(MetricReference(name: "NextWeekMood", value: prediction.predictedMoodNextWeekAverage, unit: "metric.unit.score".localized, trend: .stable))
         }
 
         let predictionText: String?
         if let prediction {
-            predictionText = "Yarin icin tahmini mood: \(String(format: "%.2f", prediction.predictedMoodNextDay))"
+            predictionText = "report.prediction.next_day".localized(with: String(format: "%.2f", prediction.predictedMoodNextDay))
         } else {
             predictionText = nil
         }
@@ -148,7 +148,7 @@ final class PatternInsightEngine: InsightEngineProtocol {
         return WeeklyReport(
             id: UUID(),
             weekStartDate: weekStart.startOfWeek,
-            summary: "Pattern Engine haftalik ozeti olusturuldu.",
+            summary: "report.summary.generated".localized,
             insights: prioritized.map { $0.insight },
             keyMetrics: keyMetrics,
             prediction: predictionText
@@ -157,7 +157,7 @@ final class PatternInsightEngine: InsightEngineProtocol {
 
     private func loadRecentPoints(referenceDate: Date = Date()) async throws -> [TimeSeriesDataPoint] {
         let end = referenceDate.endOfDay
-        let start = end.daysAgo(30)
+        let start = end.daysAgo(AppConstants.Health.patternWindowDays)
 
         async let sleep = sleepRepository.fetchSleepRecords(from: start, to: end)
         async let mood = moodRepository.fetchMoodEntries(from: start, to: end)

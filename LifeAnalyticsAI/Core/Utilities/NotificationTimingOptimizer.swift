@@ -3,23 +3,23 @@
 import Foundation
 
 enum NotificationTimingOptimizer {
-    enum Channel: String {
-        case morning
-        case evening
-        case weekly
-    }
-
-    private static let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)!
+    private static let defaults: UserDefaults = {
+        guard let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite) else {
+            AppLogger.notification.warning("Shared UserDefaults suite unavailable for timing optimizer, using standard")
+            return .standard
+        }
+        return defaults
+    }()
 
     static func recordOpen(categoryIdentifier: String, openedAt: Date = Date()) {
-        guard let channel = channel(for: categoryIdentifier) else { return }
+        guard let channel = AppConstants.Notifications.Channel(categoryIdentifier: categoryIdentifier) else { return }
         let hour = Calendar.current.component(.hour, from: openedAt)
         var histogram = histogramForChannel(channel)
         histogram[hour, default: 0] += 1
         defaults.set(histogram, forKey: key(for: channel))
     }
 
-    static func optimalHour(for channel: Channel, fallback: Int, allowedRange: ClosedRange<Int>) -> Int {
+    static func optimalHour(for channel: AppConstants.Notifications.Channel, fallback: Int, allowedRange: ClosedRange<Int>) -> Int {
         let histogram = histogramForChannel(channel)
         let best = histogram
             .filter { allowedRange.contains($0.key) }
@@ -33,20 +33,7 @@ enum NotificationTimingOptimizer {
         return best?.key ?? fallback
     }
 
-    private static func channel(for categoryIdentifier: String) -> Channel? {
-        switch categoryIdentifier {
-        case AppConstants.Notifications.Category.morning:
-            return .morning
-        case AppConstants.Notifications.Category.evening:
-            return .evening
-        case AppConstants.Notifications.Category.weekly:
-            return .weekly
-        default:
-            return nil
-        }
-    }
-
-    private static func histogramForChannel(_ channel: Channel) -> [Int: Int] {
+    private static func histogramForChannel(_ channel: AppConstants.Notifications.Channel) -> [Int: Int] {
         let raw = defaults.dictionary(forKey: key(for: channel)) ?? [:]
         var parsed: [Int: Int] = [:]
         for (rawHour, rawCount) in raw {
@@ -60,7 +47,7 @@ enum NotificationTimingOptimizer {
         return parsed
     }
 
-    private static func key(for channel: Channel) -> String {
+    private static func key(for channel: AppConstants.Notifications.Channel) -> String {
         "notificationOpenHistogram_\(channel.rawValue)"
     }
 }

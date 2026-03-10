@@ -8,11 +8,19 @@ final class HealthKitService: HealthKitServiceProtocol {
     private let healthStore = HKHealthStore()
     private var sleepObserverQuery: HKObserverQuery?
 
-    private let readTypes: Set<HKObjectType> = [
-        HKObjectType.categoryType(forIdentifier: .sleepAnalysis)!,
-        HKObjectType.quantityType(forIdentifier: .stepCount)!,
-        HKObjectType.quantityType(forIdentifier: .heartRate)!
-    ]
+    private let readTypes: Set<HKObjectType> = {
+        var types = Set<HKObjectType>()
+        if let sleep = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) {
+            types.insert(sleep)
+        }
+        if let stepCount = HKObjectType.quantityType(forIdentifier: .stepCount) {
+            types.insert(stepCount)
+        }
+        if let heartRate = HKObjectType.quantityType(forIdentifier: .heartRate) {
+            types.insert(heartRate)
+        }
+        return types
+    }()
 
     func requestAuthorization() async throws -> Bool {
         guard HKHealthStore.isHealthDataAvailable() else {
@@ -56,8 +64,7 @@ final class HealthKitService: HealthKitServiceProtocol {
             switch sample.value {
             case HKCategoryValueSleepAnalysis.inBed.rawValue:
                 aggregate.inBedMinutes += minutes
-            case HKCategoryValueSleepAnalysis.asleep.rawValue,
-                 HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
+            case HKCategoryValueSleepAnalysis.asleepUnspecified.rawValue:
                 aggregate.asleepMinutes += minutes
             case HKCategoryValueSleepAnalysis.awake.rawValue:
                 aggregate.awakeMinutes += minutes
@@ -171,7 +178,6 @@ final class HealthKitService: HealthKitServiceProtocol {
             .sorted { $0.key < $1.key }
             .map(\.value)
 
-        _ = calculateHeartRateStats(from: orderedReadings)
         return orderedReadings
     }
 
@@ -231,7 +237,7 @@ final class HealthKitService: HealthKitServiceProtocol {
 
     private func sleepBucketDate(for date: Date) -> Date {
         let hour = Calendar.current.component(.hour, from: date)
-        let baseDate = hour < 12 ? date.daysAgo(1) : date
+        let baseDate = hour < AppConstants.Health.sleepBucketBoundaryHour ? date.daysAgo(1) : date
         return baseDate.startOfDay
     }
 
@@ -298,23 +304,6 @@ final class HealthKitService: HealthKitServiceProtocol {
 
             healthStore.execute(query)
         }
-    }
-}
-
-private extension HealthKitService {
-    struct HeartRateStats {
-        let average: Double
-        let minimum: Double
-        let maximum: Double
-    }
-
-    func calculateHeartRateStats(from readings: [Double]) -> HeartRateStats? {
-        guard let minimum = readings.min(), let maximum = readings.max(), !readings.isEmpty else {
-            return nil
-        }
-
-        let average = readings.reduce(0, +) / Double(readings.count)
-        return HeartRateStats(average: average, minimum: minimum, maximum: maximum)
     }
 }
 

@@ -7,6 +7,14 @@ import StoreKit
 
 @Observable
 final class SubscriptionManager {
+    static let shared = SubscriptionManager()
+
+    private static let dailyKeyFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "LifeAnalyticsAI",
         category: "Subscription"
@@ -42,7 +50,7 @@ final class SubscriptionManager {
 
     private var updateListenerTask: Task<Void, Never>?
 
-    init() {
+    private init() {
         updateListenerTask = listenForTransactions()
         Task {
             await loadProducts()
@@ -121,15 +129,26 @@ final class SubscriptionManager {
             }
         }
 
+        let entitlementActive = hasActiveEntitlement
+
         await MainActor.run {
-            self.isPremium = hasActiveEntitlement
-            self.logger.info("Subscription status updated, premium: \(hasActiveEntitlement)")
+            self.isPremium = entitlementActive
+            self.logger.info("Subscription status updated, premium: \(entitlementActive)")
         }
     }
 
     func hasAccess(to feature: PremiumFeature) -> Bool {
-        _ = feature
-        return isPremium
+        switch feature {
+        case .unlimitedInsights,
+             .weeklyReport,
+             .crossCorrelation,
+             .predictions,
+             .extendedTrends,
+             .fullInsightHistory,
+             .dataExport,
+             .priorityAI:
+            return isPremium
+        }
     }
 
     var dailyInsightsRemaining: Int {
@@ -155,11 +174,11 @@ final class SubscriptionManager {
     }
 
     private func listenForTransactions() -> Task<Void, Never> {
-        Task.detached { [weak self] in
+        Task.detached { [self] in
             for await result in Transaction.updates {
                 guard case let .verified(transaction) = result else { continue }
                 await transaction.finish()
-                await self?.updateSubscriptionStatus()
+                await updateSubscriptionStatus()
             }
         }
     }
@@ -174,9 +193,7 @@ final class SubscriptionManager {
     }
 
     private var dailyCounterKey: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return "insights_used_\(formatter.string(from: Date()))"
+        "insights_used_\(Self.dailyKeyFormatter.string(from: Date()))"
     }
 }
 

@@ -45,16 +45,17 @@ final class GenerateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProt
 
         if let periodIndex = trimmed.firstIndex(of: ".") {
             let firstSentence = String(trimmed[...periodIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
-            if firstSentence.count <= 160 {
+            if firstSentence.count <= AppConstants.Insights.cardMaxLength {
                 return firstSentence
             }
         }
 
-        if trimmed.count <= 160 {
+        if trimmed.count <= AppConstants.Insights.cardMaxLength {
             return trimmed
         }
 
-        let endIndex = trimmed.index(trimmed.startIndex, offsetBy: 157)
+        let safeOffset = min(AppConstants.Insights.cardTruncatedLength, trimmed.count)
+        let endIndex = trimmed.index(trimmed.startIndex, offsetBy: safeOffset)
         return String(trimmed[..<endIndex]) + "..."
     }
 

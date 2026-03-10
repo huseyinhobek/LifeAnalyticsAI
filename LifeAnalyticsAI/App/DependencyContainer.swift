@@ -39,6 +39,22 @@ final class DependencyContainer: ObservableObject {
         FetchCalendarEventsUseCase(repository: calendarRepository)
     }()
 
+    lazy var normalizeTimeSeriesDataUseCase: NormalizeTimeSeriesDataUseCaseProtocol = {
+        NormalizeTimeSeriesDataUseCase()
+    }()
+
+    lazy var crossSourceAnalysisUseCase: CrossSourceAnalysisUseCaseProtocol = {
+        CrossSourceAnalysisUseCase()
+    }()
+
+    lazy var confidenceScoringUseCase: ConfidenceScoringUseCaseProtocol = {
+        ConfidenceScoringUseCase()
+    }()
+
+    lazy var correlationSignificanceCalculator: CorrelationSignificanceCalculatorProtocol = {
+        CorrelationSignificanceCalculator()
+    }()
+
     lazy var fetchWeeklyMeetingAnalysisUseCase: FetchWeeklyMeetingAnalysisUseCaseProtocol = {
         FetchWeeklyMeetingAnalysisUseCase(repository: calendarRepository)
     }()
@@ -102,7 +118,7 @@ final class DependencyContainer: ObservableObject {
     lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
     lazy var promptTemplateManager: PromptTemplateManager = PromptTemplateManager()
     lazy var llmService: LLMServiceProtocol = AnthropicLLMService(promptTemplateManager: promptTemplateManager)
-    lazy var subscriptionManager: SubscriptionManager = SubscriptionManager()
+    lazy var subscriptionManager: SubscriptionManager = SubscriptionManager.shared
     lazy var insightEngine: InsightEngineProtocol = {
         PatternInsightEngine(
             sleepRepository: sleepRepository,

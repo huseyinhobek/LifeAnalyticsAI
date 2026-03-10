@@ -4,6 +4,11 @@
 import SwiftUI
 import WidgetKit
 
+private enum QuickMoodWidgetConstants {
+    static let refreshHours = 2
+    static let emojiButtonMinHeight: CGFloat = 32
+}
+
 struct QuickMoodEntry: TimelineEntry {
     let date: Date
 }
@@ -19,7 +24,7 @@ struct QuickMoodProvider: TimelineProvider {
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<QuickMoodEntry>) -> Void) {
         let entry = QuickMoodEntry(date: Date())
-        let next = Calendar.current.date(byAdding: .hour, value: 2, to: entry.date) ?? entry.date
+        let next = Calendar.current.date(byAdding: .hour, value: QuickMoodWidgetConstants.refreshHours, to: entry.date) ?? entry.date
         completion(Timeline(entries: [entry], policy: .after(next)))
     }
 }
@@ -35,7 +40,7 @@ struct QuickMoodWidgetView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Hizli Mood Girisi")
+            Text(NSLocalizedString("widget.quick_mood.title", comment: ""))
                 .font(.headline)
 
             HStack(spacing: 8) {
@@ -43,7 +48,7 @@ struct QuickMoodWidgetView: View {
                     Link(destination: quickMoodURL(value: option.value)) {
                         Text(option.emoji)
                             .font(.title3)
-                            .frame(maxWidth: .infinity, minHeight: 32)
+                            .frame(maxWidth: .infinity, minHeight: QuickMoodWidgetConstants.emojiButtonMinHeight)
                             .background(Color.blue.opacity(0.12))
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     }
@@ -51,7 +56,7 @@ struct QuickMoodWidgetView: View {
                 }
             }
 
-            Text("Secim uygulamada mood ekranini acar")
+            Text(NSLocalizedString("widget.quick_mood.subtitle", comment: ""))
                 .font(.caption2)
                 .foregroundStyle(.secondary)
         }
@@ -60,7 +65,9 @@ struct QuickMoodWidgetView: View {
     }
 
     private func quickMoodURL(value: Int) -> URL {
-        URL(string: "lifeanalytics://mood-entry?preset=\(value)") ?? URL(string: "lifeanalytics://mood-entry")!
+        URL(string: "lifeanalytics://mood-entry?preset=\(value)")
+            ?? URL(string: "lifeanalytics://mood-entry")
+            ?? URL(fileURLWithPath: "/")
     }
 }
 
@@ -72,8 +79,8 @@ struct QuickMoodWidget: Widget {
             QuickMoodWidgetView()
         }
         .supportedFamilies([.systemSmall, .systemMedium])
-        .configurationDisplayName("Quick Mood")
-        .description("Ana ekrandan hizli mood secimi yapin.")
+        .configurationDisplayName(NSLocalizedString("widget.quick_mood.display_name", comment: ""))
+        .description(NSLocalizedString("widget.quick_mood.description", comment: ""))
     }
 }
 #endif

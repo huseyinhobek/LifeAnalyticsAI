@@ -16,7 +16,7 @@ final class UpdateInsightFeedbackUseCaseTests: XCTestCase {
         try await useCase.execute(insight: insight, feedback: .helpful)
 
         let repositoryCalls = await repository.updateCalls
-        let optimizerCalls = await optimizer.recordCalls
+        let optimizerCalls = optimizer.recordCalls
         XCTAssertEqual(repositoryCalls.count, 1)
         XCTAssertEqual(optimizerCalls.count, 1)
         XCTAssertEqual(repositoryCalls.first?.insightId, insight.id)
@@ -54,7 +54,7 @@ private actor StubInsightRepositoryForFeedback: InsightRepositoryProtocol {
     }
 }
 
-private actor StubPromptFeedbackOptimizer: PromptFeedbackOptimizing {
+private final class StubPromptFeedbackOptimizer: PromptFeedbackOptimizing {
     private(set) var recordCalls: [(insight: Insight, feedback: Insight.UserFeedback)] = []
 
     func recordFeedback(for insight: Insight, feedback: Insight.UserFeedback) {

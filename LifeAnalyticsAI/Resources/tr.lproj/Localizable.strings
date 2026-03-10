@@ -1,39 +1,41 @@
 /* ===== TAB BAR ===== */
 "tab.home" = "Ana Sayfa";
-"tab.insights" = "Icgoruler";
+"tab.insights" = "İçgörüler";
 "tab.report" = "Rapor";
 "tab.settings" = "Ayarlar";
 
 /* ===== HOME ===== */
 "home.nav_title" = "Ana Sayfa";
-"home.today_insight" = "Bugunun Icgorusu";
+"home.today_insight" = "Bugünün İçgörüsü";
 "home.mood_checkin" = "Mood Check-in Yap";
-"home.sleep_summary" = "Uyku Ozeti";
-"home.avg_sleep_last7" = "Son 7 gun ortalamasi %.1f saat";
+"home.sleep_summary" = "Uyku Özeti";
+"home.avg_sleep_last7" = "Son 7 gün ortalaması %.1f saat";
 "home.avg_mood" = "Ortalama Mood";
-"home.today_meetings" = "Bugunku Toplanti";
-"home.weekly_summary" = "Haftalik Ozet";
-"home.view_full_report" = "Tum raporu gor";
-"home.insight_loading" = "Bugunun icgorusu hazirlaniyor...";
-"home.insight_empty" = "Bugun icin yeni bir icgoru bulunamadi.";
-"home.insight_failed" = "Icgoru yuklenemedi. Lutfen tekrar deneyin.";
+"home.today_meetings" = "Bugünkü Toplantı";
+"home.weekly_summary" = "Haftalık Özet";
+"home.view_full_report" = "Tüm raporu gör";
+"home.insight_loading" = "Bugünün içgörüsü hazırlanıyor...";
+"home.insight_empty" = "Bugün için yeni bir içgörü bulunamadı.";
+"home.insight_failed" = "İçgörü yüklenemedi. Lütfen tekrar deneyin.";
 
 /* ===== WEEKLY REPORT ===== */
-"report.nav_title" = "Haftalik Rapor";
-"report.ai_weekly_summary" = "AI Haftalik Ozeti";
+"report.nav_title" = "Haftalık Rapor";
+"report.ai_weekly_summary" = "AI Haftalık Özeti";
 "report.prediction_prefix" = "Tahmin: %@";
-"report.metrics_cards" = "Metrik Kartlari";
-"report.weekly_insights" = "Haftalik Icgoruler";
-"report.confidence" = "Guven: %@";
-"report.loading_title" = "Haftalik rapor hazirlaniyor";
-"report.loading_subtitle" = "AI ozet ve metrik kartlari yukleniyor";
-"report.metrics_empty_title" = "Metrik karti bulunamadi";
+"report.metrics_cards" = "Metrik Kartları";
+"report.weekly_insights" = "Haftalık İçgörüler";
+"report.confidence" = "Güven: %@";
+"report.loading_title" = "Haftalık rapor hazırlanıyor";
+"report.loading_subtitle" = "AI özet ve metrik kartları yükleniyor";
+"report.metrics_empty_title" = "Metrik kartı bulunamadı";
 "report.metrics_empty_subtitle" = "Raporu yenileyerek yeniden deneyebilirsin.";
-"report.insights_empty_title" = "Bu hafta icgoru bulunamadi";
-"report.insights_empty_subtitle" = "Yeni veriler geldikce icgoruler otomatik olusacak.";
+"report.insights_empty_title" = "Bu hafta içgörü bulunamadı";
+"report.insights_empty_subtitle" = "Yeni veriler geldikçe içgörüler otomatik oluşacak.";
 
 /* ===== SETTINGS ===== */
 "settings.title" = "Ayarlar";
+"settings.overview_subtitle" = "Bildirim, güvenlik ve veri tercihlerini yönet";
+"settings.premium_cta_subtitle" = "Tüm profesyonel analizleri aç";
 "settings.language" = "Dil / Language";
 "settings.info" = "Bilgi";
 "settings.notifications" = "Bildirim Tercihleri";
@@ -53,17 +55,17 @@
 "settings.insight_tone_short" = "Kisa";
 "settings.insight_tone_detailed" = "Detayli";
 "settings.save_preferences" = "Tercihleri Kaydet";
-"settings.security" = "Guvenlik";
+"settings.security" = "Güvenlik";
 "settings.app_lock" = "Uygulama kilidi (Face ID/Touch ID)";
-"settings.proxy_security_info" = "LLM istekleri Cloudflare proxy uzerinden guvenli sekilde iletilir. API anahtari istemci tarafinda tutulmaz.";
-"settings.run_security_audit" = "Guvenlik Denetimini Calistir";
-"settings.save_security_preferences" = "Guvenlik Tercihlerini Kaydet";
+"settings.proxy_security_info" = "LLM istekleri Cloudflare proxy üzerinden güvenli şekilde iletilir. API anahtarı istemci tarafında tutulmaz.";
+"settings.run_security_audit" = "Güvenlik Denetimini Çalıştır";
+"settings.save_security_preferences" = "Güvenlik Tercihlerini Kaydet";
 "settings.export" = "Export";
 "settings.export_info" = "Ayarlarin CSV ozetini disa aktarabilirsin.";
 "settings.export_csv" = "Ayarlari CSV Olarak Aktar";
-"settings.export_failed" = "Export olusturulamadi: %@";
+"settings.export_failed" = "Export oluşturulamadı: %@";
 "settings.account" = "Hesap";
-"settings.reset_onboarding_info" = "Onboarding'i yeniden baslatmak icin sifirlama yapabilirsin.";
+"settings.reset_onboarding_info" = "Onboarding'i yeniden başlatmak için sıfırlama yapabilirsin.";
 "settings.view_profile" = "Profili Goruntule";
 "settings.reset_account_prefs" = "Hesap Tercihlerini Sifirla";
 
@@ -75,7 +77,7 @@
 "onboarding.step.calendar" = "Takvim";
 "onboarding.step.first_mood" = "Ilk Mood";
 "onboarding.welcome.card_title" = "LifeAnalyticsAI'ya Hos Geldin";
-"onboarding.welcome.card_subtitle" = "4 adimda kurulumu tamamlayip kisisel icgorulere baslayabilirsin.";
+"onboarding.welcome.card_subtitle" = "4 adımda kurulumu tamamlayıp kişisel içgörülere başlayabilirsin.";
 "onboarding.welcome.bullet1" = "Uyku, mood ve takvim verilerini bagla";
 "onboarding.welcome.bullet2" = "Ilk mood girisini yap";
 "onboarding.welcome.bullet3" = "Kisisel raporlarini hemen gormeye basla";
@@ -83,9 +85,9 @@
 "onboarding.health.title" = "HealthKit Erisimi";
 "onboarding.health.subtitle" = "Uyku ve aktivite analizleri icin HealthKit izni ver.";
 "onboarding.calendar.title" = "Takvim Erisimi";
-"onboarding.calendar.subtitle" = "Toplanti yogunlugu ve rutin analizleri icin takvim izni ver.";
+"onboarding.calendar.subtitle" = "Toplantı yoğunluğu ve rutin analizleri için takvim izni ver.";
 "onboarding.first_mood.title" = "Ilk Mood Girisini Yap";
-"onboarding.first_mood.subtitle" = "Bugunku ruh halini secerek modeli kalibre et.";
+"onboarding.first_mood.subtitle" = "Bugünkü ruh halini seçerek modeli kalibre et.";
 "onboarding.status.granted" = "Erisim verildi";
 "onboarding.status.waiting" = "Izin bekleniyor";
 "onboarding.health.grant" = "HealthKit Izni Ver";
@@ -97,32 +99,38 @@
 "onboarding.skip" = "Atla";
 
 /* ===== MOOD ENTRY ===== */
-"mood.entry.nav_title" = "Mood Girisi";
-"mood.entry.how_feeling" = "Bugun nasil hissediyorsun?";
+"mood.entry.nav_title" = "Mood Girişi";
+"mood.entry.how_feeling" = "Bugün nasıl hissediyorsun?";
 "mood.entry.activities" = "Aktiviteler";
 "mood.entry.note_optional" = "Not (opsiyonel)";
 "mood.entry.saved" = "Mood kaydedildi";
 "mood.entry.save" = "Kaydet";
-"mood.history.nav_title" = "Mood Gecmisi";
-"mood.history.title" = "Mood Gecmisi";
-"mood.history.last_365" = "Son 365 gun";
-"mood.history.record_list" = "Kayit Listesi";
-"mood.history.no_records" = "Henuz mood kaydi bulunmuyor.";
-"mood.history.csv_failed" = "CSV olusturulamadi: %@";
-"mood.history.trend" = "Mood Trend";
-"mood.history.distribution" = "Mood Dagilimi";
+"mood.entry.saved_toast" = "Mood check-in kaydedildi";
+"mood.entry.usage_hint" = "Bu kayıt; Dashboard trendleri, AI içgörüleri, korelasyon analizi ve haftalık raporlar için kullanılır.";
+"mood.entry.history" = "Mood Geçmişi";
+
+"home.insight_fallback_with_mood" = "Bugün %d toplantın var. Mood ortalaman %.1f/5 ve son 7 gün uyku ortalaman %.1f saat. Takvim yoğunsa enerji bloklarıyla çalış.";
+"home.insight_fallback_no_mood" = "Bugün %d toplantın var. Son 7 gün uyku ortalaman %.1f saat. Daha iyi içgörü için bugün bir mood check-in daha ekle.";
+"mood.history.nav_title" = "Mood Geçmişi";
+"mood.history.title" = "Mood Geçmişi";
+"mood.history.last_365" = "Son 365 gün";
+"mood.history.record_list" = "Kayıt Listesi";
+"mood.history.no_records" = "Henüz mood kaydı bulunmuyor.";
+"mood.history.csv_failed" = "CSV oluşturulamadı: %@";
+"mood.history.trend" = "Mood Trendi";
+"mood.history.distribution" = "Mood Dağılımı";
 
 /* ===== INSIGHTS ===== */
-"insights.history.nav_title" = "Insight Gecmisi";
+"insights.history.nav_title" = "Insight Geçmişi";
 "insights.search_prompt" = "Insight ara";
-"insights.loading_title" = "Icgoruler yukleniyor";
-"insights.loading_subtitle" = "Arsiv ve filtre verileri hazirlaniyor";
-"insights.all" = "Tum Icgoruler";
-"insights.records_count" = "Kronolojik sirayla %d kayit";
+"insights.loading_title" = "İçgörüler yükleniyor";
+"insights.loading_subtitle" = "Arşiv ve filtre verileri hazırlanıyor";
+"insights.all" = "Tüm İçgörüler";
+"insights.records_count" = "Kronolojik sırayla %d kayıt";
 "insights.filter" = "Filtrele";
 "insights.all_types" = "Tum Tipler";
-"insights.empty_filtered_title" = "Filtreye uygun insight bulunamadi";
-"insights.empty_filtered_subtitle" = "Arama kelimesini veya secili filtreleri degistir.";
+"insights.empty_filtered_title" = "Filtreye uygun insight bulunamadı";
+"insights.empty_filtered_subtitle" = "Arama kelimesini veya seçili filtreleri değiştir.";
 "insights.clear_filters" = "Filtreleri Temizle";
 "insights.type.correlation" = "Korelasyon";
 "insights.type.anomaly" = "Anomali";
@@ -130,29 +138,33 @@
 "insights.type.trend" = "Trend";
 "insights.type.seasonal" = "Mevsimsel";
 "insight.detail.nav_title" = "Insight Detay";
-"insight.detail.confidence" = "Guven: %@";
+"insight.detail.confidence" = "Güven: %@";
 "insight.detail.related_metrics" = "Ilgili Metrikler";
 "insight.detail.no_related_metrics" = "Ilgili metrik bulunamadi.";
-"insight.detail.helpful_question" = "Bu icgoru faydali miydi?";
+"insight.detail.helpful_question" = "Bu içgörü faydalı mıydı?";
 "insight.detail.feedback.helpful" = "Faydali";
 "insight.detail.feedback.improve" = "Gelismeli";
+"insight.detail.feedback.hint" = "Bu geri bildirim bir sonraki AI içgörülerinin tonunu ve önerilerinin netliğini iyileştirmek için kullanılır.";
+"insight.detail.metric_value" = "seviye";
+"insight.detail.single_metric_hint" = "Bu içgörüde tek kritik metrik bulundu. Çoklu metrik oluştuğunda karşılaştırmalı grafik otomatik görünür.";
 
 /* ===== DASHBOARD ===== */
-"dashboard.nav_title" = "Istatistik Panosu";
-"dashboard.loading_title" = "Istatistikler yukleniyor";
+"dashboard.nav_title" = "İstatistik Panosu";
+"dashboard.loading_title" = "İstatistikler yükleniyor";
 "dashboard.loading_subtitle" = "Uyku, mood ve aktivite verileri hazirlaniyor";
 "dashboard.header.title" = "Kisisel Performans";
 "dashboard.header.subtitle" = "Uyku, mood ve aktivite trendleri tek ekranda";
 "dashboard.weekly_ai_report" = "Haftalik AI Raporu";
+"dashboard.correlation_analysis" = "Korelasyon Analizi";
 "dashboard.avg_sleep" = "Ortalama Uyku";
 "dashboard.avg_sleep_value" = "%.1f saat";
 "dashboard.avg_mood" = "Ortalama Mood";
 "dashboard.avg_mood_value" = "%.1f / 5";
-"dashboard.meetings" = "Toplanti";
+"dashboard.meetings" = "Toplantı";
 "dashboard.sleep_trend" = "Uyku Trendi";
 "dashboard.sleep_hours_value" = "%.1f saat";
 "dashboard.mood_trend" = "Mood Trendi";
-"dashboard.activity_density" = "Aktivite Yogunlugu";
+"dashboard.activity_density" = "Aktivite Yoğunluğu";
 "dashboard.meeting_count_value" = "%d toplanti";
 "dashboard.window.7" = "7 Gun";
 "dashboard.window.14" = "14 Gun";
@@ -163,17 +175,17 @@
 "profile.data_profile" = "Veri Profili";
 "profile.collection_start" = "Veri toplama baslangici: %@";
 "profile.total_days" = "Toplam Gun";
-"profile.avg_confidence" = "Ortalama Guven";
-"profile.confidence_trend" = "Guven Skoru Gelisimi";
+"profile.avg_confidence" = "Ortalama Güven";
+"profile.confidence_trend" = "Güven Skoru Gelişimi";
 "profile.empty_confidence_title" = "Henuz yeterli insight verisi yok";
-"profile.empty_confidence_subtitle" = "Veri toplandikca guven skoru gelisimi otomatik guncellenir.";
+"profile.empty_confidence_subtitle" = "Veri toplandıkça güven skoru gelişimi otomatik güncellenir.";
 
 /* ===== PERMISSION SCREENS ===== */
 "onboarding.health.permission_title" = "Saglik Verileri Izni";
-"onboarding.health.permission_body" = "Uyku, adim ve kalp hizi verilerini analiz ederek kisisel icgoruler sunabilmemiz icin HealthKit erisimi gerekli.";
+"onboarding.health.permission_body" = "Uyku, adım ve kalp hızı verilerini analiz ederek kişisel içgörüler sunabilmemiz için HealthKit erişimi gerekli.";
 "onboarding.health.permission_button" = "Saglik Verilerime Erisim Ver";
 "onboarding.calendar.permission_title" = "Takvim Erisimi";
-"onboarding.calendar.permission_body" = "Toplanti yogunlugunu, bos zamanlarini ve haftalik rutinini analiz edebilmemiz icin takvim erisimi gerekiyor.";
+"onboarding.calendar.permission_body" = "Toplantı yoğunluğunu, boş zamanlarını ve haftalık rutinini analiz edebilmemiz için takvim erişimi gerekiyor.";
 "onboarding.calendar.permission_button" = "Takvim Erisimi Ver";
 "onboarding.skip_now" = "Simdilik Atla";
 
@@ -187,22 +199,24 @@
 "notification.morning.title" = "Gunaydin, serini koru";
 "notification.evening.title" = "Aksam degerlendirme";
 "notification.weekly.title" = "Haftalik rapor bildirimi";
-"notification.morning.fallback" = "Son %d gundur kayit yapiyorsun. Takvim ve 7 gunluk patern bazli tahminini gormek icin mood girisi yap.";
-"notification.morning.suffix" = "%@ (7 gunluk patern bazli)";
-"notification.evening.body" = "Bugunun ozeti hazir, ruh halini kaydet. Bu hafta %d/7 gun mood kaydin var.";
-"notification.weekly.body" = "Bu haftanin yasam raporun hazir. AI yeni bir patern kesfetti: son %d gunde veri toplandi.";
+"notification.morning.fallback" = "Son %d gündür kayıt yapıyorsun. Takvim ve 7 günlük patern bazlı tahminini görmek için mood girişi yap.";
+"notification.morning.suffix" = "%@ (7 günlük patern bazlı)";
+"notification.evening.body" = "Bugünün özeti hazır, ruh halini kaydet. Bu hafta %d/7 gün mood kaydın var.";
+"notification.weekly.body" = "Bu haftanın yaşam raporun hazır. AI yeni bir patern keşfetti: son %d günde veri toplandı.";
 
 /* ===== ERRORS ===== */
 "error.title" = "Hata";
 "error.healthkit_unavailable" = "Bu cihazda HealthKit kullanilamamaktadir.";
-"error.healthkit_denied" = "Saglik verilerine erisim izni gereklidir.";
-"error.calendar_denied" = "Takvim verilerine erisim izni gereklidir.";
+"error.healthkit_denied" = "Sağlık verilerine erişim izni gereklidir.";
+"error.calendar_denied" = "Takvim verilerine erişim izni gereklidir.";
 "error.data_not_found" = "Istenen veri bulunamadi.";
-"error.insufficient_data" = "Icgoru icin en az %d gunluk veri gerekli. Mevcut: %d gun.";
-"error.network" = "Ag hatasi olustu: %@";
+"error.insufficient_data" = "İçgörü için en az %d günlük veri gerekli. Mevcut: %d gün.";
+"error.network" = "Ağ hatası oluştu: %@";
 "error.llm" = "LLM hatasi: %@";
-"error.security" = "Guvenlik hatasi: %@";
-"error.persistence" = "Kayit hatasi olustu: %@";
+"error.llm.rate_limit_exceeded" = "Saatlik LLM istek limiti asildi.";
+"error.llm.token_limit_exceeded" = "Gunluk LLM token limiti asildi.";
+"error.security" = "Güvenlik hatası: %@";
+"error.persistence" = "Kayıt hatası oluştu: %@";
 "error.unknown" = "Bilinmeyen hata: %@";
 "error.retry" = "Tekrar Dene";
 
@@ -214,21 +228,21 @@
 "general.selected" = "Secili";
 "general.not_selected" = "Secili degil";
 "general.loading" = "Yukleniyor";
-"date.today" = "Bugun";
+"date.today" = "Bugün";
 "date.yesterday" = "Dun";
-"date.tomorrow" = "Yarin";
-"date.days_ago" = "%d gun once";
+"date.tomorrow" = "Yarın";
+"date.days_ago" = "%d gün önce";
 
 /* ===== SETTINGS STATUS ===== */
 "settings.status.notifications_disabled" = "Bildirimler kapatildi.";
 "settings.status.permission_denied" = "Bildirim izni verilmedi. Ayarlardan izin verebilirsin.";
 "settings.status.notification_plan" = "Kisisel bildirim planin optimize edildi. Sabah %d:30, aksam %d:00, haftalik %d:00.";
 "settings.status.notification_save_failed" = "Bildirim ayarlari kaydedilemedi: %@";
-"settings.status.preferences_updated" = "Tercihler guncellendi.";
-"settings.status.preferences_reset" = "Hesap tercihleri sifirlandi. Onboarding bir sonraki acilista tekrar gosterilir.";
-"settings.status.audit_failed" = "Guvenlik denetimi tamamlandi: %d kritik bulgu, %d uyari.";
-"settings.status.audit_warning" = "Guvenlik denetimi tamamlandi: kritik bulgu yok, %d uyari var.";
-"settings.status.audit_success" = "Guvenlik denetimi basarili: tum kontroller gecti.";
+"settings.status.preferences_updated" = "Tercihler güncellendi.";
+"settings.status.preferences_reset" = "Hesap tercihleri sıfırlandı. Onboarding bir sonraki açılışta tekrar gösterilir.";
+"settings.status.audit_failed" = "Güvenlik denetimi tamamlandı: %d kritik bulgu, %d uyarı.";
+"settings.status.audit_warning" = "Güvenlik denetimi tamamlandı: kritik bulgu yok, %d uyarı var.";
+"settings.status.audit_success" = "Güvenlik denetimi başarılı: tüm kontroller geçti.";
 
 /* ===== SECURITY AUDIT ===== */
 "security.audit.https.title" = "LLM endpoint HTTPS";
@@ -247,7 +261,7 @@
 "security.audit.client_key.pass" = "API anahtari istemci tarafinda tutulmadan proxy uzerinden istek yapiliyor.";
 "security.audit.biometric.title" = "Biometric app lock";
 "security.audit.biometric.pass" = "Uygulama kilidi acik.";
-"security.audit.biometric.warn" = "Uygulama kilidi kapali; guvenlik icin acilmasi onerilir.";
+"security.audit.biometric.warn" = "Uygulama kilidi kapalı; güvenlik için açılması önerilir.";
 
 /* ===== APP THEME ===== */
 "theme.system" = "Sistem";
@@ -271,8 +285,8 @@
 
 /* ===== PREMIUM / IAP ===== */
 "premium.title" = "Premium";
-"premium.paywall.title" = "Yasaminizi Derinlemesine Anlayin";
-"premium.paywall.subtitle" = "AI destekli patern analizi, haftalik raporlar ve ongorusel icgoruler.";
+"premium.paywall.title" = "Yaşamınızı Derinlemesine Anlayın";
+"premium.paywall.subtitle" = "AI destekli patern analizi, haftalık raporlar ve öngörülü içgörüler.";
 "premium.monthly" = "Aylik";
 "premium.yearly" = "Yillik";
 "premium.yearly.save" = "%%%d tasarruf";
@@ -280,34 +294,74 @@
 "premium.start" = "Premium Basla";
 "premium.trial" = "Ilk hafta ucretsiz dene";
 "premium.cancel_anytime" = "Istedigin zaman iptal et.";
+"premium.best_value" = "En iyi deger";
+"premium.products_unavailable" = "Şu anda ürünler yüklenemiyor. Bağlantını kontrol edip tekrar dene.";
+"premium.retry" = "Tekrar dene";
 "premium.restore" = "Satin Almalari Geri Yukle";
 "premium.active" = "Premium Aktif";
 "premium.manage" = "Aboneligi Yonet";
-"premium.terms" = "Kullanim Kosullari";
-"premium.privacy" = "Gizlilik Politikasi";
-"premium_unlock_description" = "Bu ozellik Premium abonelik gerektirir.";
+"premium.terms" = "Kullanım Koşulları";
+"premium.privacy" = "Gizlilik Politikası";
+"premium_unlock_description" = "Bu özellik Premium abonelik gerektirir.";
 "premium_unlock_button" = "Premium'a Gec";
-"premium.free_insight_used" = "Bugunun ucretsiz icgorusu kullanildi";
-"premium.insights_remaining" = "icgoru hakki kaldi";
+"premium.free_insight_used" = "Bugünün ücretsiz içgörüsü kullanıldı";
+"premium.insights_remaining" = "içgörü hakkı kaldı";
 "error.purchase_title" = "Satin Alma Hatasi";
 "error.verification_failed" = "Satin alma dogrulanamadi.";
 "error.purchase_failed" = "Satin alma basarisiz oldu.";
 "error.restore_failed" = "Geri yukleme basarisiz.";
-"error.products_load" = "Urunler yuklenemedi.";
+"error.products_load" = "Ürünler yüklenemedi.";
 "error.ok" = "Tamam";
-"unlimitedInsights_title" = "Sinirsiz AI Icgoru";
-"unlimitedInsights_desc" = "Gunluk limit olmadan tum icgorulere eris";
+"unlimitedInsights_title" = "Sınırsız AI İçgörü";
+"unlimitedInsights_desc" = "Günlük limit olmadan tüm içgörülere eriş";
 "weeklyReport_title" = "Haftalik AI Raporu";
 "weeklyReport_desc" = "Her hafta kisisel yasam analizi";
 "crossCorrelation_title" = "Capraz Korelasyon";
 "crossCorrelation_desc" = "Uyku, ruh hali ve takvim arasi baglantilar";
 "predictions_title" = "Ongorusel Tahminler";
-"predictions_desc" = "Yarin ve gelecek hafta icin AI ongoruleri";
+"predictions_desc" = "Yarın ve gelecek hafta için AI öngörüleri";
 "extendedTrends_title" = "Uzun Vadeli Trendler";
-"extendedTrends_desc" = "90 gun ve yillik trend analizleri";
-"fullInsightHistory_title" = "Tam Gecmis";
+"extendedTrends_desc" = "90 gün ve yıllık trend analizleri";
+"fullInsightHistory_title" = "Tam Geçmiş";
 "fullInsightHistory_desc" = "Tum kesiflerin kronolojik arsivi";
 "dataExport_title" = "Veri Disa Aktarma";
 "dataExport_desc" = "CSV ve PDF olarak verilerini indir";
 "priorityAI_title" = "Oncelikli AI";
 "priorityAI_desc" = "Daha hizli AI yanit suresi";
+
+"chart.vs_average" = "Ortalamaya gore";
+"chart.confidence" = "Güven";
+"chart.sample_size" = "Orneklem";
+"chart.days" = "gün";
+"chart.compare_previous" = "Önceki dönemi karşılaştır";
+"chart.no_data" = "Henuz yeterli veri yok";
+"chart.accessibility_summary" = "Son deger: %@ %@";
+"period.days_short" = "gün";
+"period.year_short" = "yıl";
+"chart.collecting" = "Veri toplanıyor";
+"chart.collecting_detail" = "Bu grafik için en az %d günlük veri gerekli. Şu ana kadar %d gün toplandı.";
+"chart.metric_direction_up" = "yükseliş";
+"chart.metric_direction_down" = "düşüş";
+"chart.metric_direction_stable" = "stabil";
+
+"insight.correlation.title" = "Kaynaklar arasi iliski bulundu";
+"insight.correlation.body" = "%@ ve %@ arasinda anlamli bir iliski goruldu.";
+"insight.anomaly.title" = "Beklenmeyen degisim tespit edildi";
+"insight.anomaly.body" = "%@ degeri normal araligin disina cikti (z=%@).";
+"insight.seasonal.title" = "Haftalik dongu paterni bulundu";
+"insight.seasonal.body" = "Hafta sonu etkisi %@, Monday sendromu gucu %@.";
+
+"metric.unit.effect" = "etki";
+"metric.unit.sample" = "orneklem";
+"metric.unit.raw" = "ham";
+"metric.unit.mood" = "mood";
+"metric.unit.score" = "puan";
+"metric.unit.hour" = "saat";
+
+"report.prediction.next_day" = "Yarin icin tahmini mood: %@";
+"report.summary.generated" = "Pattern Engine haftalik ozeti olusturuldu.";
+
+"widget.quick_mood.title" = "Hizli Mood Girisi";
+"widget.quick_mood.subtitle" = "Secim uygulamada mood ekranini acar";
+"widget.quick_mood.display_name" = "Quick Mood";
+"widget.quick_mood.description" = "Ana ekrandan hizli mood secimi yapin.";

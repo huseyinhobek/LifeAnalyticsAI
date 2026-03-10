@@ -4,6 +4,12 @@ import Foundation
 
 protocol InsightRepositoryProtocol {
     func saveInsight(_ insight: Insight) async throws
-    func fetchInsights(limit: Int) async throws -> [Insight]
+    func fetchInsights(limit: Int, offset: Int) async throws -> [Insight]
     func updateFeedback(insightId: UUID, feedback: Insight.UserFeedback) async throws
+}
+
+extension InsightRepositoryProtocol {
+    func fetchInsights(limit: Int) async throws -> [Insight] {
+        try await fetchInsights(limit: limit, offset: 0)
+    }
 }

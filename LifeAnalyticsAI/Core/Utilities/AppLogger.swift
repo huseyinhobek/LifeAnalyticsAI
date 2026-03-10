@@ -4,11 +4,13 @@ import Foundation
 import OSLog
 
 enum AppLogger {
-    static let health = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "HealthKit")
-    static let calendar = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Calendar")
-    static let mood = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Mood")
-    static let insight = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "InsightEngine")
-    static let network = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Network")
-    static let ui = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "UI")
-    static let notification = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "Notification")
+    private static let subsystem = Bundle.main.bundleIdentifier ?? "com.lifeanalytics.app"
+
+    static let health = Logger(subsystem: subsystem, category: "HealthKit")
+    static let calendar = Logger(subsystem: subsystem, category: "Calendar")
+    static let mood = Logger(subsystem: subsystem, category: "Mood")
+    static let insight = Logger(subsystem: subsystem, category: "InsightEngine")
+    static let network = Logger(subsystem: subsystem, category: "Network")
+    static let ui = Logger(subsystem: subsystem, category: "UI")
+    static let notification = Logger(subsystem: subsystem, category: "Notification")
 }

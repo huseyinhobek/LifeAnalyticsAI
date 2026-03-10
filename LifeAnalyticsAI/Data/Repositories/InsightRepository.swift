@@ -34,25 +34,26 @@ final class InsightRepository: InsightRepositoryProtocol {
         }
     }
 
-    func fetchInsights(limit: Int) async throws -> [Insight] {
-        var descriptor = FetchDescriptor<InsightEntity>(
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        descriptor.fetchLimit = max(limit, 0)
-
+    func fetchInsights(limit: Int, offset: Int) async throws -> [Insight] {
         return try await MainActor.run {
+            var descriptor = FetchDescriptor<InsightEntity>(
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchLimit = max(limit, 0)
+            descriptor.fetchOffset = max(offset, 0)
+
             let entities = try modelContext.fetch(descriptor)
             return entities.map { $0.toDomain() }
         }
     }
 
     func updateFeedback(insightId: UUID, feedback: Insight.UserFeedback) async throws {
-        var descriptor = FetchDescriptor<InsightEntity>(
-            predicate: #Predicate<InsightEntity> { $0.id == insightId }
-        )
-        descriptor.fetchLimit = 1
-
         try await MainActor.run {
+            var descriptor = FetchDescriptor<InsightEntity>(
+                predicate: #Predicate<InsightEntity> { $0.id == insightId }
+            )
+            descriptor.fetchLimit = 1
+
             guard let entity = try modelContext.fetch(descriptor).first else {
                 throw AppError.dataNotFound
             }
@@ -63,10 +64,6 @@ final class InsightRepository: InsightRepositoryProtocol {
     }
 
     private func encodeMetrics(_ metrics: [MetricReference]) -> String {
-        guard let data = try? JSONEncoder().encode(metrics),
-              let json = String(data: data, encoding: .utf8) else {
-            return "[]"
-        }
-        return json
+        JSONCoding.encodeToString(metrics, fallback: "[]", logger: AppLogger.insight, context: "MetricReference")
     }
 }

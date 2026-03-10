@@ -1,12 +1,9 @@
 // MARK: - Presentation.Screens.Insights
 
-import Charts
 import SwiftUI
 
 struct InsightDetailView: View {
     @StateObject private var viewModel: InsightDetailViewModel
-    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-
     init(viewModel: InsightDetailViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
@@ -58,28 +55,35 @@ struct InsightDetailView: View {
     }
 
     private var relatedMetricsSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        let sortedMetrics = viewModel.metricChartData
+            .sorted { abs($0.value) > abs($1.value) }
+
+        return VStack(alignment: .leading, spacing: 10) {
             Label("insight.detail.related_metrics".localized, systemImage: "chart.bar.xaxis")
                 .font(Theme.headlineFont)
                 .foregroundStyle(Color("TextPrimary"))
 
-            if viewModel.metricChartData.isEmpty {
+            if sortedMetrics.isEmpty {
                 Text("insight.detail.no_related_metrics".localized)
                     .font(Theme.bodyFont)
                     .foregroundStyle(Color("TextSecondary"))
+            } else if sortedMetrics.count == 1, let metric = sortedMetrics.first {
+                singleMetricExecutiveTile(metric)
             } else {
-                Chart(viewModel.metricChartData) { point in
-                    BarMark(
-                        x: .value("Metrik", point.name),
-                        y: .value("Deger", point.value)
-                    )
-                    .foregroundStyle(color(for: point.trend))
-                    .cornerRadius(6)
-                }
-                .frame(height: horizontalSizeClass == .regular ? 260 : 200)
-                .padding(12)
-                .background(Color("BackgroundLight"))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                ComparisonBarChart(
+                    title: "insight.detail.related_metrics".localized,
+                    insight: insightForRelatedMetrics(sortedMetrics),
+                    data: sortedMetrics.prefix(6).map { point in
+                        ComparisonBarChart.BarDataPoint(
+                            label: point.name,
+                            value: point.value,
+                            isHighlighted: point.trend != .stable,
+                            comparisonValue: nil
+                        )
+                    },
+                    color: ChartStyleGuide.SemanticColor.currentPeriod,
+                    unit: ""
+                )
             }
         }
     }
@@ -94,6 +98,10 @@ struct InsightDetailView: View {
                 feedbackButton(title: "insight.detail.feedback.helpful".localized, icon: "hand.thumbsup.fill", feedback: .helpful)
                 feedbackButton(title: "insight.detail.feedback.improve".localized, icon: "hand.thumbsdown.fill", feedback: .notHelpful)
             }
+
+            Text("insight.detail.feedback.hint".localized)
+                .font(Theme.captionFont)
+                .foregroundStyle(Color("TextSecondary"))
         }
         .padding(Theme.paddingMedium)
         .background(Color("BackgroundLight"))
@@ -124,14 +132,91 @@ struct InsightDetailView: View {
         .disabled(viewModel.isSavingFeedback)
     }
 
-    private func color(for trend: MetricReference.Trend) -> Color {
+    private func insightForRelatedMetrics(_ metrics: [MetricChartPoint]) -> String {
+        guard let strongest = metrics.first else { return "" }
+        let direction: String
+        switch strongest.trend {
+        case .up:
+            direction = "chart.metric_direction_up".localized
+        case .down:
+            direction = "chart.metric_direction_down".localized
+        case .stable:
+            direction = "chart.metric_direction_stable".localized
+        }
+
+        return "\(readableMetricName(strongest.name)): \(String(format: "%.1f", strongest.value)) · \(direction)"
+    }
+
+    private func singleMetricExecutiveTile(_ metric: MetricChartPoint) -> some View {
+        let accent: Color = {
+            switch metric.trend {
+            case .up: return ChartStyleGuide.SemanticColor.negative
+            case .down: return ChartStyleGuide.SemanticColor.positive
+            case .stable: return ChartStyleGuide.SemanticColor.neutral
+            }
+        }()
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(readableMetricName(metric.name))
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .foregroundStyle(Color("TextPrimary"))
+
+                Spacer()
+
+                Text(metricTrendLabel(metric.trend))
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(accent)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 5)
+                    .background(accent.opacity(0.14))
+                    .clipShape(Capsule())
+            }
+
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(String(format: "%.1f", metric.value))
+                    .font(.system(size: 42, weight: .heavy, design: .rounded))
+                    .foregroundStyle(accent)
+                Text("insight.detail.metric_value".localized)
+                    .font(Theme.captionFont)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+
+            Text("insight.detail.single_metric_hint".localized)
+                .font(Theme.captionFont)
+                .foregroundStyle(Color("TextSecondary"))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color(hex: "121622"), accent.opacity(0.22)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(accent.opacity(0.28), lineWidth: 1)
+        )
+    }
+
+    private func readableMetricName(_ raw: String) -> String {
+        raw
+            .replacingOccurrences(of: "([a-z])([A-Z])", with: "$1 $2", options: .regularExpression)
+            .replacingOccurrences(of: "_", with: " ")
+            .capitalized
+    }
+
+    private func metricTrendLabel(_ trend: MetricReference.Trend) -> String {
         switch trend {
         case .up:
-            return Color("MoodGood")
+            return "chart.metric_direction_up".localized
         case .down:
-            return Color("MoodBad")
+            return "chart.metric_direction_down".localized
         case .stable:
-            return Color("SecondaryBlue")
+            return "chart.metric_direction_stable".localized
         }
     }
 }

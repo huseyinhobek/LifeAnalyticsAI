@@ -1,6 +1,7 @@
 // MARK: - Data.Persistence
 
 import Foundation
+import OSLog
 import SwiftData
 
 @Model
@@ -38,13 +39,23 @@ final class InsightEntity {
     }
 
     func toDomain() -> Insight {
-        Insight(
+        let insightType = Insight.InsightType(rawValue: type) ?? {
+            AppLogger.insight.warning("Unknown insight type '\(self.type)', falling back to trend")
+            return .trend
+        }()
+
+        let confidence = Insight.ConfidenceLevel(rawValue: confidenceLevel) ?? {
+            AppLogger.insight.warning("Unknown confidence level '\(self.confidenceLevel)', falling back to medium")
+            return .medium
+        }()
+
+        return Insight(
             id: id,
             date: date,
-            type: Insight.InsightType(rawValue: type) ?? .trend,
+            type: insightType,
             title: title,
             body: body,
-            confidenceLevel: Insight.ConfidenceLevel(rawValue: confidenceLevel) ?? .medium,
+            confidenceLevel: confidence,
             relatedMetrics: Self.decodeMetrics(from: relatedMetricsJSON),
             userFeedback: userFeedback.flatMap { Insight.UserFeedback(rawValue: $0) }
         )
@@ -65,19 +76,11 @@ final class InsightEntity {
     }
 
     private static func encodeMetrics(_ metrics: [MetricReference]) -> String {
-        guard let data = try? JSONEncoder().encode(metrics),
-              let json = String(data: data, encoding: .utf8) else {
-            return "[]"
-        }
-        return json
+        JSONCoding.encodeToString(metrics, fallback: "[]", logger: AppLogger.insight, context: "MetricReference")
     }
 
     private static func decodeMetrics(from json: String) -> [MetricReference] {
-        guard let data = json.data(using: .utf8),
-              let metrics = try? JSONDecoder().decode([MetricReference].self, from: data) else {
-            return []
-        }
-        return metrics
+        JSONCoding.decodeFromString([MetricReference].self, from: json, fallback: [], logger: AppLogger.insight, context: "MetricReference")
     }
 }
 
@@ -133,34 +136,59 @@ final class WeeklyReportEntity {
     }
 
     private static func encodeInsights(_ insights: [Insight]) -> String {
-        guard let data = try? JSONEncoder().encode(insights),
-              let json = String(data: data, encoding: .utf8) else {
-            return "[]"
-        }
-        return json
+        JSONCoding.encodeToString(insights, fallback: "[]", logger: AppLogger.insight, context: "Insight")
     }
 
     private static func decodeInsights(from json: String) -> [Insight] {
-        guard let data = json.data(using: .utf8),
-              let insights = try? JSONDecoder().decode([Insight].self, from: data) else {
-            return []
-        }
-        return insights
+        JSONCoding.decodeFromString([Insight].self, from: json, fallback: [], logger: AppLogger.insight, context: "Insight")
     }
 
     private static func encodeMetrics(_ metrics: [MetricReference]) -> String {
-        guard let data = try? JSONEncoder().encode(metrics),
-              let json = String(data: data, encoding: .utf8) else {
-            return "[]"
-        }
-        return json
+        JSONCoding.encodeToString(metrics, fallback: "[]", logger: AppLogger.insight, context: "MetricReference")
     }
 
     private static func decodeMetrics(from json: String) -> [MetricReference] {
-        guard let data = json.data(using: .utf8),
-              let metrics = try? JSONDecoder().decode([MetricReference].self, from: data) else {
-            return []
+        JSONCoding.decodeFromString([MetricReference].self, from: json, fallback: [], logger: AppLogger.insight, context: "MetricReference")
+    }
+}
+
+enum JSONCoding {
+    static func encodeToString<T: Encodable>(
+        _ value: T,
+        fallback: String,
+        logger: Logger,
+        context: String
+    ) -> String {
+        do {
+            let data = try JSONEncoder().encode(value)
+            guard let json = String(data: data, encoding: .utf8) else {
+                logger.error("\(context) JSON encoding produced non-UTF8 output")
+                return fallback
+            }
+            return json
+        } catch {
+            logger.error("\(context) JSON encoding failed: \(error.localizedDescription)")
+            return fallback
         }
-        return metrics
+    }
+
+    static func decodeFromString<T: Decodable>(
+        _ type: T.Type,
+        from json: String,
+        fallback: T,
+        logger: Logger,
+        context: String
+    ) -> T {
+        guard let data = json.data(using: .utf8) else {
+            logger.warning("\(context) JSON decode input is not UTF8")
+            return fallback
+        }
+
+        do {
+            return try JSONDecoder().decode(type, from: data)
+        } catch {
+            logger.warning("\(context) JSON decode failed: \(error.localizedDescription)")
+            return fallback
+        }
     }
 }

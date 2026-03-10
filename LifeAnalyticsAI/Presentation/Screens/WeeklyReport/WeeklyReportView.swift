@@ -27,7 +27,9 @@ struct WeeklyReportView: View {
                 Group {
                     if let report = viewModel.selectedReport {
                         summaryCard(report)
+                        weeklyTrendSection
                         metricsSection(report)
+                        weeklyComparisonSection(report)
                         insightsSection(report)
                     }
                 }
@@ -92,20 +94,77 @@ struct WeeklyReportView: View {
                     icon: "chart.bar.xaxis"
                 )
             } else {
-                Chart(safeMetrics.prefix(6), id: \.name) { metric in
-                    BarMark(
-                        x: .value("Metrik", metric.name),
-                        y: .value("Deger", metric.value)
-                    )
-                    .foregroundStyle(color(for: metric.trend))
-                    .cornerRadius(6)
-                }
-                .frame(height: horizontalSizeClass == .regular ? 260 : 190)
-                .padding(12)
-                .background(Color("BackgroundLight"))
-                .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                ComparisonBarChart(
+                    title: "report.metrics_cards".localized,
+                    insight: "report.ai_weekly_summary".localized,
+                    data: safeMetrics.prefix(6).map { metric in
+                        ComparisonBarChart.BarDataPoint(
+                            label: metric.name,
+                            value: metric.value,
+                            isHighlighted: metric.trend != .stable,
+                            comparisonValue: nil
+                        )
+                    },
+                    color: ChartStyleGuide.SemanticColor.sleep,
+                    unit: ""
+                )
             }
         }
+    }
+
+    private var weeklyTrendSection: some View {
+        let points = viewModel.reports
+            .sorted { $0.weekStartDate < $1.weekStartDate }
+            .map { report in
+                TimeSeriesPoint(
+                    date: report.weekStartDate,
+                    value: Double(report.insights.count),
+                    isEstimated: false
+                )
+            }
+
+        return Group {
+            if points.count < 2 {
+                ChartEmptyState(
+                    title: "chart.collecting".localized,
+                    message: "chart.collecting_detail".localized(with: 2, points.count),
+                    daysRequired: 2,
+                    daysCollected: points.count
+                )
+            } else {
+                TrendLineChart(
+                    title: "report.weekly_insights".localized,
+                    insight: "report.ai_weekly_summary".localized,
+                    data: points,
+                    color: ChartStyleGuide.SemanticColor.mood,
+                    unit: "adet",
+                    period: .month30
+                )
+            }
+        }
+    }
+
+    private func weeklyComparisonSection(_ report: WeeklyReport) -> some View {
+        let previous = viewModel.reports.first(where: { $0.id != report.id })
+        let metricMap = Dictionary(uniqueKeysWithValues: report.keyMetrics.map { ($0.name, max(0, $0.value)) })
+        let previousMap = Dictionary(uniqueKeysWithValues: previous?.keyMetrics.map { ($0.name, max(0, $0.value)) } ?? [])
+
+        let barData = metricMap.keys.sorted().prefix(6).map { key in
+            ComparisonBarChart.BarDataPoint(
+                label: key,
+                value: metricMap[key] ?? 0,
+                isHighlighted: true,
+                comparisonValue: previousMap[key]
+            )
+        }
+
+        return ComparisonBarChart(
+            title: "chart.compare_previous".localized,
+            insight: nil,
+            data: Array(barData),
+            color: ChartStyleGuide.SemanticColor.meetings,
+            unit: ""
+        )
     }
 
     private func insightsSection(_ report: WeeklyReport) -> some View {

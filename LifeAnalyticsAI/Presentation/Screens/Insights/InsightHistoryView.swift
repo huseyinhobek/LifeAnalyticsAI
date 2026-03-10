@@ -61,11 +61,27 @@ struct InsightHistoryView: View {
             Text("insights.records_count".localized(with: viewModel.filteredInsights.count))
                 .font(Theme.bodyFont)
                 .foregroundStyle(Color("TextSecondary"))
+
+            HStack(spacing: 8) {
+                insightTypeBadge("insights.type.correlation".localized)
+                insightTypeBadge("insights.type.trend".localized)
+                insightTypeBadge("insights.type.prediction".localized)
+            }
         }
         .padding(Theme.paddingMedium)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color("BackgroundLight"))
+        .background(
+            LinearGradient(
+                colors: [Color("BackgroundLight"), Color("SecondaryBlue").opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
         .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                .stroke(Color("SecondaryBlue").opacity(0.18), lineWidth: 1)
+        )
     }
 
     private var filterSection: some View {
@@ -143,8 +159,19 @@ struct InsightHistoryView: View {
             }
             .padding(Theme.paddingMedium)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color("BackgroundLight"))
+            .background(
+                LinearGradient(
+                    colors: [Color("BackgroundLight"), typeAccentColor(for: insight.type).opacity(0.1)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                    .stroke(typeAccentColor(for: insight.type).opacity(0.25), lineWidth: 1)
+            )
+            .shadow(color: typeAccentColor(for: insight.type).opacity(0.14), radius: 12, x: 0, y: 4)
         }
         .buttonStyle(.plain)
     }
@@ -189,6 +216,31 @@ struct InsightHistoryView: View {
             .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
         }
         .buttonStyle(.plain)
+    }
+
+    private func insightTypeBadge(_ title: String) -> some View {
+        Text(title)
+            .font(.system(size: 11, weight: .semibold, design: .rounded))
+            .foregroundStyle(Color("TextPrimary"))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(Color("SecondaryBlue").opacity(0.14))
+            .clipShape(Capsule())
+    }
+
+    private func typeAccentColor(for type: Insight.InsightType) -> Color {
+        switch type {
+        case .correlation:
+            return ChartStyleGuide.SemanticColor.sleep
+        case .anomaly:
+            return ChartStyleGuide.SemanticColor.negative
+        case .prediction:
+            return ChartStyleGuide.SemanticColor.meetings
+        case .trend:
+            return ChartStyleGuide.SemanticColor.mood
+        case .seasonal:
+            return ChartStyleGuide.SemanticColor.screenTime
+        }
     }
 }
 

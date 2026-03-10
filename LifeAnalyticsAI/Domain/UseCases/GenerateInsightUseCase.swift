@@ -30,7 +30,7 @@ final class GenerateInsightUseCase: GenerateInsightUseCaseProtocol {
             + insightEngine.findSeasonality()
 
         if generated.isEmpty {
-            return try await repository.fetchInsights(limit: 10)
+            return try await repository.fetchInsights(limit: AppConstants.Insights.recentFallbackLimit)
         }
 
         let languageCode = languageCodeProvider()
@@ -65,7 +65,7 @@ final class GenerateInsightUseCase: GenerateInsightUseCaseProtocol {
     private func persistNewInsights(_ generatedInsights: [Insight]) async throws {
         guard !generatedInsights.isEmpty else { return }
 
-        var existing = try await repository.fetchInsights(limit: 200)
+        var existing = try await repository.fetchInsights(limit: AppConstants.Insights.historyFetchLimit)
 
         for insight in generatedInsights {
             if isDuplicate(insight, in: existing) {

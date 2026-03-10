@@ -6,12 +6,14 @@ import SwiftUI
 struct PaywallView: View {
     @Environment(SubscriptionManager.self) private var manager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     @State private var selectedProduct: Product?
     @State private var isTrialEligible = false
     @State private var isPurchasing = false
     @State private var showError = false
     @State private var errorText = ""
+    @State private var didAttemptLoad = false
 
     var body: some View {
         NavigationStack {
@@ -19,7 +21,11 @@ struct PaywallView: View {
                 VStack(spacing: Theme.paddingMedium) {
                     headerSection
                     featuresSection
-                    pricingSection
+                    if manager.products.isEmpty {
+                        unavailableProductsSection
+                    } else {
+                        pricingSection
+                    }
                     ctaSection
                     legalSection
                 }
@@ -40,9 +46,7 @@ struct PaywallView: View {
                 }
             }
             .task {
-                if manager.products.isEmpty {
-                    await manager.loadProducts()
-                }
+                await ensureProductsLoaded()
                 isTrialEligible = await manager.isEligibleForTrial()
                 selectedProduct = manager.yearlyProduct ?? manager.monthlyProduct
             }
@@ -77,7 +81,19 @@ struct PaywallView: View {
                 .foregroundStyle(Color("TextSecondary"))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 8)
+
+            if let selected = selectedProduct {
+                Text("\(selected.displayPrice) • \(selected.displayName)")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color("PrimaryBlue"))
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(Color("PrimaryBlue").opacity(0.12))
+                    .clipShape(Capsule())
+            }
         }
+        .frame(maxWidth: .infinity)
+        .padding(.bottom, 8)
     }
 
     private var featuresSection: some View {
@@ -110,13 +126,19 @@ struct PaywallView: View {
     }
 
     private var pricingSection: some View {
-        HStack(spacing: 12) {
+        let columns: [GridItem] = horizontalSizeClass == .regular
+            ? [GridItem(.flexible()), GridItem(.flexible())]
+            : [GridItem(.flexible()), GridItem(.flexible())]
+
+        return LazyVGrid(columns: columns, spacing: 12) {
             if let yearly = manager.yearlyProduct {
                 pricingCard(
                     product: yearly,
                     label: "premium.yearly".localized,
                     detail: "premium.yearly.per_month".localized(with: manager.yearlyMonthlyEquivalent ?? ""),
-                    badge: "premium.yearly.save".localized(with: manager.savingsPercentage),
+                    badge: manager.savingsPercentage > 0
+                        ? "premium.yearly.save".localized(with: manager.savingsPercentage)
+                        : "premium.best_value".localized,
                     isSelected: selectedProduct?.id == yearly.id
                 )
             }
@@ -131,6 +153,29 @@ struct PaywallView: View {
                 )
             }
         }
+    }
+
+    private var unavailableProductsSection: some View {
+        VStack(spacing: 10) {
+            Text("premium.products_unavailable".localized)
+                .font(Theme.bodyFont)
+                .foregroundStyle(Color("TextSecondary"))
+                .multilineTextAlignment(.center)
+
+            Button("premium.retry".localized) {
+                Task { await ensureProductsLoaded(force: true) }
+            }
+            .buttonStyle(.bordered)
+            .tint(Color("SecondaryBlue"))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 18)
+        .background(Color("BackgroundLight"))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                .stroke(Color("SecondaryBlue").opacity(0.2), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
     }
 
     private func pricingCard(
@@ -203,7 +248,7 @@ struct PaywallView: View {
                     if isPurchasing {
                         ProgressView().tint(.white)
                     } else {
-                        Text("premium.start".localized)
+                        Text(ctaTitle)
                             .font(.system(size: 16, weight: .bold))
                     }
                 }
@@ -219,7 +264,7 @@ struct PaywallView: View {
                 )
                 .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
             }
-            .disabled(selectedProduct == nil || isPurchasing)
+            .disabled(selectedProduct == nil || isPurchasing || manager.products.isEmpty)
 
             if isTrialEligible {
                 Text("premium.trial".localized)
@@ -244,14 +289,29 @@ struct PaywallView: View {
             }
 
             HStack(spacing: 16) {
-                Link("premium.terms".localized, destination: URL(string: "https://lifeanalytics.app/terms")!)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color("TextSecondary"))
+                if let termsURL = AppConstants.URLs.terms {
+                    Link("premium.terms".localized, destination: termsURL)
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color("TextSecondary"))
+                }
 
-                Link("premium.privacy".localized, destination: URL(string: "https://lifeanalytics.app/privacy")!)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Color("TextSecondary"))
+                if let privacyURL = AppConstants.URLs.privacy {
+                    Link("premium.privacy".localized, destination: privacyURL)
+                        .font(.system(size: 11))
+                        .foregroundStyle(Color("TextSecondary"))
+                }
             }
         }
+    }
+
+    private var ctaTitle: String {
+        guard let selectedProduct else { return "premium.start".localized }
+        return "premium.start".localized + " • " + selectedProduct.displayPrice
+    }
+
+    private func ensureProductsLoaded(force: Bool = false) async {
+        guard force || !didAttemptLoad else { return }
+        didAttemptLoad = true
+        await manager.loadProducts()
     }
 }

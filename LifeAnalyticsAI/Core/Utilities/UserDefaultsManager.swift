@@ -5,7 +5,13 @@ import Observation
 
 @Observable
 final class UserDefaultsManager {
-    private let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)!
+    private let defaults: UserDefaults = {
+        guard let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite) else {
+            AppLogger.notification.warning("Shared UserDefaults suite unavailable, falling back to standard")
+            return .standard
+        }
+        return defaults
+    }()
 
     var hasCompletedOnboarding: Bool {
         get { defaults.bool(forKey: Keys.hasCompletedOnboarding) }

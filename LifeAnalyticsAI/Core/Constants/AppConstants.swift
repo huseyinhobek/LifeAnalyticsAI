@@ -18,6 +18,16 @@ enum AppConstants {
         static let correlationThreshold = 0.3
         static let pValueThreshold = 0.05
         static let anomalyZScoreThreshold = 1.5
+        static let patternWindowDays = 30
+        static let sleepBucketBoundaryHour = 12
+    }
+
+    enum Insights {
+        static let cardMaxLength = 160
+        static let cardTruncatedLength = 157
+        static let historyFetchLimit = 200
+        static let recentFallbackLimit = 10
+        static let predictionWindowDays = 30
     }
 
     enum Mood {
@@ -26,6 +36,25 @@ enum AppConstants {
     }
 
     enum Notifications {
+        enum Channel: String {
+            case morning
+            case evening
+            case weekly
+
+            init?(categoryIdentifier: String) {
+                switch categoryIdentifier {
+                case Category.morning:
+                    self = .morning
+                case Category.evening:
+                    self = .evening
+                case Category.weekly:
+                    self = .weekly
+                default:
+                    return nil
+                }
+            }
+        }
+
         static let morningHour = 7
         static let morningMinute = 30
         static let eveningHour = 21
@@ -71,8 +100,18 @@ enum AppConstants {
         static let freeChartDaysLimit = 7
     }
 
+    enum URLs {
+        static let terms = URL(string: "https://lifeanalytics.app/terms")
+        static let privacy = URL(string: "https://lifeanalytics.app/privacy")
+    }
+
     enum UI {
         static let primaryColor = "PrimaryBlue"
         static let animationDuration = 0.3
+    }
+
+    enum Widget {
+        static let quickMoodRefreshHours = 2
+        static let quickMoodButtonMinHeight = 32
     }
 }

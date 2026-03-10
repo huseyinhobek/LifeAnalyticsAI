@@ -24,15 +24,19 @@ struct SettingsView: View {
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
-                premiumCard
-                languageCard
-                notificationCard
-                securityCard
-                dataSourceCard
-                personalizationCard
-                exportCard
-                accountCard
+            VStack(alignment: .leading, spacing: Theme.paddingMedium) {
+                settingsOverview
+
+                LazyVGrid(columns: columns, spacing: Theme.paddingMedium) {
+                    premiumCard
+                    languageCard
+                    notificationCard
+                    securityCard
+                    dataSourceCard
+                    personalizationCard
+                    exportCard
+                    accountCard
+                }
             }
             .padding(Theme.paddingLarge)
         }
@@ -70,6 +74,31 @@ struct SettingsView: View {
  #endif
     }
 
+    private var settingsOverview: some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("settings.title".localized)
+                    .font(Theme.titleFont)
+                    .foregroundStyle(Color("TextPrimary"))
+                Text(subscriptionManager.isPremium ? "premium.active".localized : "settings.overview_subtitle".localized)
+                    .font(Theme.captionFont)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+
+            Spacer()
+
+            Text(subscriptionManager.isPremium ? "PREMIUM" : "FREE")
+                .font(.system(size: 11, weight: .bold, design: .rounded))
+                .foregroundStyle(subscriptionManager.isPremium ? Color("PrimaryBlue") : Color("TextSecondary"))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 6)
+                .background(subscriptionManager.isPremium ? Color("PrimaryBlue").opacity(0.12) : Color("TextSecondary").opacity(0.12))
+                .clipShape(Capsule())
+        }
+        .padding(Theme.paddingMedium)
+        .settingsCardStyle()
+    }
+
     private var languageCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Button {
@@ -93,8 +122,7 @@ struct SettingsView: View {
             .buttonStyle(.plain)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var premiumCard: some View {
@@ -121,15 +149,23 @@ struct SettingsView: View {
                 Button {
                     showPaywall = true
                 } label: {
-                    HStack {
-                        Text("premium_unlock_button".localized)
-                            .font(Theme.bodyFont.weight(.semibold))
-                            .foregroundStyle(Color("PrimaryBlue"))
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("premium_unlock_button".localized)
+                                .font(Theme.bodyFont.weight(.semibold))
+                                .foregroundStyle(Color("PrimaryBlue"))
+                            Text("settings.premium_cta_subtitle".localized)
+                                .font(.caption2)
+                                .foregroundStyle(Color("TextSecondary"))
+                        }
                         Spacer()
                         Text("\(subscriptionManager.dailyInsightsRemaining) " + "premium.insights_remaining".localized)
                             .font(Theme.captionFont)
                             .foregroundStyle(Color("TextSecondary"))
                     }
+                    .padding(10)
+                    .background(Color("PrimaryBlue").opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(.plain)
             }
@@ -141,8 +177,7 @@ struct SettingsView: View {
             .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var securityCard: some View {
@@ -198,8 +233,7 @@ struct SettingsView: View {
             .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private func iconName(for status: SecurityAuditCheck.Status) -> String {
@@ -269,8 +303,7 @@ struct SettingsView: View {
             .tint(Color("PrimaryBlue"))
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var dataSourceCard: some View {
@@ -298,8 +331,7 @@ struct SettingsView: View {
             .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var personalizationCard: some View {
@@ -330,8 +362,7 @@ struct SettingsView: View {
             .buttonStyle(.bordered)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var exportCard: some View {
@@ -359,8 +390,7 @@ struct SettingsView: View {
             .premiumGate(.dataExport)
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
     }
 
     private var accountCard: some View {
@@ -398,7 +428,19 @@ struct SettingsView: View {
             .tint(Color("MoodBad"))
         }
         .padding(Theme.paddingMedium)
-        .background(Color("BackgroundLight"))
-        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+        .settingsCardStyle()
+    }
+}
+
+private extension View {
+    func settingsCardStyle() -> some View {
+        self
+            .background(Color("BackgroundLight"))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cornerRadius)
+                    .stroke(Color("SecondaryBlue").opacity(0.14), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.04), radius: 10, x: 0, y: 4)
     }
 }

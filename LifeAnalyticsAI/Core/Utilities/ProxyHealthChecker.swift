@@ -15,6 +15,7 @@ final class ProxyHealthChecker {
 
     var isProxyAvailable: Bool = true
     var lastCheckTime: Date?
+    private var periodicTask: Task<Void, Never>?
 
     func performHealthCheck() async {
         let available = await NetworkManager.shared.checkProxyHealth()
@@ -29,11 +30,18 @@ final class ProxyHealthChecker {
     }
 
     func startPeriodicCheck(interval: TimeInterval = 300) {
-        Task {
+        periodicTask?.cancel()
+
+        periodicTask = Task {
             while !Task.isCancelled {
                 await performHealthCheck()
                 try? await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000))
             }
         }
+    }
+
+    func stopPeriodicCheck() {
+        periodicTask?.cancel()
+        periodicTask = nil
     }
 }
