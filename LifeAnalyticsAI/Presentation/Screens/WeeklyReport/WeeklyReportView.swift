@@ -1,0 +1,244 @@
+// MARK: - Presentation.Screens.WeeklyReport
+
+import Charts
+import SwiftUI
+
+struct WeeklyReportView: View {
+    @StateObject private var viewModel: WeeklyReportViewModel
+    @Bindable var router: NavigationRouter
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    init(viewModel: WeeklyReportViewModel, router: NavigationRouter) {
+        _viewModel = StateObject(wrappedValue: viewModel)
+        self.router = router
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Theme.paddingMedium) {
+                if viewModel.isLoading && viewModel.selectedReport == nil {
+                    LoadingStateView(
+                        title: "report.loading_title".localized,
+                        subtitle: "report.loading_subtitle".localized,
+                        icon: "doc.text.magnifyingglass"
+                    )
+                }
+
+                Group {
+                    if let report = viewModel.selectedReport {
+                        summaryCard(report)
+                        weeklyTrendSection
+                        metricsSection(report)
+                        weeklyComparisonSection(report)
+                        insightsSection(report)
+                    }
+                }
+                .premiumGate(.weeklyReport)
+
+                if let error = viewModel.errorMessage {
+                    ErrorStateView(message: error) {
+                        Task { await viewModel.refresh() }
+                    }
+                }
+            }
+            .padding(Theme.paddingLarge)
+        }
+        .background(Color("BackgroundLight").opacity(0.35))
+        .navigationTitle("report.nav_title".localized)
+        .task { await viewModel.load() }
+        .refreshable { await viewModel.refresh() }
+    }
+
+    private func summaryCard(_ report: WeeklyReport) -> some View {
+        return VStack(alignment: .leading, spacing: 10) {
+            Label(
+                report.weekStartDate.formatted(date: .abbreviated, time: .omitted),
+                systemImage: "doc.text.image"
+            )
+            .font(Theme.captionFont)
+            .foregroundStyle(Color("SecondaryBlue"))
+
+            Text("report.ai_weekly_summary".localized)
+                .font(Theme.titleFont)
+                .foregroundStyle(Color("TextPrimary"))
+
+            markdownText(report.summary)
+
+            if let prediction = report.prediction, !prediction.isEmpty {
+                Text("report.prediction_prefix".localized(with: prediction))
+                    .font(Theme.captionFont)
+                    .foregroundStyle(Color("TextSecondary"))
+            }
+        }
+        .padding(Theme.paddingMedium)
+        .background(Color("BackgroundLight"))
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+    }
+
+    private func metricsSection(_ report: WeeklyReport) -> some View {
+        let safeMetrics = report.keyMetrics
+            .filter { $0.value.isFinite && !$0.value.isNaN }
+            .map { metric in
+                MetricReference(name: metric.name, value: max(0, metric.value), unit: metric.unit, trend: metric.trend)
+            }
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Label("report.metrics_cards".localized, systemImage: "square.grid.2x2")
+                .font(Theme.headlineFont)
+                .foregroundStyle(Color("TextPrimary"))
+
+            if safeMetrics.isEmpty {
+                EmptyStateView(
+                    title: "report.metrics_empty_title".localized,
+                    subtitle: "report.metrics_empty_subtitle".localized,
+                    icon: "chart.bar.xaxis"
+                )
+            } else {
+                ComparisonBarChart(
+                    title: "report.metrics_cards".localized,
+                    insight: "report.ai_weekly_summary".localized,
+                    data: safeMetrics.prefix(6).map { metric in
+                        ComparisonBarChart.BarDataPoint(
+                            label: metric.name,
+                            value: metric.value,
+                            isHighlighted: metric.trend != .stable,
+                            comparisonValue: nil
+                        )
+                    },
+                    color: ChartStyleGuide.SemanticColor.sleep,
+                    unit: ""
+                )
+            }
+        }
+    }
+
+    private var weeklyTrendSection: some View {
+        let points = viewModel.reports
+            .sorted { $0.weekStartDate < $1.weekStartDate }
+            .map { report in
+                TimeSeriesPoint(
+                    date: report.weekStartDate,
+                    value: Double(report.insights.count),
+                    isEstimated: false
+                )
+            }
+
+        return Group {
+            if points.count < 2 {
+                ChartEmptyState(
+                    title: "chart.collecting".localized,
+                    message: "chart.collecting_detail".localized(with: 2, points.count),
+                    daysRequired: 2,
+                    daysCollected: points.count
+                )
+            } else {
+                TrendLineChart(
+                    title: "report.weekly_insights".localized,
+                    insight: "report.ai_weekly_summary".localized,
+                    data: points,
+                    color: ChartStyleGuide.SemanticColor.mood,
+                    unit: "adet",
+                    period: .month30
+                )
+            }
+        }
+    }
+
+    private func weeklyComparisonSection(_ report: WeeklyReport) -> some View {
+        let previous = viewModel.reports.first(where: { $0.id != report.id })
+        let metricMap = Dictionary(uniqueKeysWithValues: report.keyMetrics.map { ($0.name, max(0, $0.value)) })
+        let previousMap = Dictionary(uniqueKeysWithValues: previous?.keyMetrics.map { ($0.name, max(0, $0.value)) } ?? [])
+
+        let barData = metricMap.keys.sorted().prefix(6).map { key in
+            ComparisonBarChart.BarDataPoint(
+                label: key,
+                value: metricMap[key] ?? 0,
+                isHighlighted: true,
+                comparisonValue: previousMap[key]
+            )
+        }
+
+        return ComparisonBarChart(
+            title: "chart.compare_previous".localized,
+            insight: nil,
+            data: Array(barData),
+            color: ChartStyleGuide.SemanticColor.meetings,
+            unit: ""
+        )
+    }
+
+    private func insightsSection(_ report: WeeklyReport) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("report.weekly_insights".localized, systemImage: "lightbulb.max")
+                .font(Theme.headlineFont)
+                .foregroundStyle(Color("TextPrimary"))
+
+            if report.insights.isEmpty {
+                EmptyStateView(
+                    title: "report.insights_empty_title".localized,
+                    subtitle: "report.insights_empty_subtitle".localized,
+                    icon: "lightbulb.slash"
+                )
+            } else {
+                ForEach(report.insights) { insight in
+                    Button {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.82)) {
+                            router.navigate(to: .insightDetail(insight))
+                        }
+                    } label: {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(insight.title)
+                                .font(.headline)
+                                .foregroundStyle(Color("TextPrimary"))
+                            Text(insight.body)
+                                .font(Theme.captionFont)
+                                .foregroundStyle(Color("TextSecondary"))
+                                .lineLimit(2)
+                            Text("report.confidence".localized(with: insight.confidenceLevel.label))
+                                .font(Theme.captionFont)
+                                .foregroundStyle(Color("SecondaryBlue"))
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(Theme.paddingMedium)
+                        .background(Color("BackgroundLight"))
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.cornerRadius))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func color(for trend: MetricReference.Trend) -> Color {
+        switch trend {
+        case .up:
+            return Color("MoodGood")
+        case .down:
+            return Color("MoodBad")
+        case .stable:
+            return Color("SecondaryBlue")
+        }
+    }
+
+    @ViewBuilder
+    private func markdownText(_ value: String) -> some View {
+        let normalized = WeeklyReportTextFormatter.normalizedMarkdown(value)
+
+        if let attributed = try? AttributedString(
+            markdown: normalized,
+            options: AttributedString.MarkdownParsingOptions(
+                interpretedSyntax: .full,
+                failurePolicy: .returnPartiallyParsedIfPossible
+            )
+        ) {
+            Text(attributed)
+                .foregroundStyle(Color("TextPrimary"))
+                .fixedSize(horizontal: false, vertical: true)
+        } else {
+            Text(normalized)
+                .font(Theme.bodyFont)
+                .foregroundStyle(Color("TextPrimary"))
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}

@@ -1,173 +1,167 @@
 // MARK: - Core.Utilities
 
 import Foundation
-import KeychainAccess
+import OSLog
 
 actor NetworkManager {
     static let shared = NetworkManager()
-
     private let session: URLSession
-    private let keychain = Keychain(service: AppConstants.Storage.keychainService)
-    private let maxRetryCount = 2
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.lifeanalytics.app",
+        category: "Network"
+    )
 
     init() {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 30
+        config.timeoutIntervalForResource = 60
         config.waitsForConnectivity = true
         session = URLSession(configuration: config)
     }
 
-    func sendLLMRequest(prompt: String, systemPrompt: String) async throws -> String {
-        var lastError: Error?
+    // MARK: - Health Check
 
-        for attempt in 0...maxRetryCount {
-            do {
-                return try await performLLMRequest(prompt: prompt, systemPrompt: systemPrompt)
-            } catch {
-                lastError = error
-                let shouldRetry = attempt < maxRetryCount && isRetryable(error: error)
-                if !shouldRetry {
-                    throw normalize(error)
-                }
+    func checkProxyHealth() async -> Bool {
+        guard let url = URL(string: AppConstants.API.healthCheckURL) else { return false }
+
+        do {
+            let (data, response) = try await session.data(from: url)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                return false
             }
-        }
 
-        throw normalize(lastError ?? AppError.llmError(message: "Bilinmeyen ag hatasi"))
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let status = json["status"] as? String {
+                logger.info("Proxy health check: \(status)")
+                return status == "ok"
+            }
+
+            return false
+        } catch {
+            logger.error("Proxy health check failed: \(error.localizedDescription)")
+            return false
+        }
     }
 
-    private func performLLMRequest(prompt: String, systemPrompt: String) async throws -> String {
+    // MARK: - LLM Request
+
+    func sendLLMRequest(prompt: String, systemPrompt: String) async throws -> String {
         guard let url = URL(string: AppConstants.API.llmBaseURL) else {
-            throw AppError.llmError(message: "Gecersiz LLM URL")
+            throw AppError.networkError(underlying: URLError(.badURL))
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
 
-        guard let apiKey = try keychain.get("anthropic_api_key"), !apiKey.isEmpty else {
-            throw AppError.llmError(message: "Anthropic API anahtari bulunamadi")
-        }
+        let userLang = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)?
+            .string(forKey: "app_language") ?? "en"
+        let langInstruction = LanguageManager.AppLanguage(rawValue: userLang)?.systemPromptInstruction
+            ?? LanguageManager.AppLanguage.english.systemPromptInstruction
+        let fullSystemPrompt = langInstruction + "\n\n" + systemPrompt
 
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        let body: [String: Any] = [
+            "prompt": prompt,
+            "system_prompt": fullSystemPrompt,
+            "model": AppConstants.API.llmModel,
+            "max_tokens": AppConstants.API.maxTokens
+        ]
 
-        let body = LLMRequestBody(
-            model: AppConstants.API.llmModel,
-            maxTokens: AppConstants.API.maxTokens,
-            messages: [LLMRequestBody.Message(role: "user", content: prompt)],
-            system: systemPrompt
-        )
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-        do {
-            request.httpBody = try JSONEncoder().encode(body)
-        } catch {
-            throw AppError.llmError(message: "LLM istek govdesi olusturulamadi")
-        }
+        logger.info("LLM request sending to proxy (prompt length: \(prompt.count))")
+        let startTime = Date()
 
-        let data: Data
-        let response: URLResponse
+        var lastError: Error?
+        for attempt in 0..<3 {
+            do {
+                let (data, response) = try await session.data(for: request)
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    throw AppError.networkError(underlying: URLError(.badServerResponse))
+                }
 
-        do {
-            (data, response) = try await session.data(for: request)
-        } catch {
-            throw AppError.networkError(underlying: error)
-        }
+                let duration = Date().timeIntervalSince(startTime)
+                logger.info(
+                    "LLM response received in \(String(format: "%.1f", duration))s (status: \(httpResponse.statusCode))"
+                )
 
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw AppError.networkError(underlying: NetworkFailure.invalidResponse)
-        }
+                switch httpResponse.statusCode {
+                case 200:
+                    return try parseAnthropicResponse(data: data)
+                case 400:
+                    let errorMsg = parseErrorMessage(data: data)
+                    throw AppError.llmError(message: "Gecersiz istek: \(errorMsg)")
+                case 401:
+                    throw AppError.llmError(message: "Yetkilendirme hatasi")
+                case 429:
+                    throw AppError.llmError(message: "Cok fazla istek. Lutfen biraz bekle.")
+                case 500...599:
+                    lastError = AppError.llmError(message: "Sunucu hatasi (\(httpResponse.statusCode))")
+                    if attempt < 2 {
+                        try await Task.sleep(nanoseconds: UInt64((attempt + 1) * 2_000_000_000))
+                        continue
+                    }
+                    throw lastError ?? AppError.llmError(message: "Sunucu hatasi")
+                default:
+                    throw AppError.llmError(message: "Beklenmeyen hata: \(httpResponse.statusCode)")
+                }
+            } catch {
+                lastError = error
+                if let appError = error as? AppError {
+                    throw appError
+                }
 
-        guard 200...299 ~= httpResponse.statusCode else {
-            if let apiError = try? JSONDecoder().decode(LLMErrorEnvelope.self, from: data) {
-                throw AppError.llmError(message: apiError.error.message)
+                if attempt < 2 {
+                    logger.warning(
+                        "LLM request failed (attempt \(attempt + 1)): \(error.localizedDescription). Retrying..."
+                    )
+                    try await Task.sleep(nanoseconds: UInt64((attempt + 1) * 2_000_000_000))
+                    continue
+                }
             }
-            throw AppError.networkError(underlying: NetworkFailure.httpStatus(code: httpResponse.statusCode))
         }
 
-        do {
-            let decoded = try JSONDecoder().decode(LLMResponseBody.self, from: data)
-            let text = decoded.content
-                .filter { $0.type == "text" }
-                .compactMap(\.text)
-                .joined(separator: "\n")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+        throw AppError.networkError(underlying: lastError ?? URLError(.unknown))
+    }
 
-            guard !text.isEmpty else {
-                throw AppError.llmError(message: "LLM yaniti bos geldi")
+    // MARK: - Response Parsing
+
+    private func parseAnthropicResponse(data: Data) throws -> String {
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let content = json["content"] as? [[String: Any]] else {
+            throw AppError.llmError(message: "Yanit parse edilemedi")
+        }
+
+        let textParts = content.compactMap { block -> String? in
+            guard let type = block["type"] as? String,
+                  type == "text",
+                  let text = block["text"] as? String else {
+                return nil
             }
-
             return text
-        } catch let appError as AppError {
-            throw appError
-        } catch {
-            throw AppError.llmError(message: "LLM yaniti cozumlenemedi")
-        }
-    }
-
-    private func isRetryable(error: Error) -> Bool {
-        if let urlError = error as? URLError {
-            switch urlError.code {
-            case .timedOut, .networkConnectionLost, .notConnectedToInternet, .cannotConnectToHost, .cannotFindHost:
-                return true
-            default:
-                return false
-            }
         }
 
-        if case let AppError.networkError(underlying) = error,
-           let networkFailure = underlying as? NetworkFailure,
-           case let .httpStatus(code) = networkFailure {
-            return (500...599).contains(code)
+        let fullText = textParts.joined(separator: "\n")
+        guard !fullText.isEmpty else {
+            throw AppError.llmError(message: "Bos yanit alindi")
         }
 
-        return false
+        return fullText
     }
 
-    private func normalize(_ error: Error) -> AppError {
-        if let appError = error as? AppError {
-            return appError
+    private func parseErrorMessage(data: Data) -> String {
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let error = json["error"] as? String {
+            return error
         }
-        return AppError.networkError(underlying: error)
+
+        if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+           let errorObj = json["error"] as? [String: Any],
+           let message = errorObj["message"] as? String {
+            return message
+        }
+
+        return "Bilinmeyen hata"
     }
-}
-
-private struct LLMRequestBody: Encodable {
-    let model: String
-    let maxTokens: Int
-    let messages: [Message]
-    let system: String
-
-    struct Message: Encodable {
-        let role: String
-        let content: String
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case model
-        case maxTokens = "max_tokens"
-        case messages
-        case system
-    }
-}
-
-private struct LLMResponseBody: Decodable {
-    let content: [Content]
-
-    struct Content: Decodable {
-        let type: String
-        let text: String?
-    }
-}
-
-private struct LLMErrorEnvelope: Decodable {
-    let error: APIError
-
-    struct APIError: Decodable {
-        let message: String
-    }
-}
-
-private enum NetworkFailure: Error {
-    case invalidResponse
-    case httpStatus(code: Int)
 }

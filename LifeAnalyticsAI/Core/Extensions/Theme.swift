@@ -3,10 +3,10 @@
 import SwiftUI
 
 enum Theme {
-    static let titleFont = Font.system(size: 28, weight: .bold, design: .rounded)
-    static let headlineFont = Font.system(size: 20, weight: .semibold)
-    static let bodyFont = Font.system(size: 16, weight: .regular)
-    static let captionFont = Font.system(size: 13, weight: .regular)
+    static let titleFont = Font.system(.largeTitle, design: .rounded).weight(.bold)
+    static let headlineFont = Font.system(.title3, design: .default).weight(.semibold)
+    static let bodyFont = Font.system(.body, design: .default)
+    static let captionFont = Font.system(.caption, design: .default)
 
     static let paddingSmall: CGFloat = 8
     static let paddingMedium: CGFloat = 16

@@ -5,7 +5,13 @@ import Observation
 
 @Observable
 final class UserDefaultsManager {
-    private let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)!
+    private let defaults: UserDefaults = {
+        guard let defaults = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite) else {
+            AppLogger.notification.warning("Shared UserDefaults suite unavailable, falling back to standard")
+            return .standard
+        }
+        return defaults
+    }()
 
     var hasCompletedOnboarding: Bool {
         get { defaults.bool(forKey: Keys.hasCompletedOnboarding) }
@@ -64,9 +70,67 @@ final class UserDefaultsManager {
         set { defaults.set(newValue, forKey: Keys.weeklyReportEnabled) }
     }
 
+    var preferredTheme: AppTheme {
+        get {
+            guard let rawValue = defaults.string(forKey: Keys.preferredTheme),
+                  let theme = AppTheme(rawValue: rawValue) else {
+                return .system
+            }
+            return theme
+        }
+        set { defaults.set(newValue.rawValue, forKey: Keys.preferredTheme) }
+    }
+
+    var healthKitSyncEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.healthKitSyncEnabled) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.healthKitSyncEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.healthKitSyncEnabled) }
+    }
+
+    var calendarSyncEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.calendarSyncEnabled) == nil {
+                return true
+            }
+            return defaults.bool(forKey: Keys.calendarSyncEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.calendarSyncEnabled) }
+    }
+
+    var appLockEnabled: Bool {
+        get {
+            if defaults.object(forKey: Keys.appLockEnabled) == nil {
+                return false
+            }
+            return defaults.bool(forKey: Keys.appLockEnabled)
+        }
+        set { defaults.set(newValue, forKey: Keys.appLockEnabled) }
+    }
+
     enum InsightTone: String {
         case concise
         case detailed
+    }
+
+    enum AppTheme: String, CaseIterable {
+        case system
+        case light
+        case dark
+
+        var title: String {
+            switch self {
+            case .system:
+                return "theme.system".localized
+            case .light:
+                return "theme.light".localized
+            case .dark:
+                return "theme.dark".localized
+            }
+        }
     }
 
     private func defaultTime(hour: Int, minute: Int) -> Date {
@@ -86,4 +150,8 @@ private enum Keys {
     static let morningNotificationTime = "morningNotificationTime"
     static let eveningNotificationTime = "eveningNotificationTime"
     static let weeklyReportEnabled = "weeklyReportEnabled"
+    static let preferredTheme = "preferredTheme"
+    static let healthKitSyncEnabled = "healthKitSyncEnabled"
+    static let calendarSyncEnabled = "calendarSyncEnabled"
+    static let appLockEnabled = "appLockEnabled"
 }

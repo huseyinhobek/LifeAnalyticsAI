@@ -49,13 +49,13 @@ extension Date {
 
         switch dayDiff {
         case 0:
-            return "Bugun"
+            return "date.today".localized
         case 1:
-            return "Dun"
+            return "date.yesterday".localized
         case let value where value > 1:
-            return "\(value) gun once"
+            return "date.days_ago".localized(with: value)
         case -1:
-            return "Yarin"
+            return "date.tomorrow".localized
         default:
             return shortDateString
         }

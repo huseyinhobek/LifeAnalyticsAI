@@ -16,12 +16,73 @@ final class PersistenceController {
             WeeklyReportEntity.self
         ])
 
+        if !inMemory {
+            Self.configureDataProtectionForApplicationSupport()
+        }
+
         let config = ModelConfiguration(isStoredInMemoryOnly: inMemory)
+        let resolvedContainer: ModelContainer
+        var didLoadPersistentStore = false
 
         do {
-            container = try ModelContainer(for: schema, configurations: [config])
+            resolvedContainer = try ModelContainer(for: schema, configurations: [config])
+            didLoadPersistentStore = !inMemory
         } catch {
-            fatalError("ModelContainer olusturulamadi: \(error.localizedDescription)")
+            AppLogger.insight.error("ModelContainer initialization failed, attempting in-memory recovery: \(error.localizedDescription)")
+
+            do {
+                let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+                resolvedContainer = try ModelContainer(for: schema, configurations: [fallbackConfig])
+                AppLogger.insight.warning("Using in-memory SwiftData store after initialization failure")
+            } catch {
+                fatalError("ModelContainer tamamen baslatilamadi: \(error.localizedDescription)")
+            }
+        }
+
+        container = resolvedContainer
+
+        if didLoadPersistentStore {
+            Self.applyDataProtectionToPersistenceFiles()
+        }
+    }
+
+    private static func configureDataProtectionForApplicationSupport() {
+        let manager = FileManager.default
+        guard let appSupportURL = manager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        do {
+            try manager.createDirectory(at: appSupportURL, withIntermediateDirectories: true)
+            try manager.setAttributes(
+                [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                ofItemAtPath: appSupportURL.path
+            )
+        } catch {
+            AppLogger.notification.error("Data protection directory setup failed: \(error.localizedDescription)")
+        }
+    }
+
+    private static func applyDataProtectionToPersistenceFiles() {
+        let manager = FileManager.default
+        guard let appSupportURL = manager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+            return
+        }
+
+        let defaultStoreCandidates = ["default.store", "default.store-wal", "default.store-shm"]
+
+        for name in defaultStoreCandidates {
+            let url = appSupportURL.appendingPathComponent(name)
+            guard manager.fileExists(atPath: url.path) else { continue }
+
+            do {
+                try manager.setAttributes(
+                    [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                    ofItemAtPath: url.path
+                )
+            } catch {
+                AppLogger.notification.error("Data protection apply failed for \(name): \(error.localizedDescription)")
+            }
         }
     }
 

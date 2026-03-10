@@ -11,29 +11,36 @@ enum AppError: LocalizedError {
     case insufficientData(required: Int, current: Int)
     case networkError(underlying: Error)
     case llmError(message: String)
+    case premiumRequired(feature: PremiumFeature)
+    case securityError(message: String)
     case persistenceError(underlying: Error)
     case unknown(underlying: Error)
 
     var errorDescription: String? {
         switch self {
         case .healthKitNotAvailable:
-            return "Bu cihazda HealthKit kullanilamamaktadir."
+            return "error.healthkit_unavailable".localized
         case .healthKitAuthorizationDenied:
-            return "Saglik verilerine erisim izni gereklidir."
+            return "error.healthkit_denied".localized
         case .calendarAccessDenied:
-            return "Takvim verilerine erisim izni gereklidir."
+            return "error.calendar_denied".localized
         case .dataNotFound:
-            return "Istenen veri bulunamadi."
+            return "error.data_not_found".localized
         case let .insufficientData(required, current):
-            return "Icgoru icin en az \(required) gunluk veri gerekli. Mevcut: \(current) gun."
+            return "error.insufficient_data".localized(with: required, current)
         case let .networkError(underlying):
-            return "Ag hatasi olustu: \(underlying.localizedDescription)"
+            return "error.network".localized(with: underlying.localizedDescription)
         case let .llmError(message):
-            return "LLM hatasi: \(message)"
+            return "error.llm".localized(with: message)
+        case let .premiumRequired(feature):
+            _ = feature
+            return "premium.free_insight_used".localized
+        case let .securityError(message):
+            return "error.security".localized(with: message)
         case let .persistenceError(underlying):
-            return "Kayit hatasi olustu: \(underlying.localizedDescription)"
+            return "error.persistence".localized(with: underlying.localizedDescription)
         case let .unknown(underlying):
-            return "Bilinmeyen hata: \(underlying.localizedDescription)"
+            return "error.unknown".localized(with: underlying.localizedDescription)
         }
     }
 }
@@ -43,7 +50,7 @@ struct ErrorAlert: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(
-            "Hata",
+            "error.title".localized,
             isPresented: Binding(
                 get: { error != nil },
                 set: { isPresented in
@@ -54,7 +61,7 @@ struct ErrorAlert: ViewModifier {
             ),
             presenting: error
         ) { _ in
-            Button("Tamam", role: .cancel) {
+            Button("general.done".localized, role: .cancel) {
                 error = nil
             }
         } message: { appError in

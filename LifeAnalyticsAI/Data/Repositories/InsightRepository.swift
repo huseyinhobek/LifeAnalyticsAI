@@ -11,56 +11,59 @@ final class InsightRepository: InsightRepositoryProtocol {
     }
 
     func saveInsight(_ insight: Insight) async throws {
-        var fetchByID = FetchDescriptor<InsightEntity>(
-            predicate: #Predicate<InsightEntity> { $0.id == insight.id }
-        )
-        fetchByID.fetchLimit = 1
+        try await MainActor.run {
+            var fetchByID = FetchDescriptor<InsightEntity>(
+                predicate: #Predicate<InsightEntity> { $0.id == insight.id }
+            )
+            fetchByID.fetchLimit = 1
 
-        if let existing = try modelContext.fetch(fetchByID).first {
-            existing.date = insight.date
-            existing.type = insight.type.rawValue
-            existing.title = insight.title
-            existing.body = insight.body
-            existing.confidenceLevel = insight.confidenceLevel.rawValue
-            existing.relatedMetricsJSON = encodeMetrics(insight.relatedMetrics)
-            existing.userFeedback = insight.userFeedback?.rawValue
-        } else {
-            let entity = InsightEntity.fromDomain(insight)
-            modelContext.insert(entity)
+            if let existing = try modelContext.fetch(fetchByID).first {
+                existing.date = insight.date
+                existing.type = insight.type.rawValue
+                existing.title = insight.title
+                existing.body = insight.body
+                existing.confidenceLevel = insight.confidenceLevel.rawValue
+                existing.relatedMetricsJSON = encodeMetrics(insight.relatedMetrics)
+                existing.userFeedback = insight.userFeedback?.rawValue
+            } else {
+                let entity = InsightEntity.fromDomain(insight)
+                modelContext.insert(entity)
+            }
+
+            try modelContext.save()
         }
-
-        try modelContext.save()
     }
 
-    func fetchInsights(limit: Int) async throws -> [Insight] {
-        var descriptor = FetchDescriptor<InsightEntity>(
-            sortBy: [SortDescriptor(\.date, order: .reverse)]
-        )
-        descriptor.fetchLimit = max(limit, 0)
+    func fetchInsights(limit: Int, offset: Int) async throws -> [Insight] {
+        return try await MainActor.run {
+            var descriptor = FetchDescriptor<InsightEntity>(
+                sortBy: [SortDescriptor(\.date, order: .reverse)]
+            )
+            descriptor.fetchLimit = max(limit, 0)
+            descriptor.fetchOffset = max(offset, 0)
 
-        let entities = try modelContext.fetch(descriptor)
-        return entities.map { $0.toDomain() }
+            let entities = try modelContext.fetch(descriptor)
+            return entities.map { $0.toDomain() }
+        }
     }
 
     func updateFeedback(insightId: UUID, feedback: Insight.UserFeedback) async throws {
-        var descriptor = FetchDescriptor<InsightEntity>(
-            predicate: #Predicate<InsightEntity> { $0.id == insightId }
-        )
-        descriptor.fetchLimit = 1
+        try await MainActor.run {
+            var descriptor = FetchDescriptor<InsightEntity>(
+                predicate: #Predicate<InsightEntity> { $0.id == insightId }
+            )
+            descriptor.fetchLimit = 1
 
-        guard let entity = try modelContext.fetch(descriptor).first else {
-            throw AppError.dataNotFound
+            guard let entity = try modelContext.fetch(descriptor).first else {
+                throw AppError.dataNotFound
+            }
+
+            entity.userFeedback = feedback.rawValue
+            try modelContext.save()
         }
-
-        entity.userFeedback = feedback.rawValue
-        try modelContext.save()
     }
 
     private func encodeMetrics(_ metrics: [MetricReference]) -> String {
-        guard let data = try? JSONEncoder().encode(metrics),
-              let json = String(data: data, encoding: .utf8) else {
-            return "[]"
-        }
-        return json
+        JSONCoding.encodeToString(metrics, fallback: "[]", logger: AppLogger.insight, context: "MetricReference")
     }
 }

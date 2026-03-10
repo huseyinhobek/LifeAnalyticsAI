@@ -11,23 +11,25 @@ final class MoodRepository: MoodRepositoryProtocol {
     }
 
     func saveMoodEntry(_ entry: MoodEntry) async throws {
-        var fetchByID = FetchDescriptor<MoodEntryEntity>(
-            predicate: #Predicate<MoodEntryEntity> { $0.id == entry.id }
-        )
-        fetchByID.fetchLimit = 1
+        try await MainActor.run {
+            var fetchByID = FetchDescriptor<MoodEntryEntity>(
+                predicate: #Predicate<MoodEntryEntity> { $0.id == entry.id }
+            )
+            fetchByID.fetchLimit = 1
 
-        if let existing = try modelContext.fetch(fetchByID).first {
-            existing.date = entry.date
-            existing.timestamp = entry.timestamp
-            existing.value = entry.value
-            existing.note = entry.note
-            existing.activitiesJSON = encodeActivities(entry.activities)
-        } else {
-            let entity = MoodEntryEntity.fromDomain(entry)
-            modelContext.insert(entity)
+            if let existing = try modelContext.fetch(fetchByID).first {
+                existing.date = entry.date
+                existing.timestamp = entry.timestamp
+                existing.value = entry.value
+                existing.note = entry.note
+                existing.activitiesJSON = encodeActivities(entry.activities)
+            } else {
+                let entity = MoodEntryEntity.fromDomain(entry)
+                modelContext.insert(entity)
+            }
+
+            try modelContext.save()
         }
-
-        try modelContext.save()
     }
 
     func fetchMoodEntries(from: Date, to: Date) async throws -> [MoodEntry] {
@@ -43,8 +45,10 @@ final class MoodRepository: MoodRepositoryProtocol {
             sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
         )
 
-        let entities = try modelContext.fetch(descriptor)
-        return entities.map { $0.toDomain() }
+        return try await MainActor.run {
+            let entities = try modelContext.fetch(descriptor)
+            return entities.map { $0.toDomain() }
+        }
     }
 
     func getAverageMood(days: Int) async throws -> Double {

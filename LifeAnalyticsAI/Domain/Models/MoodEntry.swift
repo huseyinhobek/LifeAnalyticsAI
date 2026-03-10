@@ -40,15 +40,15 @@ enum MoodLevel: Int, Codable, CaseIterable {
     var label: String {
         switch self {
         case .veryBad:
-            return "Cok kotu"
+            return "mood.very_bad".localized
         case .bad:
-            return "Kotu"
+            return "mood.bad".localized
         case .neutral:
-            return "Notr"
+            return "mood.neutral".localized
         case .good:
-            return "Iyi"
+            return "mood.good".localized
         case .veryGood:
-            return "Cok iyi"
+            return "mood.very_good".localized
         }
     }
 }
@@ -62,4 +62,25 @@ enum ActivityTag: String, Codable, CaseIterable {
     case nature
     case family
     case travel
+
+    var displayName: String {
+        switch self {
+        case .exercise:
+            return "activity.exercise".localized
+        case .work:
+            return "activity.work".localized
+        case .social:
+            return "activity.social".localized
+        case .reading:
+            return "activity.reading".localized
+        case .meditation:
+            return "activity.meditation".localized
+        case .nature:
+            return "activity.nature".localized
+        case .family:
+            return "activity.family".localized
+        case .travel:
+            return "activity.travel".localized
+        }
+    }
 }

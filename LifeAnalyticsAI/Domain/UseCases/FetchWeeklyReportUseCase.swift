@@ -8,23 +8,71 @@ protocol FetchWeeklyReportUseCaseProtocol {
 
 final class FetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol {
     private let repository: InsightRepositoryProtocol
+    private let insightEngine: InsightEngineProtocol
+    private let llmService: LLMServiceProtocol
+    private let predictionTextUseCase: GeneratePredictionTextUseCaseProtocol
+    private let languageCodeProvider: @Sendable () -> String
 
-    init(repository: InsightRepositoryProtocol) {
+    init(
+        repository: InsightRepositoryProtocol,
+        insightEngine: InsightEngineProtocol,
+        llmService: LLMServiceProtocol,
+        predictionTextUseCase: GeneratePredictionTextUseCaseProtocol,
+        languageCodeProvider: @escaping @Sendable () -> String = { FetchWeeklyReportUseCase.defaultLanguageCode() }
+    ) {
         self.repository = repository
+        self.insightEngine = insightEngine
+        self.llmService = llmService
+        self.predictionTextUseCase = predictionTextUseCase
+        self.languageCodeProvider = languageCodeProvider
     }
 
     func execute(limit: Int = 1) async throws -> [WeeklyReport] {
-        let insights = try await repository.fetchInsights(limit: max(limit, 1))
+        let count = max(limit, 1)
+        let languageCode = languageCodeProvider()
+        var reports: [WeeklyReport] = []
+        reports.reserveCapacity(count)
 
-        let report = WeeklyReport(
-            id: UUID(),
-            weekStartDate: Calendar.current.startOfDay(for: Date()),
-            summary: "Haftalik rapor placeholder",
-            insights: insights,
-            keyMetrics: [],
-            prediction: nil
-        )
+        for index in 0..<count {
+            let weekStart = Date().daysAgo(index * 7).startOfWeek
+            let report = try await insightEngine.generateWeeklyReport(for: weekStart)
+            let aiSummary = await llmService.generateWeeklyReport(report: report, languageCode: languageCode)
+            let predictionText = try await predictionTextUseCase.execute(for: weekStart)
 
-        return [report]
+            reports.append(
+                WeeklyReport(
+                    id: report.id,
+                    weekStartDate: report.weekStartDate,
+                    summary: aiSummary.isEmpty ? report.summary : aiSummary,
+                    insights: report.insights,
+                    keyMetrics: report.keyMetrics,
+                    prediction: predictionText ?? report.prediction
+                )
+            )
+        }
+
+        if reports.isEmpty {
+            let insights = try await repository.fetchInsights(limit: count)
+            return [
+                WeeklyReport(
+                    id: UUID(),
+                    weekStartDate: Date().startOfWeek,
+                    summary: "Haftalik rapor fallback",
+                    insights: insights,
+                    keyMetrics: [],
+                    prediction: nil
+                )
+            ]
+        }
+
+        return reports
+    }
+
+    private static func defaultLanguageCode() -> String {
+        let saved = UserDefaults(suiteName: AppConstants.Storage.userDefaultsSuite)?.string(forKey: "app_language")
+        if let saved, saved.hasPrefix("tr") {
+            return "tr"
+        }
+        return "en"
     }
 }

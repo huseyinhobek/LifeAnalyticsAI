@@ -19,7 +19,7 @@ final class DependencyContainer: ObservableObject {
     // Repositories
     lazy var sleepRepository: SleepRepositoryProtocol = SleepRepository(modelContext: modelContext)
     lazy var moodRepository: MoodRepositoryProtocol = MoodRepository(modelContext: modelContext)
-    lazy var calendarRepository: CalendarRepositoryProtocol = CalendarRepository()
+    lazy var calendarRepository: CalendarRepositoryProtocol = CalendarRepository(calendarService: calendarService)
     lazy var insightRepository: InsightRepositoryProtocol = InsightRepository(modelContext: modelContext)
 
     // Use Cases
@@ -31,130 +31,134 @@ final class DependencyContainer: ObservableObject {
         SaveMoodEntryUseCase(repository: moodRepository)
     }()
 
+    lazy var fetchMoodEntriesUseCase: FetchMoodEntriesUseCaseProtocol = {
+        FetchMoodEntriesUseCase(repository: moodRepository)
+    }()
+
     lazy var fetchCalendarEventsUseCase: FetchCalendarEventsUseCaseProtocol = {
         FetchCalendarEventsUseCase(repository: calendarRepository)
     }()
 
+    lazy var normalizeTimeSeriesDataUseCase: NormalizeTimeSeriesDataUseCaseProtocol = {
+        NormalizeTimeSeriesDataUseCase()
+    }()
+
+    lazy var crossSourceAnalysisUseCase: CrossSourceAnalysisUseCaseProtocol = {
+        CrossSourceAnalysisUseCase()
+    }()
+
+    lazy var confidenceScoringUseCase: ConfidenceScoringUseCaseProtocol = {
+        ConfidenceScoringUseCase()
+    }()
+
+    lazy var correlationSignificanceCalculator: CorrelationSignificanceCalculatorProtocol = {
+        CorrelationSignificanceCalculator()
+    }()
+
+    lazy var fetchWeeklyMeetingAnalysisUseCase: FetchWeeklyMeetingAnalysisUseCaseProtocol = {
+        FetchWeeklyMeetingAnalysisUseCase(repository: calendarRepository)
+    }()
+
+    lazy var syncCalendarEventsUseCase: SyncCalendarEventsUseCaseProtocol = {
+        SyncCalendarEventsUseCase(calendarSyncManager: calendarSyncManager)
+    }()
+
     lazy var generateInsightUseCase: GenerateInsightUseCaseProtocol = {
-        GenerateInsightUseCase(repository: insightRepository)
+        GenerateInsightUseCase(
+            repository: insightRepository,
+            insightEngine: insightEngine,
+            llmService: llmService
+        )
     }()
 
     lazy var fetchWeeklyReportUseCase: FetchWeeklyReportUseCaseProtocol = {
-        FetchWeeklyReportUseCase(repository: insightRepository)
+        FetchWeeklyReportUseCase(
+            repository: insightRepository,
+            insightEngine: insightEngine,
+            llmService: llmService,
+            predictionTextUseCase: generatePredictionTextUseCase
+        )
+    }()
+
+    lazy var generateDailyInsightCardUseCase: GenerateDailyInsightCardUseCaseProtocol = {
+        GenerateDailyInsightCardUseCase(
+            insightEngine: insightEngine,
+            llmService: llmService,
+            subscriptionManager: subscriptionManager
+        )
+    }()
+
+    lazy var generatePredictionTextUseCase: GeneratePredictionTextUseCaseProtocol = {
+        GeneratePredictionTextUseCase(
+            sleepRepository: sleepRepository,
+            moodRepository: moodRepository,
+            calendarRepository: calendarRepository,
+            llmService: llmService
+        )
+    }()
+
+    lazy var updateInsightFeedbackUseCase: UpdateInsightFeedbackUseCaseProtocol = {
+        UpdateInsightFeedbackUseCase(
+            repository: insightRepository,
+            promptFeedbackOptimizer: promptTemplateManager
+        )
+    }()
+
+    lazy var sleepStatisticsCalculator: SleepStatisticsCalculator = {
+        SleepStatisticsCalculator(repository: sleepRepository)
+    }()
+
+    lazy var moodStatisticsCalculator: MoodStatisticsCalculator = {
+        MoodStatisticsCalculator(repository: moodRepository)
     }()
 
     // Services
-    lazy var healthKitService: HealthKitServiceProtocol = PlaceholderHealthKitService()
-    lazy var calendarService: CalendarServiceProtocol = PlaceholderCalendarService()
-    lazy var notificationService: NotificationServiceProtocol = PlaceholderNotificationService()
-    lazy var insightEngine: InsightEngineProtocol = PlaceholderInsightEngine()
-}
-
-private actor InMemorySleepRepository: SleepRepositoryProtocol {
-    private var records: [SleepRecord] = []
-
-    func fetchSleepRecords(from: Date, to: Date) async throws -> [SleepRecord] {
-        records.filter { $0.date >= from && $0.date <= to }
-    }
-
-    func saveSleepRecord(_ record: SleepRecord) async throws {
-        records.append(record)
-    }
-
-    func getAverageSleep(days: Int) async throws -> Double {
-        let end = Date()
-        let start = Calendar.current.date(byAdding: .day, value: -max(days, 1), to: end) ?? end
-        let selected = records.filter { $0.date >= start && $0.date <= end }
-        guard !selected.isEmpty else { return 0 }
-        let total = selected.reduce(0) { $0 + $1.totalHours }
-        return total / Double(selected.count)
-    }
-}
-
-private actor InMemoryMoodRepository: MoodRepositoryProtocol {
-    private var entries: [MoodEntry] = []
-
-    func saveMoodEntry(_ entry: MoodEntry) async throws {
-        entries.append(entry)
-    }
-
-    func fetchMoodEntries(from: Date, to: Date) async throws -> [MoodEntry] {
-        entries.filter { $0.timestamp >= from && $0.timestamp <= to }
-    }
-
-    func getAverageMood(days: Int) async throws -> Double {
-        let end = Date()
-        let start = Calendar.current.date(byAdding: .day, value: -max(days, 1), to: end) ?? end
-        let selected = entries.filter { $0.timestamp >= start && $0.timestamp <= end }
-        guard !selected.isEmpty else { return 0 }
-        let total = selected.reduce(0) { $0 + Double($1.value) }
-        return total / Double(selected.count)
-    }
-}
-
-private actor InMemoryCalendarRepository: CalendarRepositoryProtocol {
-    private var events: [CalendarEvent] = []
-
-    func fetchEvents(from: Date, to: Date) async throws -> [CalendarEvent] {
-        events.filter { $0.startDate >= from && $0.endDate <= to }
-    }
-
-    func getDailySummary(for date: Date) async throws -> DailySummary {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: date)
-        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay) ?? startOfDay
-
-        let dayEvents = events.filter { $0.startDate >= startOfDay && $0.startDate < endOfDay && $0.isMeeting }
-        let meetingMinutes = dayEvents.reduce(0) { $0 + $1.durationMinutes }
-        let freeHours = max(0, 24 - (Double(meetingMinutes) / 60.0))
-
-        let busiestHour: Int? = dayEvents
-            .compactMap { calendar.dateComponents([.hour], from: $0.startDate).hour }
-            .reduce(into: [:]) { counts, hour in counts[hour, default: 0] += 1 }
-            .max(by: { $0.value < $1.value })?
-            .key
-
-        return DailySummary(
-            date: startOfDay,
-            totalMeetings: dayEvents.count,
-            totalMeetingMinutes: meetingMinutes,
-            freeHours: freeHours,
-            busiestHour: busiestHour
+    lazy var healthKitService: HealthKitServiceProtocol = HealthKitService()
+    lazy var calendarService: CalendarServiceProtocol = EventKitCalendarService()
+    lazy var notificationService: NotificationServiceProtocol = UserNotificationService()
+    lazy var promptTemplateManager: PromptTemplateManager = PromptTemplateManager()
+    lazy var llmService: LLMServiceProtocol = AnthropicLLMService(promptTemplateManager: promptTemplateManager)
+    lazy var subscriptionManager: SubscriptionManager = SubscriptionManager.shared
+    lazy var insightEngine: InsightEngineProtocol = {
+        PatternInsightEngine(
+            sleepRepository: sleepRepository,
+            moodRepository: moodRepository,
+            calendarRepository: calendarRepository
         )
-    }
-}
+    }()
 
-private actor InMemoryInsightRepository: InsightRepositoryProtocol {
-    private var insights: [Insight] = []
+    // Sync Managers
+    lazy var healthKitSyncManager: HealthKitSyncManager = {
+        HealthKitSyncManager(
+            healthKitService: healthKitService,
+            sleepRepository: sleepRepository
+        )
+    }()
 
-    func saveInsight(_ insight: Insight) async throws {
-        insights.append(insight)
-    }
-
-    func fetchInsights(limit: Int) async throws -> [Insight] {
-        Array(insights.suffix(max(limit, 0))).reversed()
-    }
-
-    func updateFeedback(insightId: UUID, feedback: Insight.UserFeedback) async throws {
-        guard let index = insights.firstIndex(where: { $0.id == insightId }) else { return }
-        insights[index].userFeedback = feedback
-    }
-}
-
-private struct PlaceholderHealthKitService: HealthKitServiceProtocol {
-    func requestAuthorization() async throws {}
-}
-
-private struct PlaceholderCalendarService: CalendarServiceProtocol {
-    func requestAccess() async throws {}
+    lazy var calendarSyncManager: CalendarSyncManager = {
+        CalendarSyncManager(calendarRepository: calendarRepository)
+    }()
 }
 
 private struct PlaceholderNotificationService: NotificationServiceProtocol {
-    func requestAuthorization() async throws {}
-}
+    func requestPermission() async throws -> Bool { true }
 
-private struct PlaceholderInsightEngine: InsightEngineProtocol {
-    func generateInsights() async throws -> [Insight] {
-        []
+    func scheduleMorning(at components: DateComponents, streakDays: Int, predictionText: String?) async throws {
+        _ = components
+        _ = streakDays
+        _ = predictionText
+    }
+
+    func scheduleEvening(at components: DateComponents, moodCheckInsThisWeek: Int) async throws {
+        _ = components
+        _ = moodCheckInsThisWeek
+    }
+
+    func scheduleWeekly(at components: DateComponents, trackedDays: Int) async throws {
+        _ = components
+        _ = trackedDays
+    }
+
+    func cancelAll() async {
     }
 }

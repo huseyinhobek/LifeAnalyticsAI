@@ -1,0 +1,367 @@
+/* ===== TAB BAR ===== */
+"tab.home" = "Home";
+"tab.insights" = "Insights";
+"tab.report" = "Report";
+"tab.settings" = "Settings";
+
+/* ===== HOME ===== */
+"home.nav_title" = "Home";
+"home.today_insight" = "Today's Insight";
+"home.mood_checkin" = "Mood Check-in";
+"home.sleep_summary" = "Sleep Summary";
+"home.avg_sleep_last7" = "Last 7-day average %.1f hours";
+"home.avg_mood" = "Average Mood";
+"home.today_meetings" = "Today's Meetings";
+"home.weekly_summary" = "Weekly Summary";
+"home.view_full_report" = "View full report";
+"home.insight_loading" = "Preparing today's insight...";
+"home.insight_empty" = "No new insight found for today.";
+"home.insight_failed" = "Insight could not be loaded. Please try again.";
+
+/* ===== WEEKLY REPORT ===== */
+"report.nav_title" = "Weekly Report";
+"report.ai_weekly_summary" = "AI Weekly Summary";
+"report.prediction_prefix" = "Prediction: %@";
+"report.metrics_cards" = "Metric Cards";
+"report.weekly_insights" = "Weekly Insights";
+"report.confidence" = "Confidence: %@";
+"report.loading_title" = "Preparing weekly report";
+"report.loading_subtitle" = "Loading AI summary and metric cards";
+"report.metrics_empty_title" = "No metric cards found";
+"report.metrics_empty_subtitle" = "Refresh the report and try again.";
+"report.insights_empty_title" = "No insights found this week";
+"report.insights_empty_subtitle" = "Insights will be generated automatically as new data arrives.";
+
+/* ===== SETTINGS ===== */
+"settings.title" = "Settings";
+"settings.overview_subtitle" = "Manage notifications, security, and data preferences";
+"settings.premium_cta_subtitle" = "Unlock all professional analytics";
+"settings.language" = "Language / Dil";
+"settings.info" = "Info";
+"settings.notifications" = "Notification Preferences";
+"settings.notifications_enabled" = "Enable Notifications";
+"settings.morning_reminder" = "Morning Reminder";
+"settings.evening_reminder" = "Evening Reminder";
+"settings.weekly_report_notification" = "Weekly report notification";
+"settings.save_notification_settings" = "Save Notification Settings";
+"settings.data_sources" = "Data Sources";
+"settings.healthkit_sync" = "HealthKit sync";
+"settings.calendar_sync" = "Calendar sync";
+"settings.data_source_apply_info" = "Changes are applied on the next sync.";
+"settings.update_data_sources" = "Update Data Sources";
+"settings.theme_and_language" = "Theme & Language";
+"settings.theme" = "Theme";
+"settings.insight_tone" = "Insight tone";
+"settings.insight_tone_short" = "Short";
+"settings.insight_tone_detailed" = "Detailed";
+"settings.save_preferences" = "Save Preferences";
+"settings.security" = "Security";
+"settings.app_lock" = "App lock (Face ID/Touch ID)";
+"settings.proxy_security_info" = "LLM requests are securely sent through the Cloudflare proxy. API keys are not stored on the client.";
+"settings.run_security_audit" = "Run Security Audit";
+"settings.save_security_preferences" = "Save Security Preferences";
+"settings.export" = "Export";
+"settings.export_info" = "You can export a CSV summary of settings.";
+"settings.export_csv" = "Export Settings as CSV";
+"settings.export_failed" = "Export failed: %@";
+"settings.account" = "Account";
+"settings.reset_onboarding_info" = "You can reset to show onboarding again.";
+"settings.view_profile" = "View Profile";
+"settings.reset_account_prefs" = "Reset Account Preferences";
+
+/* ===== ONBOARDING ===== */
+"onboarding.title" = "Onboarding";
+"onboarding.step_progress" = "Step %d / %d · %@";
+"onboarding.step.welcome" = "Welcome";
+"onboarding.step.healthkit" = "HealthKit";
+"onboarding.step.calendar" = "Calendar";
+"onboarding.step.first_mood" = "First Mood";
+"onboarding.welcome.card_title" = "Welcome to LifeAnalyticsAI";
+"onboarding.welcome.card_subtitle" = "Complete setup in 4 steps and start your personal insights.";
+"onboarding.welcome.bullet1" = "Connect sleep, mood, and calendar data";
+"onboarding.welcome.bullet2" = "Log your first mood";
+"onboarding.welcome.bullet3" = "Start seeing your personalized reports";
+"onboarding.start" = "Let's Start";
+"onboarding.health.title" = "HealthKit Access";
+"onboarding.health.subtitle" = "Grant HealthKit access for sleep and activity analysis.";
+"onboarding.calendar.title" = "Calendar Access";
+"onboarding.calendar.subtitle" = "Grant calendar access for meeting load and routine analysis.";
+"onboarding.first_mood.title" = "Log Your First Mood";
+"onboarding.first_mood.subtitle" = "Select today's mood to calibrate the model.";
+"onboarding.status.granted" = "Access granted";
+"onboarding.status.waiting" = "Waiting for permission";
+"onboarding.health.grant" = "Grant HealthKit Access";
+"onboarding.calendar.grant" = "Grant Calendar Access";
+"onboarding.note_placeholder" = "A short note (optional)";
+"onboarding.complete" = "Complete Onboarding";
+"onboarding.select_mood_error" = "Please select a mood.";
+"onboarding.back" = "Back";
+"onboarding.skip" = "Skip";
+
+/* ===== MOOD ENTRY ===== */
+"mood.entry.nav_title" = "Mood Entry";
+"mood.entry.how_feeling" = "How are you feeling today?";
+"mood.entry.activities" = "Activities";
+"mood.entry.note_optional" = "Note (optional)";
+"mood.entry.saved" = "Mood saved";
+"mood.entry.save" = "Save";
+"mood.entry.saved_toast" = "Mood check-in saved";
+"mood.entry.usage_hint" = "This entry is used for dashboard trends, AI insights, correlation analysis, and weekly reports.";
+"mood.entry.history" = "Mood History";
+
+"home.insight_fallback_with_mood" = "You have %d meetings today. Your average mood is %.1f/5 and your 7-day sleep average is %.1f hours. If your calendar is dense, work in energy blocks.";
+"home.insight_fallback_no_mood" = "You have %d meetings today. Your 7-day sleep average is %.1f hours. Add a mood check-in today for stronger insights.";
+"mood.history.nav_title" = "Mood History";
+"mood.history.title" = "Mood History";
+"mood.history.last_365" = "Last 365 days";
+"mood.history.record_list" = "Record List";
+"mood.history.no_records" = "No mood entries yet.";
+"mood.history.csv_failed" = "CSV export failed: %@";
+"mood.history.trend" = "Mood Trend";
+"mood.history.distribution" = "Mood Distribution";
+
+/* ===== INSIGHTS ===== */
+"insights.history.nav_title" = "Insight History";
+"insights.search_prompt" = "Search insight";
+"insights.loading_title" = "Loading insights";
+"insights.loading_subtitle" = "Preparing archive and filter data";
+"insights.all" = "All Insights";
+"insights.records_count" = "%d records in chronological order";
+"insights.filter" = "Filter";
+"insights.all_types" = "All Types";
+"insights.empty_filtered_title" = "No insights match the filter";
+"insights.empty_filtered_subtitle" = "Change search text or selected filters.";
+"insights.clear_filters" = "Clear Filters";
+"insights.type.correlation" = "Correlation";
+"insights.type.anomaly" = "Anomaly";
+"insights.type.prediction" = "Prediction";
+"insights.type.trend" = "Trend";
+"insights.type.seasonal" = "Seasonal";
+"insight.detail.nav_title" = "Insight Detail";
+"insight.detail.confidence" = "Confidence: %@";
+"insight.detail.related_metrics" = "Related Metrics";
+"insight.detail.no_related_metrics" = "No related metrics found.";
+"insight.detail.helpful_question" = "Was this insight helpful?";
+"insight.detail.feedback.helpful" = "Helpful";
+"insight.detail.feedback.improve" = "Needs Improvement";
+"insight.detail.feedback.hint" = "This feedback is used to improve the tone and clarity of future AI insights.";
+"insight.detail.metric_value" = "level";
+"insight.detail.single_metric_hint" = "This insight has one dominant metric. A comparative chart appears automatically when multiple metrics exist.";
+
+/* ===== DASHBOARD ===== */
+"dashboard.nav_title" = "Statistics Dashboard";
+"dashboard.loading_title" = "Loading statistics";
+"dashboard.loading_subtitle" = "Preparing sleep, mood, and activity data";
+"dashboard.header.title" = "Personal Performance";
+"dashboard.header.subtitle" = "Sleep, mood, and activity trends in one place";
+"dashboard.weekly_ai_report" = "Weekly AI Report";
+"dashboard.correlation_analysis" = "Correlation Analysis";
+"dashboard.avg_sleep" = "Average Sleep";
+"dashboard.avg_sleep_value" = "%.1f hours";
+"dashboard.avg_mood" = "Average Mood";
+"dashboard.avg_mood_value" = "%.1f / 5";
+"dashboard.meetings" = "Meetings";
+"dashboard.sleep_trend" = "Sleep Trend";
+"dashboard.sleep_hours_value" = "%.1f hours";
+"dashboard.mood_trend" = "Mood Trend";
+"dashboard.activity_density" = "Activity Density";
+"dashboard.meeting_count_value" = "%d meetings";
+"dashboard.window.7" = "7 Days";
+"dashboard.window.14" = "14 Days";
+"dashboard.window.30" = "30 Days";
+
+/* ===== PROFILE ===== */
+"profile.nav_title" = "Profile";
+"profile.data_profile" = "Data Profile";
+"profile.collection_start" = "Data collection start: %@";
+"profile.total_days" = "Total Days";
+"profile.avg_confidence" = "Average Confidence";
+"profile.confidence_trend" = "Confidence Score Trend";
+"profile.empty_confidence_title" = "Not enough insight data yet";
+"profile.empty_confidence_subtitle" = "Confidence trend will update automatically as data accumulates.";
+
+/* ===== PERMISSION SCREENS ===== */
+"onboarding.health.permission_title" = "Health Data Permission";
+"onboarding.health.permission_body" = "HealthKit access is required to analyze your sleep, steps, and heart rate data for personalized insights.";
+"onboarding.health.permission_button" = "Grant Health Data Access";
+"onboarding.calendar.permission_title" = "Calendar Access";
+"onboarding.calendar.permission_body" = "Calendar access is needed to analyze your meeting load, free time, and weekly routines.";
+"onboarding.calendar.permission_button" = "Grant Calendar Access";
+"onboarding.skip_now" = "Skip for now";
+
+/* ===== APP LOCK ===== */
+"app_lock.title" = "App Locked";
+"app_lock.subtitle" = "Use Face ID or Touch ID to continue.";
+"app_lock.unlock" = "Unlock";
+"app_lock.auth_reason" = "Verify your identity to access LifeAnalyticsAI data";
+
+/* ===== NOTIFICATIONS ===== */
+"notification.morning.title" = "Good morning, keep your streak";
+"notification.evening.title" = "Evening check-in";
+"notification.weekly.title" = "Weekly report notification";
+"notification.morning.fallback" = "You have logged for %d days. Submit a mood entry to see your calendar and 7-day pattern prediction.";
+"notification.morning.suffix" = "%@ (based on 7-day pattern)";
+"notification.evening.body" = "Today's summary is ready, log your mood. This week you have mood logs for %d/7 days.";
+"notification.weekly.body" = "Your weekly life report is ready. AI found a new pattern: data was collected for %d days.";
+
+/* ===== ERRORS ===== */
+"error.title" = "Error";
+"error.healthkit_unavailable" = "HealthKit is not available on this device.";
+"error.healthkit_denied" = "Health data access permission is required.";
+"error.calendar_denied" = "Calendar access permission is required.";
+"error.data_not_found" = "Requested data was not found.";
+"error.insufficient_data" = "At least %d days of data is required for insights. Current: %d days.";
+"error.network" = "Network error occurred: %@";
+"error.llm" = "LLM error: %@";
+"error.llm.rate_limit_exceeded" = "Hourly LLM request limit exceeded.";
+"error.llm.token_limit_exceeded" = "Daily LLM token budget exceeded.";
+"error.security" = "Security error: %@";
+"error.persistence" = "Persistence error occurred: %@";
+"error.unknown" = "Unknown error: %@";
+"error.retry" = "Retry";
+
+/* ===== GENERAL ===== */
+"general.done" = "Done";
+"general.back" = "Back";
+"general.save" = "Save";
+"general.cancel" = "Cancel";
+"general.selected" = "Selected";
+"general.not_selected" = "Not selected";
+"general.loading" = "Loading";
+"date.today" = "Today";
+"date.yesterday" = "Yesterday";
+"date.tomorrow" = "Tomorrow";
+"date.days_ago" = "%d days ago";
+
+/* ===== SETTINGS STATUS ===== */
+"settings.status.notifications_disabled" = "Notifications disabled.";
+"settings.status.permission_denied" = "Notification permission denied. You can enable it in Settings.";
+"settings.status.notification_plan" = "Your personalized notification plan is optimized. Morning %d:30, evening %d:00, weekly %d:00.";
+"settings.status.notification_save_failed" = "Failed to save notification settings: %@";
+"settings.status.preferences_updated" = "Preferences updated.";
+"settings.status.preferences_reset" = "Account preferences reset. Onboarding will be shown on next launch.";
+"settings.status.audit_failed" = "Security audit completed: %d critical findings, %d warnings.";
+"settings.status.audit_warning" = "Security audit completed: no critical findings, %d warnings.";
+"settings.status.audit_success" = "Security audit passed: all checks succeeded.";
+
+/* ===== SECURITY AUDIT ===== */
+"security.audit.https.title" = "LLM endpoint HTTPS";
+"security.audit.https.pass" = "LLM connection is using HTTPS.";
+"security.audit.https.fail" = "LLM endpoint is not HTTPS.";
+"security.audit.proxy.title" = "Proxy endpoint";
+"security.audit.proxy.pass" = "LLM calls are routed through the Cloudflare proxy.";
+"security.audit.proxy.fail" = "LLM endpoint host does not match proxy host.";
+"security.audit.privacy.title" = "Privacy manifest";
+"security.audit.privacy.pass" = "PrivacyInfo.xcprivacy is present in the app bundle.";
+"security.audit.privacy.fail" = "PrivacyInfo.xcprivacy is missing from the app bundle.";
+"security.audit.faceid.title" = "Face ID usage description";
+"security.audit.faceid.pass" = "NSFaceIDUsageDescription is defined.";
+"security.audit.faceid.fail" = "NSFaceIDUsageDescription is missing.";
+"security.audit.client_key.title" = "Client API key storage";
+"security.audit.client_key.pass" = "Requests are sent via proxy without storing API keys on the client.";
+"security.audit.biometric.title" = "Biometric app lock";
+"security.audit.biometric.pass" = "App lock is enabled.";
+"security.audit.biometric.warn" = "App lock is disabled; enabling it is recommended for security.";
+
+/* ===== APP THEME ===== */
+"theme.system" = "System";
+"theme.light" = "Light";
+"theme.dark" = "Dark";
+
+/* ===== MOOD / ACTIVITY ===== */
+"mood.very_bad" = "Very bad";
+"mood.bad" = "Bad";
+"mood.neutral" = "Neutral";
+"mood.good" = "Good";
+"mood.very_good" = "Very good";
+"activity.exercise" = "Exercise";
+"activity.work" = "Work";
+"activity.social" = "Social";
+"activity.reading" = "Reading";
+"activity.meditation" = "Meditation";
+"activity.nature" = "Nature";
+"activity.family" = "Family";
+"activity.travel" = "Travel";
+
+/* ===== PREMIUM / IAP ===== */
+"premium.title" = "Premium";
+"premium.paywall.title" = "Understand Your Life in Depth";
+"premium.paywall.subtitle" = "AI-powered pattern analysis, weekly reports, and predictive insights.";
+"premium.monthly" = "Monthly";
+"premium.yearly" = "Yearly";
+"premium.yearly.save" = "Save %%%d";
+"premium.yearly.per_month" = "%@ per month";
+"premium.start" = "Start Premium";
+"premium.trial" = "Try free for one week";
+"premium.cancel_anytime" = "Cancel anytime.";
+"premium.best_value" = "Best value";
+"premium.products_unavailable" = "Products are currently unavailable. Check your connection and try again.";
+"premium.retry" = "Retry";
+"premium.restore" = "Restore Purchases";
+"premium.active" = "Premium Active";
+"premium.manage" = "Manage Subscription";
+"premium.terms" = "Terms of Use";
+"premium.privacy" = "Privacy Policy";
+"premium_unlock_description" = "This feature requires a Premium subscription.";
+"premium_unlock_button" = "Go Premium";
+"premium.free_insight_used" = "Today's free insight has already been used";
+"premium.insights_remaining" = "insights remaining";
+"error.purchase_title" = "Purchase Error";
+"error.verification_failed" = "Purchase verification failed.";
+"error.purchase_failed" = "Purchase failed.";
+"error.restore_failed" = "Restore failed.";
+"error.products_load" = "Products could not be loaded.";
+"error.ok" = "OK";
+"unlimitedInsights_title" = "Unlimited AI Insights";
+"unlimitedInsights_desc" = "Access all insights without daily limits";
+"weeklyReport_title" = "Weekly AI Report";
+"weeklyReport_desc" = "Personal life analysis every week";
+"crossCorrelation_title" = "Cross Correlation";
+"crossCorrelation_desc" = "Connections between sleep, mood, and calendar";
+"predictions_title" = "Predictive Forecasts";
+"predictions_desc" = "AI forecasts for tomorrow and next week";
+"extendedTrends_title" = "Long-Term Trends";
+"extendedTrends_desc" = "90-day and yearly trend analytics";
+"fullInsightHistory_title" = "Full History";
+"fullInsightHistory_desc" = "Chronological archive of all discoveries";
+"dataExport_title" = "Data Export";
+"dataExport_desc" = "Download your data as CSV and PDF";
+"priorityAI_title" = "Priority AI";
+"priorityAI_desc" = "Faster AI response time";
+
+"chart.vs_average" = "Vs average";
+"chart.confidence" = "Confidence";
+"chart.sample_size" = "Sample";
+"chart.days" = "days";
+"chart.compare_previous" = "Compare previous period";
+"chart.no_data" = "Not enough data yet";
+"chart.accessibility_summary" = "Latest value: %@ %@";
+"period.days_short" = "days";
+"period.year_short" = "year";
+"chart.collecting" = "Collecting data";
+"chart.collecting_detail" = "At least %d days of data are required for this chart. So far, %d days collected.";
+"chart.metric_direction_up" = "upward";
+"chart.metric_direction_down" = "downward";
+"chart.metric_direction_stable" = "stable";
+
+"insight.correlation.title" = "Cross-source relationship detected";
+"insight.correlation.body" = "A meaningful relationship was observed between %@ and %@.";
+"insight.anomaly.title" = "Unexpected change detected";
+"insight.anomaly.body" = "%@ moved outside the normal range (z=%@).";
+"insight.seasonal.title" = "Weekly cycle pattern detected";
+"insight.seasonal.body" = "Weekend effect %@, Monday syndrome strength %@.";
+
+"metric.unit.effect" = "effect";
+"metric.unit.sample" = "sample";
+"metric.unit.raw" = "raw";
+"metric.unit.mood" = "mood";
+"metric.unit.score" = "score";
+"metric.unit.hour" = "hour";
+
+"report.prediction.next_day" = "Predicted mood for tomorrow: %@";
+"report.summary.generated" = "Pattern engine weekly summary generated.";
+
+"widget.quick_mood.title" = "Quick Mood Entry";
+"widget.quick_mood.subtitle" = "Selection opens the mood screen in the app";
+"widget.quick_mood.display_name" = "Quick Mood";
+"widget.quick_mood.description" = "Log a mood quickly from the home screen.";
